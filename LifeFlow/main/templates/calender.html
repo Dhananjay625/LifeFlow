@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calendar App</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'index.css' %}">
+</head>
+
+<body>
+    <div class="container bar">
+        <aside class="sidebar">
+            <div class="user">User</div>
+            <nav class="nav">
+                <a href="#">Task Manager</a>
+                <a href="#">Calendar</a>
+                <a href="#">Document Manager</a>
+                <a href="#">Subscription Tracker</a>
+                <a href="#">Bill Manager</a>
+            </nav>
+        </aside>
+        <main class="calendar">
+            <header class="calendar-header">
+                <span>December 14th, 2025</span>
+                <h1>Monday</h1>
+            </header>
+            <div class="calendar-grid">
+                <div class="day">01</div>
+                <div class="day">02</div>
+                <div class="day">03</div>
+                <div class="day">04</div>
+                <div class="day">05</div>
+                <div class="day">06</div>
+                <div class="day">07</div>
+                <div class="day">08</div>
+                <div class="day">09</div>
+                <div class="day">10</div>
+                <div class="day">11</div>
+                <div class="day">12</div>
+                <div class="day event dentist">14<br><span>Dentist Appointment</span></div>
+                <div class="day">15</div>
+                <div class="day event doctor">17<br><span>Doctor Appointment</span></div>
+                <div class="day">18</div>
+                <div class="day">19</div>
+                <div class="day">20</div>
+                <div class="day">21</div>
+                <div class="day">22</div>
+                <div class="day">23</div>
+                <div class="day">24</div>
+                <div class="day">25</div>
+                <div class="day">26</div>
+                <div class="day">27</div>
+                <div class="day">28</div>
+                <div class="day event birthday">30<br><span>Joe's 22nd Birthday</span></div>
+                <div class="day">31</div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

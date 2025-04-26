@@ -1,82 +1,165 @@
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-  }
-  
-  body {
-    background-color: #000;
-    color: white;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .container {
-    text-align: center;
-  }
-  
-  .title {
-    font-size: 3rem;
-    font-weight: 600;
-  }
-  
-  .tagline {
-    margin-top: 10px;
-    font-size: 1.2rem;
-    color: #ccc;
-  }
-  
-  .login-box {
-    margin-top: 30px;
-  }
-  
-  .login-box h2 {
-    margin-bottom: 20px;
-  }
-  
-  .login-box input {
-    display: block;
-    width: 300px;
-    margin: 10px auto;
-    padding: 12px;
-    border: 2px solid white;
-    border-radius: 25px;
-    background: transparent;
-    color: white;
-    font-size: 1rem;
-  }
-  
-  .login-box input::placeholder {
-    color: #ccc;
-  }
-  
-  .login-box button {
-    margin-top: 10px;
-    padding: 12px 60px;
-    background: white;
-    color: black;
-    font-weight: bold;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-  
-  .login-box button:hover {
-    background: #ccc;
-  }
-  
-  .register-text {
-    margin-top: 15px;
-    color: #aaa;
-    font-size: 0.9rem;
-  }
-  
-  .register-text a {
-    color: white;
-    text-decoration: underline;
-  }
-  
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background-color: #000;
+  color: white;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  text-align: center;
+}
+
+.container .bar {
+  display: flex;
+  height: 100vh;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 600;
+}
+
+.tagline {
+  margin-top: 10px;
+  font-size: 1.2rem;
+  color: #ccc;
+}
+
+.login-box {
+  margin-top: 30px;
+}
+
+.login-box h2 {
+  margin-bottom: 20px;
+}
+
+.login-box input {
+  display: block;
+  width: 300px;
+  margin: 10px auto;
+  padding: 12px;
+  border: 2px solid white;
+  border-radius: 25px;
+  background: transparent;
+  color: white;
+  font-size: 1rem;
+}
+
+.login-box input::placeholder {
+  color: #ccc;
+}
+
+.login-box button {
+  margin-top: 10px;
+  padding: 12px 60px;
+  background: white;
+  color: black;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.login-box button:hover {
+  background: #ccc;
+}
+
+.register-text {
+  margin-top: 15px;
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.register-text a {
+  color: white;
+  text-decoration: underline;
+}
+
+
+.sidebar {
+  width: 250px;
+  background-color: #1c1c1c;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sidebar .user {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.nav a {
+  text-decoration: none;
+  color: #ccc;
+  margin: 5px 0;
+  display: block;
+}
+
+.nav a:hover {
+  color: white;
+}
+
+.calendar {
+  flex-grow: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.calendar-header span {
+  color: #999;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  flex-grow: 1;
+}
+
+.day {
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 10px;
+  position: relative;
+  min-height: 80px;
+}
+
+.event {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  background-color: #2d2d2d;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.event.dentist {
+  background-color: #4a90e2;
+}
+
+.event.doctor {
+  background-color: #cfc59d;
+  color: black;
+}
+
+.event.birthday {
+  background-color: #50e3c2;
+  color: black;
+}
