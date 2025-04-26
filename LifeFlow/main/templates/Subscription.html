@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Subscription Tracker - LifeFlow</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'index.css' %}">
+</head>
+
+<body>
+    <div class="container bar">
+        <aside class="sidebar">
+            <div class="user">User</div>
+            <nav class="nav">
+                <a href="#">Task Manager</a>
+                <a href="#">Calendar</a>
+                <a href="#">Document Manager</a>
+                <a href="#">Subscription Tracker</a>
+                <a href="#">Bill Manager</a>
+            </nav>
+        </aside>
+        <main class="content">
+            <header class="page-header">
+                <span>December 14th, 2025</span>
+                <h1>Monday</h1>
+            </header>
+            <div class="subscription-summary">
+                <div class="chart-container">
+                    <div class="subscription-chart">
+                        <div class="chart-bar netflix" style="height: 80px; background-color: #ff3b30;">
+                            <span class="bar-label">$80</span>
+                        </div>
+                        <div class="chart-bar linkedin" style="height: 260px; background-color: #34c759;">
+                            <span class="bar-label">$260</span>
+                        </div>
+                        <div class="chart-bar uber" style="height: 40px; background-color: #ffcc00;">
+                            <span class="bar-label">$40</span>
+                        </div>
+                    </div>
+                    <div class="chart-total">Annual Cost = $1100</div>
+                </div>
+            </div>
+            <div class="subscription-list">
+                <div class="subscription-item">
+                    <div class="subscription-details">
+                        <h3>Netflix</h3>
+                        <div class="cost-info">Cost: $80</div>
+                        <div class="contract-info">Contract: Monthly</div>
+                    </div>
+                    <div class="subscription-actions">
+                        <span class="status-badge canceled">Canceled</span>
+                        <a href="#" class="details-link">&gt;</a>
+                    </div>
+                </div>
+                <div class="subscription-item">
+                    <div class="subscription-details">
+                        <h3>LinkedIn Premium</h3>
+                        <div class="cost-info">Cost: $260</div>
+                        <div class="contract-info">Contract: Annual (expires 01/12/25)</div>
+                    </div>
+                    <div class="subscription-actions">
+                        <span class="status-badge active">Active</span>
+                        <a href="#" class="details-link">&gt;</a>
+                    </div>
+                </div>
+                <div class="subscription-item">
+                    <div class="subscription-details">
+                        <h3>Uber Eats Premium</h3>
+                        <div class="cost-info">Cost: $40</div>
+                        <div class="contract-info">Contract: Fortnightly</div>
+                    </div>
+                    <div class="subscription-actions">
+                        <span class="status-badge suspended">Suspended</span>
+                        <a href="#" class="details-link">&gt;</a>
+                    </div>
+                </div>
+                <div class="subscription-item new-subscription">
+                    <button class="add-subscription">+</button>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

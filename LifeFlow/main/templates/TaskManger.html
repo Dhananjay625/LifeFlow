@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task Manager - LifeFlow</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'index.css' %}">
+</head>
+
+<body>
+    <div class="container bar">
+        <aside class="sidebar">
+            <div class="user">User</div>
+            <nav class="nav">
+                <a href="#">Task Manager</a>
+                <a href="#">Calendar</a>
+                <a href="#">Document Manager</a>
+                <a href="#">Subscription Tracker</a>
+                <a href="#">Bill Manager</a>
+            </nav>
+        </aside>
+        <main class="content">
+            <header class="page-header">
+                <span>December 14th, 2025</span>
+                <h1>Monday</h1>
+                <div class="nav-arrows">
+                    <a href="#" class="prev-arrow">&lt;</a>
+                    <span class="today-link">Today</span>
+                    <a href="#" class="next-arrow">&gt;</a>
+                </div>
+            </header>
+            <div class="task-list">
+                <div class="task-item">
+                    <input type="checkbox" id="task1" checked>
+                    <label for="task1">Drink Water (2L)</label>
+                </div>
+                <div class="task-item">
+                    <input type="checkbox" id="task2" checked>
+                    <label for="task2">Change the engine oil (10w30)</label>
+                </div>
+                <div class="task-item">
+                    <input type="checkbox" id="task3" checked>
+                    <label for="task3">Take Vitamins (3 pills)</label>
+                </div>
+                <div class="task-item">
+                    <input type="checkbox" id="task4" checked>
+                    <label for="task4">Grocery Shopping List</label>
+                </div>
+                <div class="task-item">
+                    <input type="checkbox" id="task5" checked>
+                    <label for="task5">Haircut at 19:30h</label>
+                </div>
+                <div class="task-item">
+                    <input type="checkbox" id="task6" checked>
+                    <label for="task6">Night-time routine @23:00h</label>
+                </div>
+                <div class="task-item new-task">
+                    <button class="add-task">+</button>
+                </div>
+                <div class="task-item new-task">
+                    <button class="add-task">+</button>
+                </div>
+                <div class="task-item new-task">
+                    <button class="add-task">+</button>
+                </div>
+            </div>
+            <footer class="view-controls">
+                <a href="#" class="view-btn">Day</a>
+                <a href="#" class="view-btn">Week</a>
+                <a href="#" class="view-btn">Month</a>
+                <a href="#" class="view-btn">Schedule</a>
+            </footer>
+        </main>
+    </div>
+</body>
+
+</html>
