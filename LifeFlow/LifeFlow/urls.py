@@ -22,5 +22,6 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('calender/', views.calender, name='calender'),
     path('Subscription/', views.Subscription, name='Subscription'),
-    path('TaskManager/', views.TaskManager, name='TaskManager')
+    path('TaskManager/', views.TaskManager, name='TaskManager'),
+    path('BillManager/', views.BillManager, name='BillManager')
 ]

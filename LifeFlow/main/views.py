@@ -11,3 +11,6 @@ def Subscription(request):
 
 def TaskManager(request):
     return render(request, 'TaskManager.html')
+
+def BillManager(request):
+    return render(request, 'BillManager.html')
