@@ -127,22 +127,16 @@ body.sb-expanded .nav a[data-resize-btn] i {
 
 
 main.content {
-  flex-grow: 1;
-  transition: margin-left 0.4s ease-in-out;
-  margin-left: var(--sb-width);
-  padding: 2rem;
-}
-
-.content {
   flex: 1;
-  padding: 40px 60px;
+  padding: 2rem 2rem; /* Smaller left and right padding */
   display: flex;
   flex-direction: column;
+  transition: margin-left 0.4s ease;
 }
 
 .header {
-  text-align: center;
-  margin-bottom: 40px;
+  text-align: left;
+  margin-bottom: 10px;
 }
 
 .date {
@@ -153,12 +147,13 @@ main.content {
 h1 {
   margin-top: 10px;
   font-size: 32px;
+
 }
 
 .chart-section {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: left;
   margin-top: 180px;
   margin-bottom: 50px;
 }
@@ -175,7 +170,7 @@ h1 {
   width: 60px;
   min-height: 50px;
   display: flex;
-  justify-content: center;
+  justify-content: left;
   align-items: flex-end;
   position: relative;
   border-radius: 8px 8px 0 0;
@@ -259,14 +254,12 @@ h1 {
 }
 
 .add-new button {
-  padding: 12px;
-  font-size: 28px;
+  
   background: var(--accent-color);
   color: black;
-  border: none;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  border: black;
+  border-radius: 100%;
+  height: fit-content;
   cursor: pointer;
   transition: background 0.3s;
 }
@@ -286,24 +279,24 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  margin-top: 30px;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width:  inherit;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .task-item {
   background: var(--background-light);
-  padding: 15px 20px;
-  border-radius: 10px;
+  padding: 20px 30px; 
+  border-radius: 12px;
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 20px;
+  min-height: 30px; /* <<< ADD THIS */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .task-item label {
-  font-size: 16px;
+  font-size: 20px;
   color: var(--text-light);
 }
 
