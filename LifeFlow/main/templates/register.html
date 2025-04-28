@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register - LifeFlow</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'index.css' %}">
+</head>
+
+<body>
+  <div class="login-container">
+    <h1 class="title">LifeFlow</h1>
+    <p class="tagline">Simplify Your Life Admin, One Task at a Time</p>
+
+    <div class="login-box">
+      <h2>Create Account</h2>
+      <form method="post" action="{% url 'register' %}">
+        {% csrf_token %}
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password1" placeholder="Password" required>
+        <input type="password" name="password2" placeholder="Confirm Password" required>
+        <button type="submit">Register</button>
+      </form>
+      <p class="register-text">Already have an account? <a href="{% url 'login' %}">Login</a></p>
+    </div>
+  </div>
+</body>
+</html>
