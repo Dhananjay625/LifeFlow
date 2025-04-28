@@ -12,47 +12,23 @@
 <body>
     <div class="container">
         <aside>
-            <nav class="nav">
-              <ul>
-                <li>
-                  <a href="{% url 'TaskManager' %}" class="active">
-                    <i class='bx bx-grid-alt'></i>
-                    <span>Task Manager</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="{% url 'calender' %}">
-                    <i class='bx bx-calendar'></i>
-                    <span>Calendar</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    <i class='bx bx-folder'></i>
-                    <span>Document Manager</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="{% url 'Subscription' %}">
-                    <i class='bx bx-cloud-download'></i>
-                    <span>Subscription Tracker</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="{% url 'BillManager' %}">
-                    <i class='bx bx-receipt'></i>
-                    <span>Bill Manager</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="#" data-resize-btn>
-                    <i class='bx bx-chevrons-right'></i>
-                    <span>Collapse</span>
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </aside>
+          <div class="user">
+            <i class='bx bx-user'></i> <!-- User icon -->
+        </div>
+    
+        <nav class="nav">
+          <ul class="nav-links">
+            <li><a href="{% url 'TaskManager' %}" class="active"><i class='bx bx-grid-alt'></i><span>Task Manager</span></a></li>
+            <li><a href="{% url 'calender' %}"><i class='bx bx-calendar'></i><span>Calendar</span></a></li>
+            <li><a href="#"><i class='bx bx-folder'></i><span>Document Manager</span></a></li>
+            <li><a href="{% url 'Subscription' %}"><i class='bx bx-cloud-download'></i><span>Subscription Tracker</span></a></li>
+            <li><a href="{% url 'BillManager' %}"><i class='bx bx-receipt'></i><span>Bill Manager</span></a></li>
+            <li><a href="#" data-resize-btn>
+              <i class='bx bx-chevrons-right'></i><span>Collapse</span>
+            </a></li>
+          </ul>
+        </nav>
+    </aside>
         <main class="content">
             <header class="header">
                 <div class="date">Monday, December 14, 2025</div>
