@@ -18,6 +18,8 @@ body {
 .container {
   display: flex;
   min-height: 100vh;
+  animation: fadeInPage 1s ease forwards;
+  opacity: 0;
 }
 
 .sidebar {
@@ -309,14 +311,15 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: cent
+  justify-content: center;
   height: 100vh;
   background: var(--background-dark);
   text-align: center;
   opacity: 0;
-  animation: fadeIn 1s forwards;
-  animation-delay: 1s;
+  transform: scale(0.8);
+  animation: fadeInPage 1s ease forwards;
 }
+
 
 .title {
   font-size: 48px;
@@ -384,6 +387,9 @@ h1 {
   text-decoration: underline;
 }
 
+
+/* Landing Page + Intro Animation (added for LandingPage.html) */
+
 .intro-screen {
   height: 100vh;
   width: 100vw;
@@ -396,41 +402,111 @@ h1 {
   top: 0;
   left: 0;
   z-index: 1000;
+  animation: fadeOutIntro 4s forwards;
+  animation-delay: 0s;
 }
 
-.life, .flow {
+.intro-text {
   font-size: 64px;
   font-weight: bold;
   color: var(--primary-color);
-  margin: 0 10px;
-  opacity: 1;
-  animation: slideAway 1s forwards;
+  opacity: 0;
+  animation: appearFade 4s forwards;
 }
 
-.life {
-  animation-name: slideTopLeft;
+@keyframes appearFade {
+  0%   { opacity: 0; transform: scale(0.9); }
+  20%  { opacity: 1; transform: scale(1); }
+  60%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.1); }
 }
 
-.flow {
-  animation-name: slideBottomRight;
+@keyframes fadeOutIntro {
+  0%   { opacity: 1; }
+  75%  { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; }
 }
 
-@keyframes slideTopLeft {
-  0% { transform: translate(0, 0); opacity: 1; }
-  100% { transform: translate(-200px, -200px); opacity: 0; }
+.landing-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  opacity: 0;
+  animation: fadeInLanding 2s forwards;
+  animation-delay: 4s;
 }
 
-@keyframes slideBottomRight {
-  0% { transform: translate(0, 0); opacity: 1; }
-  100% { transform: translate(200px, 200px); opacity: 0; }
+@keyframes fadeInLanding {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-.hidden {
-  display: none;
+.landing-header h1 {
+  font-size: 48px;
+  color: var(--primary-color);
+  margin-bottom: 20px;
 }
 
-@keyframes fadeIn {
-  to {
-    opacity: 1;
+.landing-header p {
+  font-size: 18px;
+  color: var(--text-muted);
+  margin-bottom: 40px;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 20px;
+}
+
+.auth-buttons .btn {
+  padding: 12px 24px;
+  background-color: var(--secondary-color);
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.auth-buttons .btn:hover {
+  background-color: #3cbdb6;
+  transform: scale(1.05);
+}
+
+.auth-links {
+  margin-top: 30px;
+  font-size: 18px;
+  color: var(--text-muted);
+}
+
+.auth-links a {
+  color: var(--secondary-color);
+  text-decoration: none;
+  font-weight: 600;
+  margin: 0 5px;
+  transition: color 0.3s;
+}
+
+.auth-links a:hover {
+  color: var(--accent-color);
+}
+
+@keyframes loginAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
   }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeInPage {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

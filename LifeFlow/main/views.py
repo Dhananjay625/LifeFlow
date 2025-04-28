@@ -17,3 +17,6 @@ def BillManager(request):
 
 def register(request):
     return render(request, 'register.html')
+
+def LandingPage(request):
+    return render(request, 'LandingPage.html')

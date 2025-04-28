@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeFlow - Welcome</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'index.css' %}">
+</head>
+
+<body>
+
+    <!-- Intro Animation -->
+    <div class="intro-screen">
+        <div class="intro-text">LifeFlow</div>
+    </div>
+
+    <!-- Landing Page Content -->
+    <div class="landing-container">
+        <header class="landing-header">
+            <h1>Welcome to LifeFlow</h1>
+            <p>Organize your life with ease - tasks, bills, and subscriptions in one place.</p>
+            <div class="auth-links">
+                <a href="{% url 'login' %}">Log In</a> or <a href="{% url 'register' %}">Sign Up</a>
+            </div>
+        </header>
+    </div>
+
+</body>
+</html>

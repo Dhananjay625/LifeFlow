@@ -19,10 +19,11 @@ from main import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-     path('', views.login, name='login'),
+    path('', views.LandingPage, name='LandingPage'),  
     path('calender/', views.calender, name='calender'),
     path('Subscription/', views.Subscription, name='Subscription'),
     path('TaskManager/', views.TaskManager, name='TaskManager'),
     path('BillManager/', views.BillManager, name='BillManager'),
-    path('register/', views.register, name='register')
+    path('register/', views.register, name='register'),
+    path('login/', views.login, name='login'),
 ]
