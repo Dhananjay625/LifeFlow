@@ -1,4 +1,4 @@
-/* index.css - LifeFlow Clean and Modern Dark Theme */
+/* styling under dev */
 
 body {
   margin: 0;
@@ -378,4 +378,67 @@ h1 {
   color: #4ea8de;
   text-decoration: underline;
 }
+/* animation still under dev */
+.intro-screen {
+  height: 100vh;
+  width: 100vw;
+  background: #121212;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
 
+.life, .flow {
+  font-size: 64px;
+  font-weight: bold;
+  color: #4ea8de;
+  margin: 0 10px;
+  opacity: 1;
+  animation: slideAway 2s forwards;
+}
+
+.life {
+  animation-name: slideTopLeft;
+}
+
+.flow {
+  animation-name: slideBottomRight;
+}
+
+@keyframes slideTopLeft {
+  0% { transform: translate(0, 0); opacity: 1; }
+  100% { transform: translate(-200px, -200px); opacity: 0; }
+}
+
+@keyframes slideBottomRight {
+  0% { transform: translate(0, 0); opacity: 1; }
+  100% { transform: translate(200px, 200px); opacity: 0; }
+}
+
+.hidden {
+  display: none;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #121212;
+  text-align: center;
+  opacity: 0;
+  animation: fadeIn 1s forwards;
+  animation-delay: 2.5s;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}

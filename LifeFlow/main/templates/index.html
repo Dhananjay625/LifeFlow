@@ -5,11 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LifeFlow Login</title>
   {% load static %}
-  <link rel="stylesheet" href="{% static 'index.css' %}">
+  <link rel="stylesheet" href="{% static 'index.css' %}?v=2">
 </head>
 
 <body>
-  <div class="login-container">
+  <div class="intro-screen" id="intro">
+    <span class="life">Life</span><span class="flow">Flow</span>
+  </div>
+
+  <div class="login-container hidden" id="login">
     <h1 class="title">LifeFlow</h1>
     <p class="tagline">Simplify Your Life Admin, One Task at a Time</p>
 
@@ -23,5 +27,12 @@
       <p class="register-text">Don't have an account? <a href="#">Register</a></p>
     </div>
   </div>
+
+  <script>
+    setTimeout(() => {
+      document.getElementById('intro').style.display = 'none';
+      document.getElementById('login').classList.remove('hidden');
+    }, 2500); // 2.5 seconds animation
+  </script>
 </body>
 </html>
