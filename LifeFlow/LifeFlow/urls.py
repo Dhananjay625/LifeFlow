@@ -26,4 +26,6 @@ urlpatterns = [
     path('BillManager/', views.BillManager, name='BillManager'),
     path('register/', views.register, name='register'),
     path('login/', views.login, name='login'),
+    path('DocumentStorage/', views.DocumentStorage, name='DocumentStorage'),
+    
 ]

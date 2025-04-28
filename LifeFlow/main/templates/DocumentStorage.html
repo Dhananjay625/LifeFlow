@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bill Manager - LifeFlow</title>
+  <title>Document Storage - LifeFlow</title>
   {% load static %}
   <link rel="stylesheet" href="{% static 'index.css' %}?v=2">
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -19,9 +19,9 @@
         <ul class="nav-links">
           <li><a href="{% url 'TaskManager' %}"><i class='bx bx-grid-alt'></i><span>Task Manager</span></a></li>
           <li><a href="{% url 'calender' %}"><i class='bx bx-calendar'></i><span>Calendar</span></a></li>
-          <li><a href="{% url 'DocumentStorage' %}"><i class='bx bx-folder'></i><span>Document Manager</span></a></li>
+          <li><a href="{% url 'DocumentStorage' %}" class="active"><i class='bx bx-folder'></i><span>Document Manager</span></a></li>
           <li><a href="{% url 'Subscription' %}"><i class='bx bx-cloud-download'></i><span>Subscription Tracker</span></a></li>
-          <li><a href="{% url 'BillManager' %}" class="active"><i class='bx bx-receipt'></i><span>Bill Manager</span></a></li>
+          <li><a href="{% url 'BillManager' %}"><i class='bx bx-receipt'></i><span>Bill Manager</span></a></li>
         </ul>
         <div class="collapse-btn">
           <a href="#" data-resize-btn>
@@ -34,54 +34,40 @@
     <main class="content">
       <header class="header">
         <div class="date">Monday, December 14, 2025</div>
-        <h1>Bill Manager</h1>
+        <h1>Document Storage</h1>
       </header>
-
-      <div class="subscription-layout">
 
         <section class="subscription-list">
           <div class="subscription-item">
             <div class="details">
-              <h3>Health Insurance</h3>
-              <div class="status suspended"></div>
-              <p>Cost: $200 / Month</p>
-              <p>Contract: NA</p>
+              <h3>Passport</h3>
+              <p>ID: 123456789</p>
+              <p>Expiry: 12/12/2030</p>
             </div>
           </div>
 
           <div class="subscription-item">
             <div class="details">
-              <h3>Gym Membership</h3>
-              <div class="status active"></div>
-              <p>Cost: $60 / Month (renews 14/12/25)</p>
-              <p>Contract: Monthly</p>
+              <h3>Driver's License</h3>
+              <p>ID: DL98765432</p>
+              <p>Expiry: 10/10/2027</p>
             </div>
           </div>
 
           <div class="subscription-item">
             <div class="details">
-              <h3>Rent</h3>
-              <div class="status canceled"></div>
-              <p>Cost: $1000 / Month</p>
-              <p>Contract: Monthly</p>
+              <h3>Student ID</h3>
+              <p>ID: S123456</p>
+              <p>Expiry: 30/06/2026</p>
             </div>
           </div>
 
-          <div class="subscription-item">
-            <h3>+</h3>
+          <div class="subscription-item add-new">
+            <h3>＋</h3>
           </div>
         </section>
-
-        <section class="chart-section">
-          <div class="chart">
-            <div class="bar" style="height: 80px; background-color: #023555;"><span>$200</span></div>
-            <div class="bar" style="height: 24px; background-color: #1a3d1b;"><span>$60</span></div>
-            <div class="bar" style="height: 200px; background-color: #ffc107;"><span>$1000</span></div>
-          </div>
-          <div class="total-cost">Monthly Cost = $4242</div>
-        </section>
-
       </div>
+
     </main>
   </div>
 

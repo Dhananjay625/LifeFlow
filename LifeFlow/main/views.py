@@ -20,3 +20,6 @@ def register(request):
 
 def LandingPage(request):
     return render(request, 'LandingPage.html')
+
+def DocumentStorage(request):
+    return render(request, 'DocumentStorage.html')
