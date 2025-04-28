@@ -1,10 +1,20 @@
 /* styling under dev */
 
+:root {
+  --primary-color: #FF6B6B; 
+  --secondary-color: #4ECDC4; 
+  --accent-color: #FFE66D; 
+  --background-dark: #181818;
+  --background-light: #1f1f1f;
+  --text-light: #eee;
+  --text-muted: #bbb;
+}
+
 body {
   margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #121212;
-  color: #eee;
+  background: var(--background-dark);
+  color: var(--text-light);
 }
 
 .container {
@@ -13,7 +23,7 @@ body {
 }
 
 .sidebar {
-  background: #1f1f1f;
+  background: var(--background-light);
   width: 220px;
   padding: 30px 20px;
   display: flex;
@@ -24,7 +34,7 @@ body {
 .user {
   font-size: 22px;
   margin-bottom: 40px;
-  color: #4ea8de;
+  color: var(--secondary-color);
   align-self: center;
 }
 
@@ -35,7 +45,7 @@ body {
 }
 
 .nav a {
-  color: #bbb;
+  color: var(--text-muted);
   text-decoration: none;
   padding: 10px 15px;
   margin-bottom: 10px;
@@ -46,7 +56,7 @@ body {
 
 .nav a:hover,
 .nav a.active {
-  background: #333;
+  background: var(--primary-color);
   color: #fff;
 }
 
@@ -64,7 +74,7 @@ body {
 
 .date {
   font-size: 14px;
-  color: #bbb;
+  color: var(--text-muted);
 }
 
 h1 {
@@ -106,20 +116,20 @@ h1 {
 }
 
 .bar.red {
-  background: #ff6b6b;
+  background: var(--primary-color);
 }
 
 .bar.green {
-  background: #4caf50;
+  background: var(--secondary-color);
 }
 
 .bar.yellow {
-  background: #ffc107;
+  background: var(--accent-color);
 }
 
 .total-cost {
   font-size: 18px;
-  color: #bbb;
+  color: var(--text-muted);
   margin-top: 5px;
 }
 
@@ -132,25 +142,25 @@ h1 {
 }
 
 .subscription-item {
-  background: #1f1f1f;
+  background: var(--background-light);
   padding: 20px 25px;
   border-radius: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .details h3 {
   margin: 0;
   font-size: 20px;
-  color: #fff;
+  color: var(--text-light);
 }
 
 .details p {
   margin: 8px 0 0;
   font-size: 14px;
-  color: #bbb;
+  color: var(--text-muted);
 }
 
 .status {
@@ -161,25 +171,25 @@ h1 {
 }
 
 .status.active {
-  background: #4caf50;
+  background: var(--secondary-color);
   color: white;
 }
 
 .status.canceled {
-  background: #ff6b6b;
+  background: var(--primary-color);
   color: white;
 }
 
 .status.suspended {
-  background: #ffc107;
+  background: var(--accent-color);
   color: black;
 }
 
 .add-new button {
   padding: 12px;
   font-size: 28px;
-  background: #333;
-  color: #fff;
+  background: var(--accent-color);
+  color: black;
   border: none;
   border-radius: 50%;
   width: 50px;
@@ -189,7 +199,7 @@ h1 {
 }
 
 .add-new button:hover {
-  background: #555;
+  background: #e6d05c;
 }
 
 .main-sections {
@@ -210,7 +220,7 @@ h1 {
 }
 
 .task-item {
-  background: #1f1f1f;
+  background: var(--background-light);
   padding: 15px 20px;
   border-radius: 10px;
   display: flex;
@@ -221,13 +231,13 @@ h1 {
 
 .task-item label {
   font-size: 16px;
-  color: #eee;
+  color: var(--text-light);
 }
 
 .add-task {
-  background: #333;
+  background: var(--primary-color);
   border: none;
-  color: #fff;
+  color: white;
   font-size: 24px;
   padding: 10px 15px;
   border-radius: 50%;
@@ -236,7 +246,7 @@ h1 {
 }
 
 .add-task:hover {
-  background: #555;
+  background: #cc5555;
 }
 
 .view-controls {
@@ -247,16 +257,16 @@ h1 {
 }
 
 .view-btn {
-  background: #333;
+  background: var(--secondary-color);
   padding: 10px 20px;
   border-radius: 8px;
-  color: #eee;
+  color: #fff;
   text-decoration: none;
   transition: background 0.3s;
 }
 
 .view-btn:hover {
-  background: #555;
+  background: #3cbdb6;
 }
 
 .calendar-grid {
@@ -268,11 +278,11 @@ h1 {
 }
 
 .day {
-  background: #1f1f1f;
+  background: var(--background-light);
   border-radius: 10px;
   padding: 20px;
   text-align: center;
-  color: #eee;
+  color: var(--text-light);
   font-size: 16px;
   min-height: 100px;
   display: flex;
@@ -285,17 +295,16 @@ h1 {
   display: block;
   margin-top: 10px;
   font-size: 12px;
-  color: #ccc;
+  color: var(--text-muted);
 }
 
 .day.event {
-  background: #4ea8de; 
-  color: #fff;
+  background: var(--primary-color);
+  color: white;
 }
 
 .day.event span {
-  color: #fff;
-  font-size: 12px;
+  color: white;
 }
 
 .login-container {
@@ -304,24 +313,27 @@ h1 {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: #121212;
+  background: var(--background-dark);
   text-align: center;
+  opacity: 0;
+  animation: fadeIn 1s forwards;
+  animation-delay: 2.5s;
 }
 
 .title {
   font-size: 48px;
-  color: #4ea8de;
+  color: var(--primary-color);
   margin-bottom: 10px;
 }
 
 .tagline {
   font-size: 18px;
-  color: #bbb;
+  color: var(--text-muted);
   margin-bottom: 40px;
 }
 
 .login-box {
-  background: #1f1f1f;
+  background: var(--background-light);
   padding: 40px 30px;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
@@ -331,12 +343,7 @@ h1 {
 .login-box h2 {
   margin-bottom: 20px;
   font-size: 24px;
-  color: #eee;
-}
-
-.login-box form {
-  display: flex;
-  flex-direction: column;
+  color: var(--text-light);
 }
 
 .login-box input {
@@ -345,44 +352,44 @@ h1 {
   padding: 12px;
   margin-bottom: 15px;
   border-radius: 8px;
-  color: #eee;
+  color: var(--text-light);
   font-size: 16px;
 }
 
 .login-box input::placeholder {
-  color: #aaa;
+  color: var(--text-muted);
 }
 
 .login-box button {
-  background: #4ea8de;
+  background: var(--primary-color);
   border: none;
   padding: 12px;
   border-radius: 8px;
-  color: #fff;
+  color: white;
   font-size: 16px;
   cursor: pointer;
   transition: background 0.3s;
 }
 
 .login-box button:hover {
-  background: #1d74b8;
+  background: #cc5555;
 }
 
 .register-text {
   margin-top: 15px;
   font-size: 14px;
-  color: #bbb;
+  color: var(--text-muted);
 }
 
 .register-text a {
-  color: #4ea8de;
+  color: var(--primary-color);
   text-decoration: underline;
 }
-/* animation still under dev */
+
 .intro-screen {
   height: 100vh;
   width: 100vw;
-  background: #121212;
+  background: var(--background-dark);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -396,7 +403,7 @@ h1 {
 .life, .flow {
   font-size: 64px;
   font-weight: bold;
-  color: #4ea8de;
+  color: var(--primary-color);
   margin: 0 10px;
   opacity: 1;
   animation: slideAway 2s forwards;
@@ -422,19 +429,6 @@ h1 {
 
 .hidden {
   display: none;
-}
-
-.login-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background: #121212;
-  text-align: center;
-  opacity: 0;
-  animation: fadeIn 1s forwards;
-  animation-delay: 2.5s;
 }
 
 @keyframes fadeIn {
