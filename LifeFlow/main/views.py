@@ -14,3 +14,6 @@ def TaskManager(request):
 
 def BillManager(request):
     return render(request, 'BillManager.html')
+
+def register(request):
+    return render(request, 'register.html')

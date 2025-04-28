@@ -1,5 +1,3 @@
-/* styling under dev */
-
 :root {
   --primary-color: #FF6B6B; 
   --secondary-color: #4ECDC4; 
@@ -311,13 +309,13 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: cent
   height: 100vh;
   background: var(--background-dark);
   text-align: center;
   opacity: 0;
   animation: fadeIn 1s forwards;
-  animation-delay: 2.5s;
+  animation-delay: 1s;
 }
 
 .title {
@@ -406,7 +404,7 @@ h1 {
   color: var(--primary-color);
   margin: 0 10px;
   opacity: 1;
-  animation: slideAway 2s forwards;
+  animation: slideAway 1s forwards;
 }
 
 .life {
