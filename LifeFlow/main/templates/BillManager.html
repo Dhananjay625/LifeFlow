@@ -1,87 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bill Manager - LifeFlow</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'index.css' %}">
+    <link rel="stylesheet" href="{% static 'index.css' %}?v=2">
 </head>
 
 <body>
-    <div class="container bar">
+    <div class="container">
         <aside class="sidebar">
-            <div class="user">User</div>
+            <div class="user">👤 User</div>
             <nav class="nav">
-                <a href="#">Task Manager</a>
-                <a href="#">Calendar</a>
+                <a href="{% url 'TaskManager' %}">Task Manager</a>
+                <a href="{% url 'calender' %}">Calendar</a>
                 <a href="#">Document Manager</a>
-                <a href="#">Subscription Tracker</a>
-                <a href="#">Bill Manager</a>
+                <a href="{% url 'Subscription' %}">Subscription Tracker</a>
+                <a href="{% url 'BillManager' %}" class="active">Bill Manager</a>
             </nav>
         </aside>
+
         <main class="content">
-            <header class="page-header">
-                <span>December 14th, 2025</span>
+            <header class="header">
+                <div class="date">Monday, December 14, 2025</div>
                 <h1>Bill Manager</h1>
             </header>
-            <div class="subscription-summary">
-                <div class="chart-container">
-                    <div class="subscription-chart">
-                        <div class="chart-bar" style="height: 80px; background-color: #4a90e2;">
-                            <span class="bar-label">$50</span>
+
+            <section class="main-sections">
+                <section class="chart-section">
+                    <div class="chart">
+                        <div class="bar" style="height: 80px; background-color: #4ea8de;">
+                            <span>$50</span>
                         </div>
-                        <div class="chart-bar" style="height: 200px; background-color: #34c759;">
-                            <span class="bar-label">$500</span>
+                        <div class="bar" style="height: 200px; background-color: #4caf50;">
+                            <span>$500</span>
                         </div>
-                        <div class="chart-bar" style="height: 400px; background-color: #ffcc00;">
-                            <span class="bar-label">$1000</span>
+                        <div class="bar" style="height: 400px; background-color: #ffc107;">
+                            <span>$1000</span>
                         </div>
                     </div>
-                    <div class="chart-total">Monthly Cost = $1550</div>
-                </div>
-            </div>
-            <div class="subscription-list">
-                <div class="subscription-item">
-                    <div class="subscription-details">
-                        <h3>Health Insurance</h3>
-                        <div class="cost-info">Cost: $50 weekly</div>
-                        <div class="contract-info">Contract: NA</div>
+                    <div class="total-cost">Monthly Cost = $1550</div>
+                </section>
+
+                <section class="subscription-list">
+                    <div class="subscription-item">
+                        <div class="details">
+                            <h3>Health Insurance</h3>
+                            <p>Cost: $50 / Weekly</p>
+                            <p>Contract: NA</p>
+                        </div>
+                        <div class="status active">Active</div>
                     </div>
-                    <div class="subscription-actions">
-                        <span class="status-badge active">Active</span>
-                        <a href="#" class="details-link">&gt;</a>
+
+                    <div class="subscription-item">
+                        <div class="details">
+                            <h3>Gym Membership</h3>
+                            <p>Cost: $500 / Annual (renews 14/12/25)</p>
+                            <p>Contract: Annual</p>
+                        </div>
+                        <div class="status active">Active</div>
                     </div>
-                </div>
-                <div class="subscription-item">
-                    <div class="subscription-details">
-                        <h3>Gym Membership</h3>
-                        <div class="cost-info">Cost: $500 annually</div>
-                        <div class="contract-info">Contract: Annual (renews 14/12/25)</div>
+
+                    <div class="subscription-item">
+                        <div class="details">
+                            <h3>Rent</h3>
+                            <p>Cost: $1000 / Weekly</p>
+                            <p>Contract: Weekly</p>
+                        </div>
+                        <div class="status active">Active</div>
                     </div>
-                    <div class="subscription-actions">
-                        <span class="status-badge active">Active</span>
-                        <a href="#" class="details-link">&gt;</a>
+
+                    <div class="subscription-item add-new">
+                        <button>＋</button>
                     </div>
-                </div>
-                <div class="subscription-item">
-                    <div class="subscription-details">
-                        <h3>Rent</h3>
-                        <div class="cost-info">Cost: $1000 weekly</div>
-                        <div class="contract-info">Contract: Weekly</div>
-                    </div>
-                    <div class="subscription-actions">
-                        <span class="status-badge active">Active</span>
-                        <a href="#" class="details-link">&gt;</a>
-                    </div>
-                </div>
-                <div class="subscription-item new-subscription">
-                    <button class="add-subscription">+</button>
-                </div>
-            </div>
+                </section>
+            </section>
         </main>
     </div>
 </body>
-
 </html>

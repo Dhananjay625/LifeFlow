@@ -1,32 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Calendar App</title>
+    <title>Calendar - LifeFlow</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'index.css' %}">
+    <link rel="stylesheet" href="{% static 'index.css' %}?v=2">
 </head>
 
 <body>
-    <div class="container bar">
+    <div class="container">
         <aside class="sidebar">
-            <div class="user">User</div>
+            <div class="user">👤 User</div>
             <nav class="nav">
-                <a href="#">Task Manager</a>
-                <a href="#">Calendar</a>
+                <a href="{% url 'TaskManager' %}">Task Manager</a>
+                <a href="{% url 'calender' %}" class="active">Calendar</a>
                 <a href="#">Document Manager</a>
-                <a href="#">Subscription Tracker</a>
-                <a href="#">Bill Manager</a>
+                <a href="{% url 'Subscription' %}">Subscription Tracker</a>
+                <a href="{% url 'BillManager' %}">Bill Manager</a>
             </nav>
         </aside>
-        <main class="calendar">
-            <header class="calendar-header">
-                <span>December 14th, 2025</span>
-                <h1>Monday</h1>
+
+        <main class="content">
+            <header class="header">
+                <div class="date">Monday, December 14, 2025</div>
+                <h1>Calendar</h1>
             </header>
-            <div class="calendar-grid">
+
+            <section class="calendar-grid">
                 <div class="day">01</div>
                 <div class="day">02</div>
                 <div class="day">03</div>
@@ -39,9 +40,13 @@
                 <div class="day">10</div>
                 <div class="day">11</div>
                 <div class="day">12</div>
-                <div class="day event dentist">14<br><span>Dentist Appointment</span></div>
+                <div class="day event">
+                    14<br><span>Dentist Appointment</span>
+                </div>
                 <div class="day">15</div>
-                <div class="day event doctor">17<br><span>Doctor Appointment</span></div>
+                <div class="day event">
+                    17<br><span>Doctor Appointment</span>
+                </div>
                 <div class="day">18</div>
                 <div class="day">19</div>
                 <div class="day">20</div>
@@ -53,11 +58,12 @@
                 <div class="day">26</div>
                 <div class="day">27</div>
                 <div class="day">28</div>
-                <div class="day event birthday">30<br><span>Joe's 22nd Birthday</span></div>
+                <div class="day event">
+                    30<br><span>Joe's 22nd Birthday</span>
+                </div>
                 <div class="day">31</div>
-            </div>
+            </section>
         </main>
     </div>
 </body>
-
 </html>

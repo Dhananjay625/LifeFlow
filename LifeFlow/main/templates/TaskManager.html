@@ -1,37 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Task Manager - LifeFlow</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'index.css' %}">
+    <link rel="stylesheet" href="{% static 'index.css' %}?v=2">
 </head>
 
 <body>
-    <div class="container bar">
+    <div class="container">
         <aside class="sidebar">
-            <div class="user">User</div>
+            <div class="user">👤 User</div>
             <nav class="nav">
-                <a href="#">Task Manager</a>
-                <a href="#">Calendar</a>
+                <a href="{% url 'TaskManager' %}" class="active">Task Manager</a>
+                <a href="{% url 'calender' %}">Calendar</a>
                 <a href="#">Document Manager</a>
-                <a href="#">Subscription Tracker</a>
-                <a href="#">Bill Manager</a>
+                <a href="{% url 'Subscription' %}">Subscription Tracker</a>
+                <a href="{% url 'BillManager' %}">Bill Manager</a>
             </nav>
         </aside>
+
         <main class="content">
-            <header class="page-header">
-                <span>December 14th, 2025</span>
-                <h1>Monday</h1>
-                <div class="nav-arrows">
-                    <a href="#" class="prev-arrow">&lt;</a>
-                    <span class="today-link">Today</span>
-                    <a href="#" class="next-arrow">&gt;</a>
-                </div>
+            <header class="header">
+                <div class="date">Monday, December 14, 2025</div>
+                <h1>Task Manager</h1>
             </header>
-            <div class="task-list">
+
+            <section class="task-list">
                 <div class="task-item">
                     <input type="checkbox" id="task1" checked>
                     <label for="task1">Drink Water (2L)</label>
@@ -56,16 +52,12 @@
                     <input type="checkbox" id="task6" checked>
                     <label for="task6">Night-time routine @23:00h</label>
                 </div>
-                <div class="task-item new-task">
-                    <button class="add-task">+</button>
+
+                <div class="task-item add-new">
+                    <button class="add-task">＋</button>
                 </div>
-                <div class="task-item new-task">
-                    <button class="add-task">+</button>
-                </div>
-                <div class="task-item new-task">
-                    <button class="add-task">+</button>
-                </div>
-            </div>
+            </section>
+
             <footer class="view-controls">
                 <a href="#" class="view-btn">Day</a>
                 <a href="#" class="view-btn">Week</a>
@@ -75,5 +67,4 @@
         </main>
     </div>
 </body>
-
 </html>
