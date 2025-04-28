@@ -14,77 +14,80 @@
       <aside>
         <div class="user">
           <i class='bx bx-user'></i> <!-- User icon -->
-      </div>
-  
-      <nav class="nav">
-        <ul class="nav-links">
-          <li><a href="{% url 'TaskManager' %}" ><i class='bx bx-grid-alt'></i><span>Task Manager</span></a></li>
-          <li><a href="{% url 'calender' %}"><i class='bx bx-calendar'></i><span>Calendar</span></a></li>
-          <li><a href="#"><i class='bx bx-folder'></i><span>Document Manager</span></a></li>
-          <li><a href="{% url 'Subscription' %}"class="active"><i class='bx bx-cloud-download'></i><span>Subscription Tracker</span></a></li>
-          <li><a href="{% url 'BillManager' %}"><i class='bx bx-receipt'></i><span>Bill Manager</span></a></li>
-          <li><a href="#" data-resize-btn>
-            <i class='bx bx-chevrons-right'></i><span>Collapse</span>
-          </a></li>
-        </ul>
-      </nav>
-  </aside>
+        </div>
+        <nav class="nav">
+          <ul class="nav-links">
+            <li><a href="{% url 'TaskManager' %}"><i class='bx bx-grid-alt'></i><span>Task Manager</span></a></li>
+            <li><a href="{% url 'calender' %}"><i class='bx bx-calendar'></i><span>Calendar</span></a></li>
+            <li><a href="#"><i class='bx bx-folder'></i><span>Document Manager</span></a></li>
+            <li><a href="{% url 'Subscription' %}" class="active"><i class='bx bx-cloud-download'></i><span>Subscription Tracker</span></a></li>
+            <li><a href="{% url 'BillManager' %}"><i class='bx bx-receipt'></i><span>Bill Manager</span></a></li>
+          </ul>
+          <div class="collapse-btn">
+            <a href="#" data-resize-btn>
+              <i class='bx bx-chevrons-right'></i><span>Collapse</span>
+            </a>
+          </div>
+        </nav>
+      </aside>
 
-        <main class="content">
-            <header class="header">
-                <div class="date">Monday, December 14, 2025</div>
-                <h1>Subscription Tracker</h1>
-            </header>
+      <main class="content">
+        <header class="header">
+          <div class="date">Monday, December 14, 2025</div>
+          <h1>Subscription Tracker</h1>
+        </header>
 
-            <section class="main-sections">
-                <section class="chart-section">
-                    <div class="chart">
-                        <div class="bar red" style="height: 80px;"><span>$80</span></div>
-                        <div class="bar green" style="height: 260px;"><span>$260</span></div>
-                        <div class="bar yellow" style="height: 40px;"><span>$40</span></div>
-                    </div>
-                    <div class="total-cost">Annual Cost = $1100</div>
-                </section>
+        <div class="subscription-layout">
 
-                <section class="subscription-list">
-                    <div class="subscription-item">
-                        <div class="details">
-                            <h3>Netflix</h3>
-                            <p>Cost: $80 / Monthly</p>
-                        </div>
-                        <div class="status canceled">Canceled</div>
-                    </div>
+          <section class="subscription-list">
+            <div class="subscription-item">
+              <div class="details">
+                <h3>Netflix</h3>
+                <div class="status canceled"></div>
+                <p>Cost: $80 / Monthly</p>
+              </div>
+            </div>
 
-                    <div class="subscription-item">
-                        <div class="details">
-                            <h3>LinkedIn Premium</h3>
-                            <p>Cost: $260 / Annual (expires 01/12/25)</p>
-                        </div>
-                        <div class="status active">Active</div>
-                    </div>
+            <div class="subscription-item">
+              <div class="details">
+                <h3>LinkedIn Premium</h3>
+                <div class="status active"></div>
+                <p>Cost: $260 / Annual (expires 01/12/25)</p>
+              </div>
+            </div>
 
-                    <div class="subscription-item">
-                        <div class="details">
-                            <h3>Uber Eats Premium</h3>
-                            <p>Cost: $40 / Fortnightly</p>
-                        </div>
-                        <div class="status suspended">Suspended</div>
-                    </div>
+            <div class="subscription-item">
+              <div class="details">
+                <h3>Uber Eats Premium</h3>
+                <div class="status suspended"></div>
+                <p>Cost: $40 / Fortnightly</p>
+              </div>
+            </div>
 
-                    <div class="subscription-item add-new">
-                        <button>＋</button>
-                    </div>
-                </section>
-            </section>
+            <div class="subscription-item">
+                <h3>+</h3>
+              </div>
+          </section>
 
-        </main>
+          <section class="chart-section">
+            <div class="chart">
+              <div class="bar red" style="height: 80px;"><span>$80</span></div>
+              <div class="bar green" style="height: 260px;"><span>$260</span></div>
+              <div class="bar yellow" style="height: 40px;"><span>$40</span></div>
+            </div>
+            <div class="total-cost">Annual Cost = $1100</div>
+          </section>
+
+        </div>
+      </main>
     </div>
+
     <script>
-        const resizeBtn = document.querySelector("[data-resize-btn]");
-        resizeBtn.addEventListener("click", function (e) {
-          e.preventDefault();
-          document.body.classList.toggle("sb-expanded");
-        });
+      const resizeBtn = document.querySelector("[data-resize-btn]");
+      resizeBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        document.body.classList.toggle("sb-expanded");
+      });
     </script>
 </body>
 </html>
