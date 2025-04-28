@@ -7,6 +7,7 @@
   --background-light: #1f1f1f;
   --text-light: #eee;
   --text-muted: #bbb;
+  --sb-width: 5rem; 
 }
 
 body {
@@ -16,20 +17,20 @@ body {
   color: var(--text-light);
 }
 
+body.sb-expanded {
+  --sb-width: 20rem;
+}
+
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
 .container {
   display: flex;
   min-height: 100vh;
   animation: fadeInPage 1s ease forwards;
   opacity: 0;
-}
-
-.sidebar {
-  background: var(--background-light);
-  width: 220px;
-  padding: 30px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
 }
 
 .user {
@@ -53,26 +54,83 @@ body {
 
 /* Navbar Styling */
 
-.nav {
+aside {
+  width: var(--sb-width);
+  background: var(--background-light);
+  transition: width 0.4s ease-in-out;
+  padding: 1rem;
+  overflow-x: hidden; /* Add this */
+}
+
+.nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  width: 100%;
+}
+
+.nav li:last-child {
+  margin-top: auto;
 }
 
 .nav a {
-  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; 
+  gap: 1rem;
   text-decoration: none;
-  padding: 10px 15px;
-  margin-bottom: 10px;
-  border-radius: 6px;
-  transition: background 0.3s, color 0.3s;
-  font-size: 16px;
+  font-size: 1.5rem;
+  color: #eee;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.3s, justify-content 0.3s;
+  white-space: nowrap;
 }
 
 .nav a:hover,
 .nav a.active {
   background: var(--primary-color);
-  color: #fff;
+  color: white;
+}
+
+.nav a i {
+  font-size: 2.5rem;
+}
+
+
+
+/* Hide text when collapsed */
+.nav a span {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+/* Show text when expanded */
+body.sb-expanded .nav a span {
+  opacity: 1;
+  visibility: visible;
+}
+
+
+
+/* Rotate collapse button icon */
+.nav a[data-resize-btn] i {
+  transition: transform 0.3s ease;
+}
+
+body.sb-expanded .nav a[data-resize-btn] i {
+  transform: rotate(180deg);
+}
+
+
+main.content {
+  flex-grow: 1;
+  transition: margin-left 0.4s ease-in-out;
+  margin-left: var(--sb-width);
+  padding: 2rem;
 }
 
 .content {

@@ -6,20 +6,53 @@
     <title>Bill Manager - LifeFlow</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'index.css' %}?v=2">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 
 <body>
     <div class="container">
-        <aside class="sidebar">
-            <div class="user">👤 User</div>
+        <aside>
             <nav class="nav">
-                <a href="{% url 'TaskManager' %}">Task Manager</a>
-                <a href="{% url 'calender' %}">Calendar</a>
-                <a href="#">Document Manager</a>
-                <a href="{% url 'Subscription' %}">Subscription Tracker</a>
-                <a href="{% url 'BillManager' %}" class="active">Bill Manager</a>
+              <ul>
+                <li>
+                  <a href="{% url 'TaskManager' %}" class="active">
+                    <i class='bx bx-grid-alt'></i>
+                    <span>Task Manager</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'calender' %}">
+                    <i class='bx bx-calendar'></i>
+                    <span>Calendar</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="#">
+                    <i class='bx bx-folder'></i>
+                    <span>Document Manager</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'Subscription' %}">
+                    <i class='bx bx-cloud-download'></i>
+                    <span>Subscription Tracker</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'BillManager' %}">
+                    <i class='bx bx-receipt'></i>
+                    <span>Bill Manager</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="#" data-resize-btn>
+                    <i class='bx bx-chevrons-right'></i>
+                    <span>Collapse</span>
+                  </a>
+                </li>
+              </ul>
             </nav>
-        </aside>
+          </aside>
 
         <main class="content">
             <header class="header">
@@ -79,4 +112,11 @@
         </main>
     </div>
 </body>
+<script>
+    const resizeBtn = document.querySelector("[data-resize-btn]");
+    resizeBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      document.body.classList.toggle("sb-expanded");
+    });
+</script>
 </html>
