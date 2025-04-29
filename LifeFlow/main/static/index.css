@@ -140,6 +140,11 @@ main.content {
   margin-bottom: 10px;
 }
 
+.header-right{
+  text-align: right;
+  margin-bottom: 10px;
+}
+
 .date {
   font-size: 14px;
   color: var(--text-muted);
