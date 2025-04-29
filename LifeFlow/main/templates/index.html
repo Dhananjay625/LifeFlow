@@ -15,27 +15,28 @@
 
     <div class="login-box">
       <h2>Welcome Back!</h2>
-      <form id="loginForm" onsubmit="return handleLogin()">
-        <input type="text" placeholder="Username" required>
-        <input type="password" placeholder="Password" required>
+      <form method='POST' action="">
+        {% csrf_token %}
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
         <button type="submit">Login</button>
       </form>
       <p class="register-text">Don't have an account? <a href="{% url 'register' %}">Register</a></p>
+
+      {% if error %}
+        <p style="color:red;">{{ error }}</p>
+      {% endif %}
     </div>
   </div>
 
   <script>
     setTimeout(() => {
-      document.getElementById('intro').style.display = 'none';
+      const intro = document.getElementById('intro');
+      if (intro) {
+        intro.style.display = 'none';
+      }
       document.getElementById('login').classList.remove('hidden');
     }, 2000); 
-  </script>
-  <script>
-    function handleLogin() {
-        window.location.href = "{% url 'TaskManager' %}";
-        return false; 
-    }
-    </script>
-    
+  </script>    
 </body>
 </html>
