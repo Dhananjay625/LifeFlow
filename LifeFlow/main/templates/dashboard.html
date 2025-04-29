@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - LifeFlow</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'index.css' %}?v=2">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div class="container">
+        <aside>
+            <div class="user">
+                <i class='bx bx-user'></i>
+            </div>
+
+            <div class="logout-btn">
+                <a href="{% url 'login' %}">
+                  <i class='bx bx-log-out'></i><span>Logout</span>
+                </a>
+            </div>
+        </aside>
+        <main class="content">
+            <header class="header-right">
+                <div class="date">Monday, December 14, 2025</div>
+                <h1>Recommendation</h1>
+            </header>
+        </main>
+    </div>
+</body>    
+</html>
