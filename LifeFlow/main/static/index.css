@@ -53,14 +53,13 @@ body.sb-expanded {
   margin-bottom: 40px;
 }
 
-/* Navbar Styling */
 
 aside {
   width: var(--sb-width);
   background: var(--background-light);
   transition: width 0.4s ease-in-out;
   padding: 1rem;
-  overflow-x: hidden; /* Add this */
+  overflow-x: hidden; 
 }
 
 .nav ul {
@@ -102,14 +101,12 @@ aside {
 
 
 
-/* Hide text when collapsed */
 .nav a span {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s, visibility 0.3s;
 }
 
-/* Show text when expanded */
 body.sb-expanded .nav a span {
   opacity: 1;
   visibility: visible;
@@ -117,7 +114,6 @@ body.sb-expanded .nav a span {
 
 
 
-/* Rotate collapse button icon */
 .nav a[data-resize-btn] i {
   transition: transform 0.3s ease;
 }
@@ -129,7 +125,7 @@ body.sb-expanded .nav a[data-resize-btn] i {
 
 main.content {
   flex: 1;
-  padding: 2rem 2rem; /* Smaller left and right padding */
+  padding: 2rem 2rem; 
   display: flex;
   flex-direction: column;
   transition: margin-left 0.4s ease;
@@ -212,7 +208,7 @@ h1 {
 
 .subscription-layout {
   display: grid;
-  grid-template-columns: 2fr 1fr; /* Left wider for items, right narrower for chart */
+  grid-template-columns: 2fr 1fr; 
   gap: 40px;
   align-items: flex-start;
   justify-content: start;
@@ -385,7 +381,6 @@ h1 {
   color: white;
 }
 
-/* Login Page Styling */
 
 .login-container {
   display: flex;
@@ -502,7 +497,6 @@ h1 {
 }
 
 
-/* Landing Page + Intro Animation (added for LandingPage.html) */
 
 .intro-screen {
   height: 100vh;
