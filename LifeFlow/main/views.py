@@ -39,14 +39,14 @@ def register(request):
         if password != confirm_password:
             return render(request, 'register.html', {'error': 'Passwords do not match.'})
 
-        hashed_password = make_password(password)
-        print(hashed_password)
 
-        user = User.objects.create(
+        user = User.objects.create_user(
             username=username,
             email=email,
-            password=hashed_password
+            password=password
         )
+
+        print("sa", password)
 
         return redirect('login')
 
