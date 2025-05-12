@@ -27,5 +27,8 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', views.login_view, name='login'),
     path('DocumentStorage/', views.DocumentStorage, name='DocumentStorage'),
-    
+    path('create/', views.create_task, name='create_task'),
+    path('list/', views.task_list, name='task_list'),
+    path('complete/<int:task_id>/', views.complete_task, name='complete_task'),
+    path('archive/<int:task_id>/', views.archive_task, name='archive_task'),
 ]
