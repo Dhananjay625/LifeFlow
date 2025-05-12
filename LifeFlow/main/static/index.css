@@ -620,7 +620,7 @@ h1 {
 }
 
 .logout-btn {
-  margin-top: 250px;
+  margin-top: 150px;
   padding-top: 1rem;
 }
 
@@ -828,6 +828,13 @@ h1 {
 .progress-ring-fill.bodyfat {
   stroke: #7ED957;
   stroke-dashoffset: calc(440 - (440 * 0.256)); /* 25.6% */
+}
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
 }
 
 

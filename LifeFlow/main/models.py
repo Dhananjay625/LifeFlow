@@ -35,3 +35,19 @@ class Task(models.Model):
     def is_overdue(self):
         """Check if the task is overdue"""
         return self.due_date and self.due_date < timezone.now()
+    
+class Bill(models.Model):
+    name = models.CharField(max_length=100)
+    cost = models.DecimalField(max_digits=10, decimal_places=2)
+    renewal_date = models.DateField(null=True, blank=True)
+    contract_type = models.CharField(max_length=50, default='NA')
+
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('suspended', 'Suspended'),
+        ('canceled', 'Canceled'),
+    ]
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES)
+
+    def __str__(self):
+        return self.name

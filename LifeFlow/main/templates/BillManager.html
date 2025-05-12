@@ -18,11 +18,11 @@
       <nav class="nav">
         <ul class="nav-links">
           <li><a href="{% url 'TaskManager' %}"><i class='bx bx-grid-alt'></i><span>Task Manager</span></a></li>
-          <li><a href="{% url 'calender' %}"><i class='bx bx-calendar'></i><span>Calendar</span></a></li>
-          <li><a href="{% url 'DocumentStorage' %}"><i class='bx bx-folder'></i><span>Document Manager</span></a></li>
-          <li><a href="{% url 'Subscription' %}"><i class='bx bx-cloud-download'></i><span>Subscription Tracker</span></a></li>
-          <li><a href="{% url 'BillManager' %}"><i class='bx bx-receipt'></i><span>Bill Manager</span></a></li>
-          <li><a href="{% url 'HealthManager' %}" class="active"><i class='bx bx-dumbbell'></i><span>Health Manager</span></a></li>
+            <li><a href="{% url 'calender' %}"><i class='bx bx-calendar'></i><span>Calendar</span></a></li>
+            <li><a href="{% url 'DocumentStorage' %}"><i class='bx bx-folder'></i><span>Document Manager</span></a></li>
+            <li><a href="{% url 'Subscription' %}"><i class='bx bx-cloud-download'></i><span>Subscription Tracker</span></a></li>
+            <li><a href="{% url 'BillManager' %}" class="active"><i class='bx bx-receipt'></i><span>Bill Manager</span></a></li>
+            <li><a href="{% url 'HealthManager' %}"><i class='bx bx-dumbbell'></i><span>Health Manager</span></a></li>
         </ul>
         <div class="collapse-btn">
           <a href="#" data-resize-btn>
@@ -46,47 +46,35 @@
       <div class="subscription-layout">
 
         <section class="subscription-list">
+          {% for bill in bills %}
           <div class="subscription-item">
             <div class="details">
-              <h3>Health Insurance</h3>
-              <div class="status suspended"></div>
-              <p>Cost: $200 / Month</p>
-              <p>Contract: NA</p>
+              <h3>
+                <span class="status-dot" style="background-color: hsl({{ bill.hue }}, 60%, 50%)"></span>
+                {{ bill.obj.name }}
+              </h3>
+              
+              <p>Cost: ${{ bill.obj.cost }} / Month {% if bill.obj.renewal_date %}(renews {{ bill.obj.renewal_date|date:"d/m/Y" }}){% endif %}</p>
+              <p>Contract: {{ bill.obj.contract_type }}</p>
             </div>
           </div>
-
-          <div class="subscription-item">
-            <div class="details">
-              <h3>Gym Membership</h3>
-              <div class="status active"></div>
-              <p>Cost: $60 / Month (renews 14/12/25)</p>
-              <p>Contract: Monthly</p>
-            </div>
-          </div>
-
-          <div class="subscription-item">
-            <div class="details">
-              <h3>Rent</h3>
-              <div class="status canceled"></div>
-              <p>Cost: $1000 / Month</p>
-              <p>Contract: Monthly</p>
-            </div>
-          </div>
-
-          <div class="subscription-item">
-            <h3>+</h3>
-          </div>
-        </section>
+          {% endfor %}
+        </section>        
+        
 
         <section class="chart-section">
           <div class="chart">
-            <div class="bar" style="height: 80px; background-color: #023555;"><span>$200</span></div>
-            <div class="bar" style="height: 24px; background-color: #1a3d1b;"><span>$60</span></div>
-            <div class="bar" style="height: 200px; background-color: #ffc107;"><span>$1000</span></div>
-          </div>
-          <div class="total-cost">Monthly Cost = $4242</div>
-        </section>
+            {% for bill in bills %}
+        <div class="bar"
+            style="height: {{ bill.obj.cost|floatformat:0 }}px; background-color: hsl({{ bill.hue }}, 60%, 50%);">
+          <span>${{ bill.obj.cost }}</span>
+        </div>
+        {% endfor %}
 
+        </div>
+        <div class="total-cost">Monthly Cost = ${{ total_cost }}</div>
+        </section>
+        
       </div>
     </main>
   </div>
