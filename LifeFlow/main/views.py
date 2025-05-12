@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from .models import Task
 from .forms import TaskForm
 from django.contrib.auth.decorators import login_required
+from .models import Bill
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -98,7 +100,22 @@ def TaskManager(request):
     return render(request, 'TaskManager.html')
 
 def BillManager(request):
-    return render(request, 'BillManager.html')
+    bills = Bill.objects.all()
+    total_cost = sum(b.cost for b in bills)
+    
+    # Annotate bills with a "hue" field for coloring
+    bills_with_colors = [
+        {
+            "obj": bill,
+            "hue": (index + 1) * 60
+        }
+        for index, bill in enumerate(bills)
+    ]
+    
+    return render(request, 'BillManager.html', {
+        'bills': bills_with_colors,
+        'total_cost': total_cost
+    })
 
 def LandingPage(request):
     return render(request, 'LandingPage.html')
