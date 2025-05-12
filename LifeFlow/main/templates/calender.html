@@ -11,29 +11,31 @@
 
 <body>
     <div class="container">
-        <aside>
-          <div class="user">
-            <i class='bx bx-user'></i>
+      <aside>
+        <div class="user">
+          <i class='bx bx-user'></i>
         </div>
-    
         <nav class="nav">
           <ul class="nav-links">
-            <li><a href="{% url 'TaskManager' %}" ><i class='bx bx-grid-alt'></i><span>Task Manager</span></a></li>
-            <li><a href="{% url 'calender' %}" class="active"><i class='bx bx-calendar'></i><span>Calendar</span></a></li>
+            <li><a href="{% url 'TaskManager' %}"><i class='bx bx-grid-alt'></i><span>Task Manager</span></a></li>
+            <li><a href="{% url 'calender' %}"><i class='bx bx-calendar'></i><span>Calendar</span></a></li>
             <li><a href="{% url 'DocumentStorage' %}"><i class='bx bx-folder'></i><span>Document Manager</span></a></li>
-            <li><a href="{% url 'Subscription' %}" ><i class='bx bx-cloud-download'></i><span>Subscription Tracker</span></a></li>
+            <li><a href="{% url 'Subscription' %}"><i class='bx bx-cloud-download'></i><span>Subscription Tracker</span></a></li>
             <li><a href="{% url 'BillManager' %}"><i class='bx bx-receipt'></i><span>Bill Manager</span></a></li>
-            <li><a href="#" data-resize-btn>
-              <i class='bx bx-chevrons-right'></i><span>Collapse</span>
-            </a></li>
+            <li><a href="{% url 'HealthManager' %}" class="active"><i class='bx bx-dumbbell'></i><span>Health Manager</span></a></li>
           </ul>
+          <div class="collapse-btn">
+            <a href="#" data-resize-btn>
+              <i class='bx bx-chevrons-right'></i><span>Collapse</span>
+            </a>
+          </div>
           <div class="logout-btn">
             <a href="{% url 'login' %}">
               <i class='bx bx-log-out'></i><span>Logout</span>
             </a>
           </div>
         </nav>
-          </aside>
+      </aside>
 
         <main class="content">
             <header class="header">

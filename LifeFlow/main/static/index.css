@@ -645,3 +645,190 @@ h1 {
   font-size: 2.5rem;
 }
 
+/* Health Manager */
+.circle-card, .metric-card {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: var(--background-light);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+  transition: transform 0.3s;
+}
+
+.circle-card:hover, .metric-card:hover {
+  transform: scale(1.05);
+}
+
+.circle-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--text-light);
+}
+
+.circle-label {
+  margin-top: 5px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.progress-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.progress-ring {
+  transform: rotate(-90deg);
+}
+
+.progress-ring-bg,
+.progress-ring-fill {
+  fill: none;
+  stroke-width: 10;
+  cx: 60;
+  cy: 60;
+  r: 50;
+}
+
+.progress-ring-bg {
+  stroke: #2e2e2e;
+}
+
+.progress-ring-fill {
+  stroke-linecap: round;
+  stroke-dasharray: 314;
+  stroke-dashoffset: 314;
+  transition: stroke-dashoffset 1s ease-out;
+}
+
+.progress-ring-fill.weight {
+  stroke: #4ECDC4;
+  stroke-dashoffset: calc(314 - (314 * 0.77));
+}
+
+.progress-ring-fill.water {
+  stroke: #FFE66D;
+  stroke-dashoffset: calc(314 - (314 * 0.6));
+}
+
+.progress-ring-fill.steps {
+  stroke: #1e90ff;
+  stroke-dashoffset: calc(314 - (314 * 0.25));
+}
+
+.progress-ring-fill.calories {
+  stroke: #ff9f43;
+  stroke-dashoffset: calc(314 - (314 * 0.66));
+}
+
+.progress-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.progress-label .value {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--text-light);
+}
+
+.progress-label .label {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.health-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 40px;
+  justify-items: center;
+  margin-top: 40px;
+  padding: 0 2rem;
+}
+
+.progress-container.large {
+  width: 160px;
+  height: 160px;
+}
+
+.progress-ring-bg,
+.progress-ring-fill {
+  stroke-width: 12;
+}
+
+.progress-ring-fill {
+  stroke-dasharray: 440; /* 2πr = 2 * π * 70 */
+  stroke-dashoffset: 440;
+  transition: stroke-dashoffset 1s ease-out;
+}
+
+.progress-ring-fill.weight {
+  stroke: #4ECDC4;
+  stroke-dashoffset: calc(440 - (440 * 0.77));
+}
+
+.progress-ring-fill.water {
+  stroke: #FFE66D;
+  stroke-dashoffset: calc(440 - (440 * 0.6));
+}
+
+.progress-ring-fill.steps {
+  stroke: #1e90ff;
+  stroke-dashoffset: calc(440 - (440 * 0.25));
+}
+
+.progress-ring-fill.calories {
+  stroke: #ff9f43;
+  stroke-dashoffset: calc(440 - (440 * 0.66));
+}
+
+.progress-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.progress-label .value {
+  font-size: 22px;
+  font-weight: bold;
+  color: var(--text-light);
+}
+
+.progress-label .label {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.health-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 60px;
+  flex-wrap: wrap;
+}
+
+.health-row.two {
+  margin-top: 20px;
+  margin-bottom: 40px;
+}
+
+.health-row.three {
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.progress-ring-fill.bodyfat {
+  stroke: #7ED957;
+  stroke-dashoffset: calc(440 - (440 * 0.256)); /* 25.6% */
+}
+
+
+

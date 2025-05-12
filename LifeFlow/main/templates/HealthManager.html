@@ -1,0 +1,209 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Manager - LifeFlow</title>
+  <link rel="stylesheet" href="{% static 'index.css' %}?v=3">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <style>
+    .health-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 60px;
+      margin-top: 40px;
+    }
+
+    .health-row {
+      display: flex;
+      justify-content: center;
+      gap: 80px;
+      flex-wrap: wrap;
+    }
+
+    .progress-container.large {
+      width: 160px;
+      height: 160px;
+      position: relative;
+    }
+
+    .progress-ring {
+      transform: rotate(-90deg);
+    }
+
+    .progress-ring-bg,
+    .progress-ring-fill {
+      fill: none;
+      stroke-width: 12;
+      cx: 80;
+      cy: 80;
+      r: 70;
+    }
+
+    .progress-ring-bg {
+      stroke: #2e2e2e;
+    }
+
+    .progress-ring-fill {
+      stroke-linecap: round;
+      stroke-dasharray: 440;
+      stroke-dashoffset: 440;
+      transition: stroke-dashoffset 1s ease-out;
+    }
+
+    .progress-ring-fill.weight {
+      stroke: #4ECDC4;
+      stroke-dashoffset: calc(440 - (440 * 0.77));
+    }
+
+    .progress-ring-fill.bodyfat {
+      stroke: #7ED957;
+      stroke-dashoffset: calc(440 - (440 * 0.256));
+    }
+
+    .progress-ring-fill.water {
+      stroke: #FFE66D;
+      stroke-dashoffset: calc(440 - (440 * 0.6));
+    }
+
+    .progress-ring-fill.steps {
+      stroke: #1e90ff;
+      stroke-dashoffset: calc(440 - (440 * 0.25));
+    }
+
+    .progress-ring-fill.calories {
+      stroke: #ff9f43;
+      stroke-dashoffset: calc(440 - (440 * 0.66));
+    }
+
+    .progress-label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .progress-label .value {
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--text-light);
+    }
+
+    .progress-label .label {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <aside>
+      <div class="user">
+        <i class='bx bx-user'></i>
+      </div>
+      <nav class="nav">
+        <ul class="nav-links">
+          <li><a href="{% url 'TaskManager' %}"><i class='bx bx-grid-alt'></i><span>Task Manager</span></a></li>
+          <li><a href="{% url 'calender' %}"><i class='bx bx-calendar'></i><span>Calendar</span></a></li>
+          <li><a href="{% url 'DocumentStorage' %}"><i class='bx bx-folder'></i><span>Document Manager</span></a></li>
+          <li><a href="{% url 'Subscription' %}"><i class='bx bx-cloud-download'></i><span>Subscription Tracker</span></a></li>
+          <li><a href="{% url 'BillManager' %}"><i class='bx bx-receipt'></i><span>Bill Manager</span></a></li>
+          <li><a href="{% url 'HealthManager' %}" class="active"><i class='bx bx-dumbbell'></i><span>Health Manager</span></a></li>
+        </ul>
+        <div class="collapse-btn">
+          <a href="#" data-resize-btn>
+            <i class='bx bx-chevrons-right'></i><span>Collapse</span>
+          </a>
+        </div>
+        <div class="logout-btn">
+          <a href="{% url 'login' %}">
+            <i class='bx bx-log-out'></i><span>Logout</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <header class="header">
+        <div class="date">Monday, December 14th, 2025</div>
+        <h1>Health Manager</h1>
+      </header>
+
+      <section class="health-section">
+        <!-- Row 1: Weight & Body Fat -->
+        <div class="health-row">
+          <div class="progress-container large">
+            <svg class="progress-ring" width="160" height="160">
+              <circle class="progress-ring-bg" cx="80" cy="80" r="70"/>
+              <circle class="progress-ring-fill weight" cx="80" cy="80" r="70"/>
+            </svg>
+            <div class="progress-label">
+              <div class="value">77kg</div>
+              <div class="label">Weight</div>
+            </div>
+          </div>
+
+          <div class="progress-container large">
+            <svg class="progress-ring" width="160" height="160">
+              <circle class="progress-ring-bg" cx="80" cy="80" r="70"/>
+              <circle class="progress-ring-fill bodyfat" cx="80" cy="80" r="70"/>
+            </svg>
+            <div class="progress-label">
+              <div class="value">25.6%</div>
+              <div class="label">Body Fat</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Water, Steps, Calories -->
+        <div class="health-row">
+          <div class="progress-container large">
+            <svg class="progress-ring" width="160" height="160">
+              <circle class="progress-ring-bg" cx="80" cy="80" r="70"/>
+              <circle class="progress-ring-fill water" cx="80" cy="80" r="70"/>
+            </svg>
+            <div class="progress-label">
+              <div class="value">1.5L</div>
+              <div class="label">Water</div>
+            </div>
+          </div>
+
+          <div class="progress-container large">
+            <svg class="progress-ring" width="160" height="160">
+              <circle class="progress-ring-bg" cx="80" cy="80" r="70"/>
+              <circle class="progress-ring-fill steps" cx="80" cy="80" r="70"/>
+            </svg>
+            <div class="progress-label">
+              <div class="value">2500</div>
+              <div class="label">Steps</div>
+            </div>
+          </div>
+
+          <div class="progress-container large">
+            <svg class="progress-ring" width="160" height="160">
+              <circle class="progress-ring-bg" cx="80" cy="80" r="70"/>
+              <circle class="progress-ring-fill calories" cx="80" cy="80" r="70"/>
+            </svg>
+            <div class="progress-label">
+              <div class="value">3300</div>
+              <div class="label">Calories</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const resizeBtn = document.querySelector("[data-resize-btn]");
+    resizeBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      document.body.classList.toggle("sb-expanded");
+    });
+  </script>
+</body>
+</html>

@@ -105,3 +105,6 @@ def LandingPage(request):
 
 def DocumentStorage(request):
     return render(request, 'DocumentStorage.html')
+
+def HealthManager(request):
+    return render(request, 'HealthManager.html')
