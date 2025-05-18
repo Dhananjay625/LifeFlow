@@ -650,7 +650,6 @@ h1 {
   font-size: 2.5rem;
 }
 
-<<<<<<< HEAD
 /* Health Manager */
 .circle-card, .metric-card {
   width: 140px;
@@ -843,9 +842,6 @@ h1 {
   margin-right: 8px;
 }
 
-
-
-=======
 /* Dashboard page */
 .recommendation {
   margin-bottom: 2rem;
@@ -909,4 +905,4 @@ h1 {
   border-radius: 12px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
->>>>>>> dashboard
+
