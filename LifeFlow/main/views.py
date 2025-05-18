@@ -123,11 +123,8 @@ def LandingPage(request):
 def DocumentStorage(request):
     return render(request, 'DocumentStorage.html')
 
-<<<<<<< HEAD
 def HealthManager(request):
     return render(request, 'HealthManager.html')
-=======
 @login_required
 def dashboard(request):
     return render(request, 'dashboard.html')
->>>>>>> dashboard
