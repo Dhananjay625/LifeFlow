@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from django.shortcuts import render, redirect
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import User
@@ -25,6 +26,10 @@ def login_view(request):
                 return render(request, 'index.html', {'error': 'Invalid username or password.'})
         except User.DoesNotExist:
             return render(request, 'index.html', {'error': 'Invalid username or password.'})
+=======
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+>>>>>>> dashboard
 
     return render(request, 'index.html')
 
@@ -123,5 +128,11 @@ def LandingPage(request):
 def DocumentStorage(request):
     return render(request, 'DocumentStorage.html')
 
+<<<<<<< HEAD
 def HealthManager(request):
     return render(request, 'HealthManager.html')
+=======
+@login_required
+def dashboard(request):
+    return render(request, 'dashboard.html')
+>>>>>>> dashboard
