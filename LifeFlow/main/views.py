@@ -5,26 +5,25 @@ from .models import Task
 from .forms import TaskForm
 from django.contrib.auth.decorators import login_required
 from .models import Bill
-
+from django.http import JsonResponse
+from django.contrib.auth import authenticate, login
 
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        try:
-            user = User.objects.get(username=username)
-            print("User found:", user.username)
-            print("Entered:", password)
-            print("In DB:", user.password)
-            print("Match:", check_password(password, user.password))
-
-            if check_password(password, user.password):
-                return redirect('calender')
-            else:
-                return render(request, 'index.html', {'error': 'Invalid username or password.'})
-        except User.DoesNotExist:
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)  # THIS sets the session!
+            next_url = request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
+            return redirect('calender')
+        else:
             return render(request, 'index.html', {'error': 'Invalid username or password.'})
+
+    return render(request, 'index.html')
 
     return render(request, 'index.html')
 
@@ -92,6 +91,39 @@ def archive_task(request, task_id):
 
 def calender(request):
     return render(request, 'calender.html')
+
+@login_required
+def add_item(request, item_type):
+    # Your dynamic form logic here
+    return render(request, 'add_item.html', {'item_type': item_type})
+
+@login_required
+def calendar_events(request):
+    tasks = Task.objects.filter(user=request.user).values(
+        'title', 'due_date', 'status', 'priority'
+    )
+    bills = Bill.objects.filter(status='active').values(
+        'name', 'renewal_date', 'cost'
+    )
+
+    events = []
+    for task in tasks:
+        events.append({
+            'title': task['title'],
+            'start': task['due_date'],
+            'type': 'task',
+            'status': task['status'],
+            'priority': task['priority'],
+        })
+
+    for bill in bills:
+        events.append({
+            'title': f"{bill['name']} Renewal (${bill['cost']})",
+            'start': bill['renewal_date'],
+            'type': 'subscription',
+        })
+
+    return JsonResponse(events, safe=False)
 
 def Subscription(request):
     return render(request, 'Subscription.html')

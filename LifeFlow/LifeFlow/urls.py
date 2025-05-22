@@ -34,4 +34,6 @@ urlpatterns = [
     path('archive/<int:task_id>/', views.archive_task, name='archive_task'),
     path('HealthManager/', views.HealthManager, name='HealthManager'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('calendar/events/', views.calendar_events, name='calendar_events'),
+    path('add/<str:item_type>/', views.add_item, name='add_item'),
 ]

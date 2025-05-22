@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add {{ item_type|capfirst }} | LifeFlow</title>
+    {% load static %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'index.css' %}?v=2">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div class="form-container">
+      <h2>Add {{ item_type|capfirst }}</h2>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if item_type == "bill" %}
+          <div class="form-group">
+            <label for="name">Bill Name</label>
+            <input type="text" name="name" id="name" required>
+          </div>
+          <div class="form-group">
+            <label for="cost">Cost</label>
+            <input type="number" name="cost" id="cost" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label for="renewal_date">Renewal Date</label>
+            <input type="date" name="renewal_date" id="renewal_date">
+          </div>
+          <div class="form-group">
+            <label for="contract_type">Contract Type</label>
+            <input type="text" name="contract_type" id="contract_type">
+          </div>
+        {% elif item_type == "subscription" %}
+          <div class="form-group">
+            <label for="name">Subscription Name</label>
+            <input type="text" name="name" id="name" required>
+          </div>
+          <div class="form-group">
+            <label for="cost">Cost</label>
+            <input type="number" name="cost" id="cost" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label for="renewal_date">Renewal Date</label>
+            <input type="date" name="renewal_date" id="renewal_date">
+          </div>
+          <div class="form-group">
+            <label for="contract_type">Plan Type</label>
+            <input type="text" name="contract_type" id="contract_type">
+          </div>
+        {% elif item_type == "document" %}
+          <div class="form-group">
+            <label for="doc_name">Document Name</label>
+            <input type="text" name="doc_name" id="doc_name" required>
+          </div>
+          <div class="form-group">
+            <label for="upload">Upload File</label>
+            <input type="file" name="upload" id="upload">
+          </div>
+        {% elif item_type == "task" %}
+          <div class="form-group">
+            <label for="title">Task Title</label>
+            <input type="text" name="title" id="title" required>
+          </div>
+          <div class="form-group">
+            <label for="description">Description</label>
+            <input type="text" name="description" id="description">
+          </div>
+          <div class="form-group">
+            <label for="due_date">Due Date</label>
+            <input type="date" name="due_date" id="due_date">
+          </div>
+          <div class="form-group">
+            <label for="reminder_time">Reminder Time</label>
+            <input type="datetime-local" name="reminder_time" id="reminder_time">
+          </div>
+          <div class="form-group">
+            <label for="priority">Priority</label>
+            <select name="priority" id="priority">
+              <option value="high">High</option>
+              <option value="medium" selected>Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+        {% endif %}
+
+        <div class="calendar-check">
+          <input type="checkbox" name="add_to_calendar" id="add_to_calendar">
+          <label for="add_to_calendar">Add to Calendar</label>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="add-btn">
+            <i class='bx bx-plus'></i> Add {{ item_type|capfirst }}
+          </button>
+        </div>
+      </form>
+    </div>
+</body>
+</html>
