@@ -93,10 +93,9 @@
                 <p>Cost: $40 / Fortnightly</p>
               </div>
             </div>
-
-            <div class="subscription-item">
-                <h3>+</h3>
-              </div>
+            <a href="{% url 'add_item' 'subscription' %}" class="add-btn">
+              <i class='bx bx-plus'></i> 
+            </a>
           </section>
 
           <section class="chart-section">
@@ -106,9 +105,6 @@
               <div class="bar yellow" style="height: 40px;"><span>$40</span></div>
             </div>
             <div class="total-cost">Annual Cost = $1100</div>
-            <a href="{% url 'add_item' 'subscription' %}" class="add-btn">
-              <i class='bx bx-plus'></i> Add Subscription
-            </a>
           </section>
 
           

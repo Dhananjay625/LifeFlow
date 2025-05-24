@@ -78,34 +78,31 @@
                 <span class="status-dot" style="background-color: hsl({{ bill.hue }}, 60%, 50%)"></span>
                 {{ bill.obj.name }}
               </h3>
-              
               <p>Cost: ${{ bill.obj.cost }} / Month {% if bill.obj.renewal_date %}(renews {{ bill.obj.renewal_date|date:"d/m/Y" }}){% endif %}</p>
               <p>Contract: {{ bill.obj.contract_type }}</p>
             </div>
           </div>
           {% endfor %}
+          <div>
+            <a href="{% url 'add_item' 'bill' %}" class="add-btn">
+              <i class='bx bx-plus'></i> 
+            </a>
+          </div>
         </section>        
         
-
         <section class="chart-section">
           <div class="chart">
             {% for bill in bills %}
-        <div class="bar"
-            style="height: {{ bill.obj.cost|floatformat:0 }}px; background-color: hsl({{ bill.hue }}, 60%, 50%);">
-          <span>${{ bill.obj.cost }}</span>
-        </div>
-        {% endfor %}
+            <div class="bar"
+                style="height: {{ bill.obj.cost|floatformat:0 }}px; background-color: hsl({{ bill.hue }}, 60%, 50%);">
+              <span>${{ bill.obj.cost }}</span>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="total-cost">Monthly Cost = ${{ total_cost }}</div>
 
-        </div>
-        <div class="total-cost">Monthly Cost = ${{ total_cost }}</div>
-
-        <a href="{% url 'add_item' 'bill' %}" class="add-btn">
-          <i class='bx bx-plus'></i> Add Bill
-        </a>
         </section>
-        
-        
-        
+
 
       </div>
     </main>
