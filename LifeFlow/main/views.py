@@ -160,3 +160,9 @@ def HealthManager(request):
 @login_required
 def dashboard(request):
     return render(request, 'dashboard.html')
+
+@login_required
+def user_profile(request):
+    return render(request, 'UserProfile.html', {
+        'user': request.user
+    })

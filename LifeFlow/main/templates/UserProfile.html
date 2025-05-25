@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Profile - LifeFlow</title>
+  <link rel="stylesheet" href="{% static 'index.css' %}?v=3">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+  <div class="container">
+    <aside>
+      <nav class="nav">
+        <ul class="nav-links">
+          <li>
+            <a href="{% url 'UserProfile' %}" class="active">
+              <i class='bx bx-user'></i><span>User Profile</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'TaskManager' %}">
+              <i class='bx bx-grid-alt'></i><span>Task Manager</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'calender' %}">
+              <i class='bx bx-calendar'></i><span>Calendar</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'DocumentStorage' %}">
+              <i class='bx bx-folder'></i><span>Document Manager</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'Subscription' %}">
+              <i class='bx bx-cloud-download'></i><span>Subscription Tracker</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'BillManager' %}">
+              <i class='bx bx-receipt'></i><span>Bill Manager</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'HealthManager' %}">
+              <i class='bx bx-dumbbell'></i><span>Health Manager</span>
+            </a>
+          </li>
+        </ul>
+        <div class="collapse-btn">
+          <a href="#" data-resize-btn>
+            <i class='bx bx-chevrons-right'></i><span>Collapse</span>
+          </a>
+        </div>
+        <div class="logout-btn">
+          <a href="{% url 'login' %}">
+            <i class='bx bx-log-out'></i><span>Logout</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <header class="header">
+        <div class="date">{{ date|default:"Monday, December 14, 2025" }}</div>
+        <h1>User Profile</h1>
+      </header>
+    
+      <section class="profile-layout" style="
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 2rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+">
+
+        <!-- Welcome Card -->
+        <div class="form-container" style="max-width: 250px; padding: 3rem;">
+          <h2 style="font-size: 2rem; color: var(--primary-color); margin-bottom: 1.2rem;">Welcome, {{ user.username }}!</h2>
+          <p style="font-size: 16px; color: var(--text-light); line-height: 1.7;">
+            Thank you for being a part of LifeFlow. We're here to help simplify your day-to-day life. Whether it's managing tasks, tracking bills, or staying on top of your wellness goals — everything is now in one place.
+            <br><br>
+            Stay focused, stay healthy, and keep thriving. You've got this!
+          </p>
+        </div>
+      
+        <!-- User Info Card -->
+        <div class="form-container" style="min-width: 250px; padding: 3rem;">
+          <h2 style="color: var(--primary-color); font-size: 2rem; margin-bottom: 1.2rem;">Personal Info</h2>
+          <div style="font-size: 17px; color: var(--text-light); line-height: 2;">
+            <p><strong>Username:</strong><br> {{ user.username }}</p>
+            <p style="margin-top: 1rem;"><strong>Email:</strong><br> {{ user.email }}</p>
+          </div>
+        </div>
+      
+        <!-- Change Password Card -->
+        <div class="form-container" style="max-width: 300px; padding: 3rem;">
+          <h2 style="color: var(--primary-color); font-size: 2rem; margin-bottom: 1.2rem;">Change Password</h2>
+          <form method="POST" action="{% url 'change_password' %}">
+            {% csrf_token %}
+            
+            <div class="form-group" style= "margin-right: 1rem;" >
+              <label for="old_password" style="font-size: 16px;">Current Password</label>
+              <input type="password" id="old_password" name="old_password" required />
+            </div>
+      
+            <div class="form-group" style= "margin-right: 1rem;">
+              <label for="new_password1" style="font-size: 16px;">New Password</label>
+              <input type="password" id="new_password1" name="new_password1" required />
+            </div>
+      
+            <div class="form-group" style= "margin-right: 1rem;">
+              <label for="new_password2" style="font-size: 16px;">Confirm New Password</label>
+              <input type="password" id="new_password2" name="new_password2" required />
+            </div>
+      
+            <div class="form-actions" style="margin-top: 1.5rem;">
+              <button type="submit" style="
+                background: var(--primary-color);
+                border: none;
+                padding: 14px;
+                border-radius: 8px;
+                color: white;
+                font-size: 18px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: background 0.3s;
+                width: 102%;
+              ">
+                Change Password
+              </button>
+            </div>
+          </form>
+        </div>
+      
+      </section>
+      
+    </main>
+    
+    
+  </div>
+
+  <script>
+    const resizeBtn = document.querySelector("[data-resize-btn]");
+    resizeBtn?.addEventListener("click", function (e) {
+      e.preventDefault();
+      document.body.classList.toggle("sb-expanded");
+    });
+  </script>
+</body>
+</html>

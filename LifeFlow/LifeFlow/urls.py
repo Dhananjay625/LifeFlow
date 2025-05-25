@@ -15,7 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.contrib.auth import views as auth_views
+
 from main import views
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,9 +34,15 @@ urlpatterns = [
     path('list/', views.task_list, name='task_list'),
     path('complete/<int:task_id>/', views.complete_task, name='complete_task'),
     path('archive/<int:task_id>/', views.archive_task, name='archive_task'),
-    path('archive/<int:task_id>/', views.archive_task, name='archive_task'),
     path('HealthManager/', views.HealthManager, name='HealthManager'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('calendar/events/', views.calendar_events, name='calendar_events'),
     path('add/<str:item_type>/', views.add_item, name='add_item'),
+
+    # ✅ NEW: User profile + password change
+    path('UserProfile/', views.user_profile, name='UserProfile'),
+    path('change-password/', auth_views.PasswordChangeView.as_view(
+        template_name='UserProfile.html',
+        success_url='/UserProfile/'
+    ), name='change_password'),
 ]
