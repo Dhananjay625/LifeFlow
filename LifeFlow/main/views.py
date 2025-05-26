@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Bill
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate
 
 def login_view(request):
     if request.method == 'POST':
@@ -152,7 +153,10 @@ def BillManager(request):
 def LandingPage(request):
     return render(request, 'LandingPage.html')
 
+@login_required
 def DocumentStorage(request):
+    if not request.session.get('document_verified'):
+        return redirect('confirm_password')
     return render(request, 'DocumentStorage.html')
 
 def HealthManager(request):
@@ -166,3 +170,16 @@ def user_profile(request):
     return render(request, 'UserProfile.html', {
         'user': request.user
     })
+
+@login_required
+def confirm_password(request):
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        user = authenticate(username=request.user.username, password=password)
+        if user is not None:
+            request.session['document_verified'] = True
+            return redirect('DocumentStorage')
+        else:
+            return render(request, 'confirm_password.html', {'error': 'Incorrect password.'})
+    return render(request, 'confirm_password.html')
+

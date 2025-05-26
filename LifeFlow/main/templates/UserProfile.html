@@ -16,7 +16,7 @@
         <ul class="nav-links">
           <li>
             <a href="{% url 'UserProfile' %}" class="active">
-              <i class='bx bx-user'></i><span>User Profile</span>
+              <i class='bx bx-user'></i><span><strong>{{ user.username }}</strong></span>
             </a>
           </li>
           <li>
@@ -30,7 +30,7 @@
             </a>
           </li>
           <li>
-            <a href="{% url 'DocumentStorage' %}">
+            <a href="{% url 'confirm_password' %}">
               <i class='bx bx-folder'></i><span>Document Manager</span>
             </a>
           </li>
