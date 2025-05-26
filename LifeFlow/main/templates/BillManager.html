@@ -80,9 +80,16 @@
                 <span class="status-dot" style="background-color: hsl({{ bill.hue }}, 60%, 50%)"></span>
                 {{ bill.obj.name }}
               </h3>
-              <p>Cost: ${{ bill.obj.cost }} / Month {% if bill.obj.renewal_date %}(renews {{ bill.obj.renewal_date|date:"d/m/Y" }}){% endif %}</p>
+              <p>Cost: ${{ bill.obj.cost }} / Month 
+                {% if bill.obj.renewal_date %}(renews {{ bill.obj.renewal_date|date:"d/m/Y" }}){% endif %}
+              </p>
               <p>Contract: {{ bill.obj.contract_type }}</p>
             </div>
+          
+            <!-- Delete Icon on the right -->
+            <button class="delete-btn" onclick="openConfirmModal({{ bill.obj.id }})">
+              <i class='bx bx-trash'></i>
+            </button>
           </div>
           {% endfor %}
           <div>
@@ -117,5 +124,36 @@
       document.body.classList.toggle("sb-expanded");
     });
   </script>
+  <div id="customConfirmModal" class="modal">
+    <div class="modal-content">
+      <p>Are you sure you want to delete this bill?</p>
+      <div class="modal-buttons">
+        <button id="cancelBtn">Cancel</button>
+        <form method="POST" id="confirmDeleteForm">
+          {% csrf_token %}
+          <button type="submit" class="delete-confirm">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script>
+    function openConfirmModal(billId) {
+      const form = document.getElementById('confirmDeleteForm');
+      form.action = `/delete-bill/${billId}/`;
+      document.getElementById('customConfirmModal').style.display = 'block';
+    }
+  
+    document.getElementById('cancelBtn').addEventListener('click', function () {
+      document.getElementById('customConfirmModal').style.display = 'none';
+    });
+  
+    window.onclick = function(event) {
+      const modal = document.getElementById('customConfirmModal');
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+  </script>
+  
 </body>
 </html>

@@ -8,6 +8,9 @@ from .models import Bill
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import authenticate
+from django.shortcuts import redirect, get_object_or_404
+from .models import Bill
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -98,9 +101,28 @@ def archive_task(request, task_id):
 def calender(request):
     return render(request, 'calender.html')
 
-@login_required
 def add_item(request, item_type):
-    # Your dynamic form logic here
+    if request.method == 'POST':
+        if item_type == 'bill':
+            name = request.POST.get('name')
+            cost = request.POST.get('cost')
+            renewal_date = request.POST.get('renewal_date') or None
+            contract_type = request.POST.get('contract_type') or 'NA'
+            add_to_calendar = request.POST.get('add_to_calendar')
+
+            
+            status = 'active'  
+
+            Bill.objects.create(
+                name=name,
+                cost=cost,
+                renewal_date=renewal_date,
+                contract_type=contract_type,
+                status=status
+            )
+
+            return redirect('BillManager')  
+
     return render(request, 'add_item.html', {'item_type': item_type})
 
 @login_required
@@ -188,3 +210,9 @@ def confirm_password(request):
             return render(request, 'confirm_password.html', {'error': 'Incorrect password.'})
     return render(request, 'confirm_password.html')
 
+
+def delete_bill(request, bill_id):
+    if request.method == 'POST':
+        bill = get_object_or_404(Bill, id=bill_id)
+        bill.delete()
+    return redirect('BillManager')

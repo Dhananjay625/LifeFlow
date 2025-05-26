@@ -40,6 +40,8 @@ urlpatterns = [
     path('calendar/events/', views.calendar_events, name='calendar_events'),
     path('add/<str:item_type>/', views.add_item, name='add_item'),
     path('UserProfile/', views.user_profile, name='UserProfile'),
+    path('delete-bill/<int:bill_id>/', views.delete_bill, name='delete_bill'),
+
     path('change-password/', auth_views.PasswordChangeView.as_view(
         template_name='UserProfile.html',
         success_url='/UserProfile/'

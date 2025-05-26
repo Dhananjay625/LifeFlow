@@ -1088,3 +1088,85 @@ h1 {
   resize: vertical;
 }
 
+.subscription-item {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--background-light);
+  padding: 20px 25px;
+  border-radius: 12px;
+  min-height: 100px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.delete-btn {
+  background: transparent;
+  border: none;
+  color:  #FF6B6B;
+  font-size: 24px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.delete-btn:hover {
+  transform: scale(1.2);
+  color: #FF6B6B;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 10;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.modal-content {
+  background-color: #1f1f1f;
+  margin: 15% auto;
+  padding: 24px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  color: #eee;
+  text-align: center;
+  animation: fadeIn 0.4s ease-in-out;
+  border: 1px solid #333; /* optional subtle border */
+}
+
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+.modal-content button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+#cancelBtn {
+  background-color: transparent;
+  border: 2px solid #FF6B6B;
+  color: #FF6B6B;
+}
+
+.delete-confirm {
+  background-color: #FF6B6B;
+  color: white;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
