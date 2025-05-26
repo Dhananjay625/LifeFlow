@@ -16,10 +16,11 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)  # THIS sets the session!
+            print(f"[DEBUG] Logged in user: {user.username}")
             next_url = request.GET.get('next')
             if next_url:
                 return redirect(next_url)
-            return redirect('calender')
+            return redirect('dashboard')
         else:
             return render(request, 'index.html', {'error': 'Invalid username or password.'})
 
@@ -157,8 +158,10 @@ def DocumentStorage(request):
 
 def HealthManager(request):
     return render(request, 'HealthManager.html')
+
 @login_required
-def dashboard(request):
+def dashboard_view(request):
+    print(f"[DEBUG] Current user at dashboard: {request.user}")
     return render(request, 'dashboard.html')
 
 @login_required
