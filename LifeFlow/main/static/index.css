@@ -1076,3 +1076,15 @@ h1 {
 .confirm-box button:hover {
   background: #cc5555;
 }
+
+.form-group textarea {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  background: #232323;
+  border: none;
+  border-radius: 7px;
+  color: var(--text-light);
+  font-size: 1rem;
+  resize: vertical;
+}
+

@@ -39,8 +39,6 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('calendar/events/', views.calendar_events, name='calendar_events'),
     path('add/<str:item_type>/', views.add_item, name='add_item'),
-
-    # ✅ NEW: User profile + password change
     path('UserProfile/', views.user_profile, name='UserProfile'),
     path('change-password/', auth_views.PasswordChangeView.as_view(
         template_name='UserProfile.html',

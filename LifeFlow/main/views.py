@@ -65,10 +65,15 @@ def create_task(request):
             task = form.save(commit=False)
             task.user = request.user  
             task.save()
-            return redirect('task_list')  
+            return redirect('TaskManager')  
     else:
         form = TaskForm()
-    return render(request, 'create_task.html', {'form': form})
+    
+    return render(request, 'add_item.html', {
+        'form': form,
+        'item_type': 'task'  
+    })
+
 
 @login_required
 def task_list(request):

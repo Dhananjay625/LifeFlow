@@ -1,100 +1,239 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Add {{ item_type|capfirst }} | LifeFlow</title>
-    {% load static %}
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'index.css' %}?v=2">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <meta charset="UTF-8">
+  <title>Add {{ item_type|capfirst }} | LifeFlow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --primary-color: #FF6B6B;
+      --background-dark: #181818;
+      --background-light: #1f1f1f;
+      --text-light: #eee;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--background-dark);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text-light);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .form-container {
+      background: var(--background-light);
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    h2 {
+      color: var(--primary-color);
+      font-size: 28px;
+      margin-bottom: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      color: #ccc;
+    }
+
+    input, select, textarea {
+      width: 94%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      background: #2a2a2a;
+      color: var(--text-light);
+      font-size: 1rem;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    input[type="file"] {
+      padding: 0;
+      background: none;
+    }
+
+    .calendar-check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1rem;
+      margin-bottom: 24px;
+      justify-content: flex-start;
+    }
+
+    .calendar-check input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--primary-color);
+      cursor: pointer;
+    }
+
+    .calendar-check label {
+      color: #ccc;
+      cursor: pointer;
+      margin-bottom: 0.2rem;
+
+    }
+
+    .form-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .add-btn {
+      background-color: var(--primary-color);
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .add-btn:hover {
+      background-color: #cc5555;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .cancel-btn {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  background: transparent;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  font-weight: bold;
+  padding: 0.9rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 92%;
+}
+
+.cancel-btn:hover {
+  background: #2a2a2a;
+}
+
+
+  </style>
 </head>
+
 <body>
-    <div class="form-container">
-      <h2>Add {{ item_type|capfirst }}</h2>
-      <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
+  <div class="form-container">
+    <h2>Add {{ item_type|capfirst }}</h2>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
 
-        {% if item_type == "bill" %}
-          <div class="form-group">
-            <label for="name">Bill Name</label>
-            <input type="text" name="name" id="name" required>
-          </div>
-          <div class="form-group">
-            <label for="cost">Cost</label>
-            <input type="number" name="cost" id="cost" step="0.01" required>
-          </div>
-          <div class="form-group">
-            <label for="renewal_date">Renewal Date</label>
-            <input type="date" name="renewal_date" id="renewal_date">
-          </div>
-          <div class="form-group">
-            <label for="contract_type">Contract Type</label>
-            <input type="text" name="contract_type" id="contract_type">
-          </div>
-        {% elif item_type == "subscription" %}
-          <div class="form-group">
-            <label for="name">Subscription Name</label>
-            <input type="text" name="name" id="name" required>
-          </div>
-          <div class="form-group">
-            <label for="cost">Cost</label>
-            <input type="number" name="cost" id="cost" step="0.01" required>
-          </div>
-          <div class="form-group">
-            <label for="renewal_date">Renewal Date</label>
-            <input type="date" name="renewal_date" id="renewal_date">
-          </div>
-          <div class="form-group">
-            <label for="contract_type">Plan Type</label>
-            <input type="text" name="contract_type" id="contract_type">
-          </div>
-        {% elif item_type == "document" %}
-          <div class="form-group">
-            <label for="doc_name">Document Name</label>
-            <input type="text" name="doc_name" id="doc_name" required>
-          </div>
-          <div class="form-group">
-            <label for="upload">Upload File</label>
-            <input type="file" name="upload" id="upload">
-          </div>
-        {% elif item_type == "task" %}
-          <div class="form-group">
-            <label for="title">Task Title</label>
-            <input type="text" name="title" id="title" required>
-          </div>
-          <div class="form-group">
-            <label for="description">Description</label>
-            <input type="text" name="description" id="description">
-          </div>
-          <div class="form-group">
-            <label for="due_date">Due Date</label>
-            <input type="date" name="due_date" id="due_date">
-          </div>
-          <div class="form-group">
-            <label for="reminder_time">Reminder Time</label>
-            <input type="datetime-local" name="reminder_time" id="reminder_time">
-          </div>
-          <div class="form-group">
-            <label for="priority">Priority</label>
-            <select name="priority" id="priority">
-              <option value="high">High</option>
-              <option value="medium" selected>Medium</option>
-              <option value="low">Low</option>
-            </select>
-          </div>
-        {% endif %}
-
-        <div class="calendar-check">
-          <input type="checkbox" name="add_to_calendar" id="add_to_calendar">
-          <label for="add_to_calendar">Add to Calendar</label>
+      {% if item_type == "bill" %}
+        <div class="form-group">
+          <label for="name">Bill Name</label>
+          <input type="text" name="name" id="name" required>
+        </div>
+        <div class="form-group">
+          <label for="cost">Cost</label>
+          <input type="number" name="cost" id="cost" step="0.01" required>
+        </div>
+        <div class="form-group">
+          <label for="renewal_date">Renewal Date</label>
+          <input type="date" name="renewal_date" id="renewal_date">
+        </div>
+        <div class="form-group">
+          <label for="contract_type">Contract Type</label>
+          <input type="text" name="contract_type" id="contract_type">
         </div>
 
-        <div class="form-actions">
-          <button type="submit" class="add-btn">
-            <i class='bx bx-plus'></i> Add {{ item_type|capfirst }}
-          </button>
+      {% elif item_type == "subscription" %}
+        <div class="form-group">
+          <label for="name">Subscription Name</label>
+          <input type="text" name="name" id="name" required>
         </div>
-      </form>
-    </div>
+        <div class="form-group">
+          <label for="cost">Cost</label>
+          <input type="number" name="cost" id="cost" step="0.01" required>
+        </div>
+        <div class="form-group">
+          <label for="renewal_date">Renewal Date</label>
+          <input type="date" name="renewal_date" id="renewal_date">
+        </div>
+        <div class="form-group">
+          <label for="contract_type">Plan Type</label>
+          <input type="text" name="contract_type" id="contract_type">
+        </div>
+
+      {% elif item_type == "document" %}
+        <div class="form-group">
+          <label for="doc_name">Document Name</label>
+          <input type="text" name="doc_name" id="doc_name" required>
+        </div>
+        <div class="form-group">
+          <label for="upload">Upload File</label>
+          <input type="file" name="upload" id="upload">
+        </div>
+
+      {% elif item_type == "task" %}
+        <div class="form-group">
+          <label for="title">Task Title</label>
+          <input type="text" name="title" id="title" required>
+        </div>
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea name="description" id="description" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="due_date">Due Date</label>
+          <input type="date" name="due_date" id="due_date">
+        </div>
+
+      {% endif %}
+
+      <div class="calendar-check">
+        <input type="checkbox" name="add_to_calendar" id="add_to_calendar">
+        <label for="add_to_calendar">Add to Calendar</label>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="add-btn"> Add {{ item_type|capfirst }}</button>
+        {% if item_type == "task" %}
+  <a href="{% url 'TaskManager' %}" class="cancel-btn">Cancel</a>
+{% elif item_type == "document" %}
+  <a href="{% url 'DocumentStorage' %}" class="cancel-btn">Cancel</a>
+{% elif item_type == "subscription" %}
+  <a href="{% url 'Subscription' %}" class="cancel-btn">Cancel</a>
+{% elif item_type == "bill" %}
+  <a href="{% url 'BillManager' %}" class="cancel-btn">Cancel</a>
+{% endif %}
+
+        </form>
+      </div>
+    </form>
+  </div>
 </body>
 </html>
