@@ -10,6 +10,11 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import authenticate
 from django.shortcuts import redirect, get_object_or_404
 from .models import Bill
+from .models import Document
+from django.shortcuts import get_object_or_404, redirect
+from .models import sub
+from django.contrib.auth.decorators import login_required
+
 
 
 def login_view(request):
@@ -101,6 +106,15 @@ def archive_task(request, task_id):
 def calender(request):
     return render(request, 'calender.html')
 
+from .models import Bill, Document
+from django.shortcuts import redirect, render
+from django.contrib.auth.decorators import login_required
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Bill, Document, sub
+
+@login_required
 def add_item(request, item_type):
     if request.method == 'POST':
         if item_type == 'bill':
@@ -110,8 +124,7 @@ def add_item(request, item_type):
             contract_type = request.POST.get('contract_type') or 'NA'
             add_to_calendar = request.POST.get('add_to_calendar')
 
-            
-            status = 'active'  
+            status = 'active'
 
             Bill.objects.create(
                 name=name,
@@ -120,10 +133,41 @@ def add_item(request, item_type):
                 contract_type=contract_type,
                 status=status
             )
+            return redirect('BillManager')
 
-            return redirect('BillManager')  
+        elif item_type == 'document':
+            doc_name = request.POST.get('doc_name')
+            uploaded_file = request.FILES.get('upload')
+
+            if uploaded_file:
+                Document.objects.create(
+                    user=request.user,
+                    doc_name=doc_name,
+                    file=uploaded_file
+                )
+            return redirect('DocumentStorage')
+
+        elif item_type == 'subscription':  # ✅ make sure the URL matches this
+            name = request.POST.get('name')
+            cost = request.POST.get('cost')
+            renewal_date = request.POST.get('renewal_date') or None
+            contract_type = request.POST.get('contract_type') or 'NA'
+            add_to_calendar = request.POST.get('add_to_calendar')
+
+            status = 'active'
+
+            sub.objects.create(
+                name=name,
+                cost=cost,
+                renewal_date=renewal_date,
+                contract_type=contract_type,
+                status=status
+            )
+            return redirect('Subscription')  # ✅ redirect to the correct tracker
 
     return render(request, 'add_item.html', {'item_type': item_type})
+
+
 
 @login_required
 def calendar_events(request):
@@ -153,8 +197,24 @@ def calendar_events(request):
 
     return JsonResponse(events, safe=False)
 
-def Subscription(request):
-    return render(request, 'Subscription.html')
+@login_required
+def SubscriptionTracker(request):
+    subs = sub.objects.all()
+    total_cost = sum(b.cost for b in subs)
+    
+    # Annotate bills with a "hue" field for coloring
+    subs_with_colors = [
+        {
+            "obj": sub,
+            "hue": (index + 1) * 60
+        }
+        for index, sub in enumerate(subs)
+    ]
+    
+    return render(request, 'Subscription.html', {
+        'subs': subs_with_colors,
+        'total_cost': total_cost
+    })
 
 def TaskManager(request):
     return render(request, 'TaskManager.html')
@@ -180,11 +240,21 @@ def BillManager(request):
 def LandingPage(request):
     return render(request, 'LandingPage.html')
 
+
 @login_required
 def DocumentStorage(request):
     if not request.session.get('document_verified'):
         return redirect('confirm_password')
-    return render(request, 'DocumentStorage.html')
+    
+    documents = Document.objects.all()
+    return render(request, 'DocumentStorage.html', {'documents': documents})
+
+
+@login_required
+def delete_document(request, doc_id):
+    document = get_object_or_404(Document, id=doc_id)
+    document.delete()
+    return redirect('DocumentStorage')
 
 def HealthManager(request):
     return render(request, 'HealthManager.html')
@@ -216,3 +286,12 @@ def delete_bill(request, bill_id):
         bill = get_object_or_404(Bill, id=bill_id)
         bill.delete()
     return redirect('BillManager')
+
+from django.shortcuts import get_object_or_404
+
+@login_required
+def delete_sub(request, sub_id):
+    subscription = get_object_or_404(sub, id=sub_id)
+    subscription.delete()
+    return redirect('Subscription')
+

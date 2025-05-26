@@ -122,7 +122,7 @@
       to { opacity: 1; transform: scale(1); }
     }
 
-    .cancel-btn {
+  .cancel-btn {
   display: block;
   text-align: center;
   text-decoration: none;
@@ -222,16 +222,16 @@
       <div class="form-actions">
         <button type="submit" class="add-btn"> Add {{ item_type|capfirst }}</button>
         {% if item_type == "task" %}
-  <a href="{% url 'TaskManager' %}" class="cancel-btn">Cancel</a>
-{% elif item_type == "document" %}
-  <a href="{% url 'DocumentStorage' %}" class="cancel-btn">Cancel</a>
-{% elif item_type == "subscription" %}
-  <a href="{% url 'Subscription' %}" class="cancel-btn">Cancel</a>
-{% elif item_type == "bill" %}
-  <a href="{% url 'BillManager' %}" class="cancel-btn">Cancel</a>
-{% endif %}
+          <a href="{% url 'TaskManager' %}" class="cancel-btn">Cancel</a>
+        {% elif item_type == "document" %}
+          <a href="{% url 'DocumentStorage' %}" class="cancel-btn">Cancel</a>
+        {% elif item_type == "subscription" %}
+          <a href="{% url 'Subscription' %}" class="cancel-btn">Cancel</a>
+        {% elif item_type == "bill" %}
+          <a href="{% url 'BillManager' %}" class="cancel-btn">Cancel</a>
+        {% endif %}
 
-        </form>
+            
       </div>
     </form>
   </div>

@@ -15,8 +15,8 @@
       <nav class="nav">
         <ul class="nav-links">
           <li>
-            <a href="{% url 'UserProfile' %}" {% if request.resolver_match.url_name == 'TaskManager' %}{% endif %}>
-              <i class='bx bx bx-user'></i><span><strong>{{ user.username }}</strong></span>
+            <a href="{% url 'UserProfile' %}">
+              <i class='bx bx-user'></i><span><strong>{{ user.username }}</strong></span>
             </a>
           </li>
           <li>
@@ -50,9 +50,9 @@
             </a>
           </li>
         </ul>
-        
+
         <div class="collapse-btn">
-          <a href="#" data-resize-btn>
+          <a href="#" id="resizeBtn">
             <i class='bx bx-chevrons-right'></i><span>Collapse</span>
           </a>
         </div>
@@ -70,48 +70,126 @@
         <h1>Document Storage</h1>
       </header>
 
-        <section class="subscription-list">
-          <div class="subscription-item">
-            <div class="details">
-              <h3>Passport</h3>
-              <p>ID: 123456789</p>
-              <p>Expiry: 12/12/2030</p>
-            </div>
-          </div>
+      <section class="subscription-list">
+       <!-- Inside <section class="subscription-list"> -->
+{% for doc in documents %}
+<div class="subscription-item" style="display: flex; justify-content: space-between; align-items: center;">
+  <div class="details">
+    <h3>{{ doc.doc_name }}</h3>
+    <a href="{{ doc.file.url }}" target="_blank" style="color: #FF6B6B; text-decoration: underline;">View</a>
+  </div>
+  <button class="delete-btn" onclick="openConfirmModal({{ doc.id }})">
+    <i class='bx bx-trash' style="color: #FF6B6B; font-size: 1.3rem;"></i>
+  </button>
+</div>
+{% empty %}
+        <p style="color: #999;">No documents uploaded yet.</p>
+{% endfor %}
 
-          <div class="subscription-item">
-            <div class="details">
-              <h3>Driver's License</h3>
-              <p>ID: DL98765432</p>
-              <p>Expiry: 10/10/2027</p>
-            </div>
-          </div>
-
-          <div class="subscription-item">
-            <div class="details">
-              <h3>Student ID</h3>
-              <p>ID: S123456</p>
-              <p>Expiry: 30/06/2026</p>
-            </div>
-          </div>
-          <a href="{% url 'add_item' 'document' %}" class="add-btn">
-            <i class='bx bx-plus'></i> 
-          </a>
-        </section>
-
-       
-
-      </div>
-
+        
+        <a href="{% url 'add_item' 'document' %}" class="add-btn">
+          <i class='bx bx-plus'></i> 
+        </a>
+      </section>
     </main>
   </div>
 
+  <div id="customConfirmModal" class="modal">
+    <div class="modal-content">
+      <p>Are you sure you want to delete this document?</p>
+      <div class="modal-buttons">
+        <button id="cancelBtn">Cancel</button>
+        <form method="POST" id="confirmDeleteForm">
+          {% csrf_token %}
+          <button type="submit" class="delete-confirm">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-content {
+      background-color: #1f1f1f;
+      margin: 15% auto;
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      color: #eee;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .modal-buttons button,
+    .modal-buttons .delete-confirm {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    #cancelBtn {
+      background-color: transparent;
+      border: 2px solid #FF6B6B;
+      color: #FF6B6B;
+    }
+
+    .delete-confirm {
+      background-color: #FF6B6B;
+      color: white;
+    }
+
+    #cancelBtn:hover {
+      background-color: #2a2a2a;
+    }
+
+    .delete-confirm:hover {
+      background-color: #cc5555;
+    }
+  </style>
+
   <script>
-    const resizeBtn = document.querySelector("[data-resize-btn]");
+    const resizeBtn = document.getElementById("resizeBtn");
     resizeBtn.addEventListener("click", function (e) {
       e.preventDefault();
       document.body.classList.toggle("sb-expanded");
     });
+
+    function openConfirmModal(docId) {
+      const form = document.getElementById('confirmDeleteForm');
+      form.action = `/delete-document/${docId}/`;
+      document.getElementById('customConfirmModal').style.display = 'block';
+    }
+
+    document.getElementById('cancelBtn').addEventListener('click', function () {
+      document.getElementById('customConfirmModal').style.display = 'none';
+    });
+
+    window.onclick = function(event) {
+      const modal = document.getElementById('customConfirmModal');
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
   </script>
 </body>
 </html>

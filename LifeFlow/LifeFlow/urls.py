@@ -16,6 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
 
 from main import views
 
@@ -24,7 +26,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.LandingPage, name='LandingPage'),  
     path('calender/', views.calender, name='calender'),
-    path('Subscription/', views.Subscription, name='Subscription'),
+    path('Subscription/', views.SubscriptionTracker, name='Subscription'),
+
     path('TaskManager/', views.TaskManager, name='TaskManager'),
     path('BillManager/', views.BillManager, name='BillManager'),
     path('register/', views.register, name='register'),
@@ -41,9 +44,10 @@ urlpatterns = [
     path('add/<str:item_type>/', views.add_item, name='add_item'),
     path('UserProfile/', views.user_profile, name='UserProfile'),
     path('delete-bill/<int:bill_id>/', views.delete_bill, name='delete_bill'),
-
+     path('delete-sub/<int:sub_id>/', views.delete_sub, name='delete_sub'),
+    path('delete-document/<int:doc_id>/', views.delete_document, name='delete_document'),
     path('change-password/', auth_views.PasswordChangeView.as_view(
         template_name='UserProfile.html',
         success_url='/UserProfile/'
     ), name='change_password'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
