@@ -16,7 +16,7 @@
         <ul class="nav-links">
           <li>
             <a href="{% url 'UserProfile' %}" {% if request.resolver_match.url_name == 'TaskManager' %}{% endif %}>
-              <i class='bx bx bx-user'></i><span>User Profile</span>
+              <i class='bx bx bx-user'></i><span><strong>{{ user.username }}</strong></span>
             </a>
           </li>
           <li>
