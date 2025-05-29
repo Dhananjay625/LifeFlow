@@ -49,8 +49,13 @@
               <i class='bx bx-dumbbell'></i><span>Health Manager</span>
             </a>
           </li>
+          <li>
+            <a href="{% url 'dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}class="active"{% endif %}>
+              <i class='bx bx-layout'></i><span>Dashboard</span>
+            </a>
+          </li>
         </ul>
-        
+      
         <div class="collapse-btn">
           <a href="#" data-resize-btn>
             <i class='bx bx-chevrons-right'></i><span>Collapse</span>
