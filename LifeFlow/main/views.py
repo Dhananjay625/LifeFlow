@@ -14,7 +14,8 @@ from .models import Document
 from django.shortcuts import get_object_or_404, redirect
 from .models import sub
 from django.contrib.auth.decorators import login_required
-
+from .models import HealthMetric, Appointment
+from .forms import HealthMetricForm, AppointmentForm
 
 
 def login_view(request):
@@ -256,8 +257,48 @@ def delete_document(request, doc_id):
     document.delete()
     return redirect('DocumentStorage')
 
+@login_required
 def HealthManager(request):
-    return render(request, 'HealthManager.html')
+    metrics = HealthMetric.objects.filter(user=request.user).order_by('-date')[:7]
+    appointments = Appointment.objects.filter(user=request.user).order_by('date')
+
+    if request.method == 'POST':
+        if 'log_metrics' in request.POST:
+            metric_form = HealthMetricForm(request.POST)
+            if metric_form.is_valid():
+                metric = metric_form.save(commit=False)
+                metric.user = request.user
+                metric.save()
+                return redirect('HealthManager')
+        elif 'add_appointment' in request.POST:
+            appointment_form = AppointmentForm(request.POST)
+            if appointment_form.is_valid():
+                appointment = appointment_form.save(commit=False)
+                appointment.user = request.user
+                appointment.save()
+                return redirect('HealthManager')
+    else:
+        metric_form = HealthMetricForm()
+        appointment_form = AppointmentForm()
+    
+    return render(request, 'HealthManager.html', {
+        'metrics': metrics,
+        'appointments': appointments,
+        'metric_form': metric_form,
+        'appointment_form': appointment_form
+    })
+
+@login_required
+def weekly_metrics_api(request):
+    metrics = HealthMetric.objects.filter(user=request.user).order_by('-date')[:7]
+    data = {
+        "dates": [m.date.strftime("%Y-%m-%d") for m in metrics][::-1],
+        "steps": [m.steps for m in metrics][::-1],
+        "calories": [m.calories for m in metrics][::-1],
+        "water": [m.water for m in metrics][::-1]
+    }
+    return JsonResponse(data)
+
 @login_required
 def dashboard(request):
     return render(request, 'dashboard.html')

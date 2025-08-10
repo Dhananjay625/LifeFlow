@@ -7,96 +7,6 @@
   <title>Health Manager - LifeFlow</title>
   <link rel="stylesheet" href="{% static 'index.css' %}?v=3">
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-  <style>
-    .health-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 60px;
-      margin-top: 40px;
-    }
-
-    .health-row {
-      display: flex;
-      justify-content: center;
-      gap: 80px;
-      flex-wrap: wrap;
-    }
-
-    .progress-container.large {
-      width: 160px;
-      height: 160px;
-      position: relative;
-    }
-
-    .progress-ring {
-      transform: rotate(-90deg);
-    }
-
-    .progress-ring-bg,
-    .progress-ring-fill {
-      fill: none;
-      stroke-width: 12;
-      cx: 80;
-      cy: 80;
-      r: 70;
-    }
-
-    .progress-ring-bg {
-      stroke: #2e2e2e;
-    }
-
-    .progress-ring-fill {
-      stroke-linecap: round;
-      stroke-dasharray: 440;
-      stroke-dashoffset: 440;
-      transition: stroke-dashoffset 1s ease-out;
-    }
-
-    .progress-ring-fill.weight {
-      stroke: #4ECDC4;
-      stroke-dashoffset: calc(440 - (440 * 0.77));
-    }
-
-    .progress-ring-fill.bodyfat {
-      stroke: #7ED957;
-      stroke-dashoffset: calc(440 - (440 * 0.256));
-    }
-
-    .progress-ring-fill.water {
-      stroke: #FFE66D;
-      stroke-dashoffset: calc(440 - (440 * 0.6));
-    }
-
-    .progress-ring-fill.steps {
-      stroke: #1e90ff;
-      stroke-dashoffset: calc(440 - (440 * 0.25));
-    }
-
-    .progress-ring-fill.calories {
-      stroke: #ff9f43;
-      stroke-dashoffset: calc(440 - (440 * 0.66));
-    }
-
-    .progress-label {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-    }
-
-    .progress-label .value {
-      font-size: 22px;
-      font-weight: bold;
-      color: var(--text-light);
-    }
-
-    .progress-label .label {
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-  </style>
 </head>
 
 <body>
@@ -142,7 +52,7 @@
         </ul>
         
         <div class="collapse-btn">
-          <a href="#" data-resize-btn>
+          <a href="#" id="resizeBtn">
             <i class='bx bx-chevrons-right'></i><span>Collapse</span>
           </a>
         </div>
@@ -156,7 +66,6 @@
 
     <main class="content">
       <header class="header">
-        <div class="date">Monday, December 14th, 2025</div>
         <h1>Health Manager</h1>
       </header>
 
@@ -225,12 +134,15 @@
     </main>
   </div>
 
-  <script>
-    const resizeBtn = document.querySelector("[data-resize-btn]");
-    resizeBtn.addEventListener("click", function (e) {
-      e.preventDefault();
-      document.body.classList.toggle("sb-expanded");
-    });
-  </script>
+  <!-- <script>
+    // const resizeBtn = document.querySelector("[data-resize-btn]");
+    // resizeBtn.addEventListener("click", function (e) {
+    //   e.preventDefault();
+    //   document.body.classList.toggle("sb-expanded");
+    // });
+  </script> -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+  <canvas id="weeklyChart"></canvas>
 </body>
 </html>
