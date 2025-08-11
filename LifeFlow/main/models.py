@@ -76,24 +76,3 @@ class Document(models.Model):
 
     def __str__(self):
         return self.doc_name
-    
-class HealthMetric(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    date = models.DateField(auto_now_add=True)
-    weight = models.FloatField()
-    body_fat = models.FloatField()
-    water = models.FloatField()
-    steps = models.IntegerField()
-    calories = models.IntegerField()
-
-    def __str__(self):
-        return str(self.date)
-    
-class Appointment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
-    date = models.DateField()
-    notes = models.TextField(blank=True)
-
-    def __str__(self):
-        return str(self.date)

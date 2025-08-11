@@ -5,13 +5,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Health Manager - LifeFlow</title>
-  <link rel="stylesheet" href="{% static 'index.css' %}?v=3">
+  <link rel="stylesheet" href="{% static 'index.css' %}?v=4">
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
-
 <body>
   <div class="container">
     <aside>
+      <!--  Sidebar Nav. -->
       <nav class="nav">
         <ul class="nav-links">
           <li>
@@ -52,7 +52,7 @@
         </ul>
         
         <div class="collapse-btn">
-          <a href="#" id="resizeBtn">
+          <a href="#" data-resize-btn>
             <i class='bx bx-chevrons-right'></i><span>Collapse</span>
           </a>
         </div>
@@ -66,83 +66,108 @@
 
     <main class="content">
       <header class="header">
+        <div class="date">{{ now|date:"l, F jS, Y" }}</div>
         <h1>Health Manager</h1>
       </header>
 
-      <section class="health-section">
-        <!-- Row 1: Weight & Body Fat -->
-        <div class="health-row">
-          <div class="progress-container large">
-            <svg class="progress-ring" width="160" height="160">
-              <circle class="progress-ring-bg" cx="80" cy="80" r="70"/>
-              <circle class="progress-ring-fill weight" cx="80" cy="80" r="70"/>
-            </svg>
-            <div class="progress-label">
-              <div class="value">77kg</div>
-              <div class="label">Weight</div>
-            </div>
+      <!-- User Information -->
+      <section class = "user-info">
+        <h2>User Information</h2>
+        <div class="info-row">
+          <div class="info-item">
+            <span class="label">Age:</span>
+            <span class="value">50 years</span>
           </div>
-
-          <div class="progress-container large">
-            <svg class="progress-ring" width="160" height="160">
-              <circle class="progress-ring-bg" cx="80" cy="80" r="70"/>
-              <circle class="progress-ring-fill bodyfat" cx="80" cy="80" r="70"/>
-            </svg>
-            <div class="progress-label">
-              <div class="value">25.6%</div>
-              <div class="label">Body Fat</div>
-            </div>
+          <div class="info-item">
+            <span class="label">Weight:</span>
+            <span class="value">70kg</span>
           </div>
         </div>
-
-        <!-- Row 2: Water, Steps, Calories -->
-        <div class="health-row">
-          <div class="progress-container large">
-            <svg class="progress-ring" width="160" height="160">
-              <circle class="progress-ring-bg" cx="80" cy="80" r="70"/>
-              <circle class="progress-ring-fill water" cx="80" cy="80" r="70"/>
-            </svg>
-            <div class="progress-label">
-              <div class="value">1.5L</div>
-              <div class="label">Water</div>
-            </div>
+        <div class="info-row">
+          <div class="info-item">
+            <span class="label">Body Fat:</span>
+            <span class="value">25.6%</span>
           </div>
-
-          <div class="progress-container large">
-            <svg class="progress-ring" width="160" height="160">
-              <circle class="progress-ring-bg" cx="80" cy="80" r="70"/>
-              <circle class="progress-ring-fill steps" cx="80" cy="80" r="70"/>
-            </svg>
-            <div class="progress-label">
-              <div class="value">2500</div>
-              <div class="label">Steps</div>
-            </div>
-          </div>
-
-          <div class="progress-container large">
-            <svg class="progress-ring" width="160" height="160">
-              <circle class="progress-ring-bg" cx="80" cy="80" r="70"/>
-              <circle class="progress-ring-fill calories" cx="80" cy="80" r="70"/>
-            </svg>
-            <div class="progress-label">
-              <div class="value">3300</div>
-              <div class="label">Calories</div>
-            </div>
+          <div class="info-item">
+            <span class="label">Medication:</span>
+            <span class="value"></span>
           </div>
         </div>
       </section>
+
+      <!-- Daily Measures & Reminders -->
+      <section class="two-column">
+      <!-- Daily Measures -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Health Log</h2>
+          <button class="plus-btn" onclick="openModal('measuresModal')"><i class='bx bx-plus'></i></button>
+        </div>
+        <ul class="card-list">
+          <li>Water Intake: 1.5 L</li>
+          <li>Steps: 2500</li>
+          <li>Calories: 3300</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Reminders</h2>
+          <button class="plus-btn" onclick="openModal('reminderModal')"><i class='bx bx-plus'></i></button>
+        </div>
+        <ul class="card-list">
+          <li>Doctor Appointment - 15th Aug</li>
+          <li>Take Vitamin D</li>
+        </ul>
+      </div>
+    </section>
     </main>
   </div>
+<div class="modal" id="measuresModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('measuresModal')">&times;</span>
+    <h2>Update Daily Measures</h2>
+    <form>
+      <label>Water Intake (L):</label>
+      <input type="number" step="0.1">
+      <label>Steps:</label>
+      <input type="number">
+      <label>Calories:</label>
+      <input type="number">
+      <button type="submit">Save</button>
+    </form>
+  </div>
+</div>
 
-  <!-- <script>
-    // const resizeBtn = document.querySelector("[data-resize-btn]");
-    // resizeBtn.addEventListener("click", function (e) {
-    //   e.preventDefault();
-    //   document.body.classList.toggle("sb-expanded");
-    // });
-  </script> -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="{% static 'js/main.js' %}"></script>
-  <canvas id="weeklyChart"></canvas>
+<div class="modal" id="reminderModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('reminderModal')">&times;</span>
+    <h2>Add Reminder</h2>
+    <form>
+      <label>Reminder Text:</label>
+      <input type="text">
+      <label>Date:</label>
+      <input type="date">
+      <button type="submit">Save</button>
+    </form>
+  </div>
+</div>
+
+<script>
+function openModal(id) {
+  document.getElementById(id).style.display = 'block';
+}
+function closeModal(id) {
+  document.getElementById(id).style.display = 'none';
+}
+const resizeBtn = document.querySelector("[data-resize-btn]");
+    resizeBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      document.body.classList.toggle("sb-expanded");
+    });
+
+
+</script>
+
 </body>
 </html>
