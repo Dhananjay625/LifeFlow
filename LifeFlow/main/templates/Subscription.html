@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="{% static 'index.css' %}?v=2">
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
-
 <body>
   <div class="container">
     <aside>
@@ -25,7 +24,7 @@
             </a>
           </li>
           <li>
-            <a href="{% url 'calender' %}" {% if request.resolver_match.url_name == 'calender' %}class="active"{% endif %}>
+            <a href="{% url 'calendar' %}" {% if request.resolver_match.url_name == 'calendar' %}class="active"{% endif %}>
               <i class='bx bx-calendar'></i><span>Calendar</span>
             </a>
           </li>

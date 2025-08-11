@@ -1,0 +1,267 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendar - LifeFlow</title>
+
+  <link rel="stylesheet" href="{% static 'index.css' %}?v=2">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+  <!-- ✅ Correct FullCalendar assets (CSS is main.min.css) -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/main.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
+  <!-- RRULE deps (order matters) -->
+  <script src="https://cdn.jsdelivr.net/npm/rrule@2.7.2/dist/es5/rrule.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@6.1.15/index.global.min.js"></script>
+
+  <style>
+    .fc-event-task { border-left: 4px solid #2b8a3e; }
+    .fc-event-bill { border-left: 4px solid #e8590c; }
+    .fc-event-sub  { border-left: 4px solid #1c7ed6; }
+    #calendar { background: var(--panel-bg, #111); border-radius: 12px; padding: 12px; }
+
+    /* dark theme polish */
+    .fc .fc-daygrid-day-number,
+    .fc .fc-col-header-cell-cushion { color: #e6e6e6; }
+    .fc .fc-toolbar-title { color: #fff; }
+    .fc .fc-button { border: 1px solid #2b3748; }
+    .fc .fc-button-primary { background: #1f2937; border-color: #2b3748; }
+    .fc .fc-event { background: #1f2937; color: #f8fafc; border: 1px solid #2b3748; }
+    .fc .fc-event:hover { filter: brightness(1.1); }
+
+    body.sb-expanded aside { width: 72px; }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <aside>
+      <nav class="nav">
+        <ul class="nav-links">
+          <li>
+            <a href="{% url 'UserProfile' %}" {% if request.resolver_match.url_name == 'TaskManager' %}{% endif %}>
+              <i class='bx bx bx-user'></i><span><strong>{{ user.username }}</strong></span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'TaskManager' %}" {% if request.resolver_match.url_name == 'TaskManager' %}class="active"{% endif %}>
+              <i class='bx bx-grid-alt'></i><span>Task Manager</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'calendar' %}" {% if request.resolver_match.url_name == 'calendar' %}class="active"{% endif %}>
+              <i class='bx bx-calendar'></i><span>Calendar</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'confirm_password' %}" {% if request.resolver_match.url_name == 'DocumentStorage' %}class="active"{% endif %}>
+              <i class='bx bx-folder'></i><span>Document Manager</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'Subscription' %}" {% if request.resolver_match.url_name == 'Subscription' %}class="active"{% endif %}>
+              <i class='bx bx-cloud-download'></i><span>Subscription Tracker</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'BillManager' %}" {% if request.resolver_match.url_name == 'BillManager' %}class="active"{% endif %}>
+              <i class='bx bx-receipt'></i><span>Bill Manager</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'HealthManager' %}" {% if request.resolver_match.url_name == 'HealthManager' %}class="active"{% endif %}>
+              <i class='bx bx-dumbbell'></i><span>Health Manager</span>
+            </a>
+          </li>
+        </ul>
+        
+        <div class="collapse-btn">
+          <a href="#" data-resize-btn>
+            <i class='bx bx-chevrons-right'></i><span>Collapse</span>
+          </a>
+        </div>
+        <div class="logout-btn">
+          <a href="{% url 'login' %}">
+            <i class='bx bx-log-out'></i><span>Logout</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <header class="header">
+        <div class="date">{% now "l, F j, Y" %}</div>
+        <h1>Calendar</h1>
+      </header>
+
+      <section>
+        <div id="calendar"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar toggle
+    document.querySelector("[data-resize-btn]")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      document.body.classList.toggle("sb-expanded");
+    });
+
+    // CSRF (Django)
+    function getCookie(name) {
+      const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return m ? decodeURIComponent(m.pop()) : '';
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const el = document.getElementById('calendar');
+
+      // ✅ Gracefully include rrule plugin only if it loaded
+      const plugins = [];
+      if (typeof rrulePlugin !== 'undefined') {
+        plugins.push(rrulePlugin);
+      } else {
+        console.warn('RRULE plugin not found; recurring events will be skipped.');
+      }
+
+      const calendar = new FullCalendar.Calendar(el, {
+        plugins,
+        timeZone: 'local',
+        initialView: 'dayGridMonth',
+        height: 'auto',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+
+        eventSources: [
+          {
+            url: '{% url "calendar_events" %}',
+            failure(err) { console.error('events fetch failed', err); }
+          }
+        ],
+
+        selectable: true,
+        selectMirror: true,
+        unselectAuto: true,
+        select: async (selection) => {
+          const title = prompt('Event title? (Leave blank to cancel)');
+          if (!title) { calendar.unselect(); return; }
+
+          try {
+            const res = await fetch('{% url "calendar_events_create" %}', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+              },
+              body: JSON.stringify({
+                title,
+                start: selection.startStr,
+                end: selection.endStr,
+                allDay: selection.allDay
+              })
+            });
+            if (!res.ok) throw new Error(`Create failed: ${res.status}`);
+            await calendar.refetchEvents();
+          } catch (e) {
+            console.error(e);
+            alert('Could not create event.');
+          } finally {
+            calendar.unselect();
+          }
+        },
+
+        editable: true,
+        eventDurationEditable: true,
+        eventDrop: async (info) => {
+          try {
+            const res = await fetch('{% url "calendar_events_update" %}', {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+              },
+              body: JSON.stringify({
+                id: info.event.id,
+                start: info.event.startStr,
+                end: info.event.endStr
+              })
+            });
+            if (!res.ok) throw new Error('Update failed');
+          } catch (e) {
+            info.revert();
+            alert('Could not save changes.');
+          }
+        },
+        eventResize: async (info) => {
+          try {
+            const res = await fetch('{% url "calendar_events_update" %}', {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+              },
+              body: JSON.stringify({
+                id: info.event.id,
+                start: info.event.startStr,
+                end: info.event.endStr
+              })
+            });
+            if (!res.ok) throw new Error('Resize failed');
+          } catch (e) {
+            info.revert();
+            alert('Could not save resize.');
+          }
+        },
+
+        eventClick: async (info) => {
+          const action = prompt(`"${info.event.title}"\nType: view / delete / cancel`, 'view');
+          if (action === 'delete') {
+            if (!confirm('Delete this event?')) return;
+            try {
+              const res = await fetch('{% url "calendar_events_delete" %}', {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({ id: info.event.id })
+              });
+              if (!res.ok) throw new Error('Delete failed');
+              info.event.remove();
+            } catch (e) {
+              console.error(e);
+              alert('Could not delete.');
+            }
+          } else if (action === 'view') {
+            alert([
+              `Title: ${info.event.title}`,
+              `Start: ${info.event.start?.toLocaleString() ?? ''}`,
+              `End: ${info.event.end?.toLocaleString() ?? ''}`,
+              `All-day: ${info.event.allDay ? 'Yes' : 'No'}`
+            ].join('\n'));
+          }
+        },
+
+        eventDidMount(info) {
+          const type = info.event.extendedProps?.type;
+          if (type === 'task') info.el.classList.add('fc-event-task');
+          else if (type === 'bill') info.el.classList.add('fc-event-bill');
+          else if (type === 'subscription') info.el.classList.add('fc-event-sub');
+          info.el.title = info.event.title;
+        }
+      });
+
+      calendar.render();
+      window.calendar = calendar;
+      console.log('FullCalendar version:', FullCalendar?.Calendar?.version);
+    });
+  </script>
+</body>
+</html>

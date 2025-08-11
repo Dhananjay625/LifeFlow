@@ -76,3 +76,31 @@ class Document(models.Model):
 
     def __str__(self):
         return self.doc_name
+
+class CalendarEvent(models.Model):
+    TYPE_CHOICES = [
+        ('task', 'Task'),
+        ('bill', 'Bill'),
+        ('subscription', 'Subscription'),
+        ('other', 'Other'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='calendar_events')
+    title = models.CharField(max_length=255)
+    start = models.DateTimeField(null=True, blank=True)
+    end = models.DateTimeField(null=True, blank=True)
+    all_day = models.BooleanField(default=False)
+
+    rrule = models.JSONField(null=True, blank=True)
+
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='other')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'start']),
+        ]
+        ordering = ['start', 'created_at']
+
+    def __str__(self):
+        return f"{self.title} ({self.user})"

@@ -115,7 +115,7 @@
             </a>
           </li>
           <li>
-            <a href="{% url 'calender' %}" {% if request.resolver_match.url_name == 'calender' %}class="active"{% endif %}>
+            <a href="{% url 'calendar' %}" {% if request.resolver_match.url_name == 'calendar' %}class="active"{% endif %}>
               <i class='bx bx-calendar'></i><span>Calendar</span>
             </a>
           </li>
@@ -161,7 +161,6 @@
       </header>
 
       <section class="health-section">
-        <!-- Row 1: Weight & Body Fat -->
         <div class="health-row">
           <div class="progress-container large">
             <svg class="progress-ring" width="160" height="160">
@@ -186,7 +185,6 @@
           </div>
         </div>
 
-        <!-- Row 2: Water, Steps, Calories -->
         <div class="health-row">
           <div class="progress-container large">
             <svg class="progress-ring" width="160" height="160">
