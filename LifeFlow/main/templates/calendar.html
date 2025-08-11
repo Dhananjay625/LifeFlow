@@ -9,11 +9,9 @@
   <link rel="stylesheet" href="{% static 'index.css' %}?v=2">
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 
-  <!-- ✅ Correct FullCalendar assets (CSS is main.min.css) -->
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/main.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 
-  <!-- RRULE deps (order matters) -->
   <script src="https://cdn.jsdelivr.net/npm/rrule@2.7.2/dist/es5/rrule.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@6.1.15/index.global.min.js"></script>
 
@@ -104,13 +102,11 @@
   </div>
 
   <script>
-    // Sidebar toggle
     document.querySelector("[data-resize-btn]")?.addEventListener("click", (e) => {
       e.preventDefault();
       document.body.classList.toggle("sb-expanded");
     });
 
-    // CSRF (Django)
     function getCookie(name) {
       const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
       return m ? decodeURIComponent(m.pop()) : '';
@@ -120,7 +116,6 @@
     document.addEventListener('DOMContentLoaded', function () {
       const el = document.getElementById('calendar');
 
-      // ✅ Gracefully include rrule plugin only if it loaded
       const plugins = [];
       if (typeof rrulePlugin !== 'undefined') {
         plugins.push(rrulePlugin);
