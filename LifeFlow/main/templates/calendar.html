@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -16,29 +17,35 @@
   <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@6.1.15/index.global.min.js"></script>
 
   <style>
-    /* Calendar card to match your panels */
     #calendar {
       background: var(--background-light);
       border: 1px solid #2b2b2b;
       border-radius: 16px;
       padding: 14px;
-      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, .35);
     }
-  
-    /* FullCalendar base */
-    .fc { font-family: inherit; }
+
+    .fc {
+      font-family: inherit;
+    }
+
     .fc .fc-toolbar-title {
       color: var(--text-light);
       font-weight: 800;
       letter-spacing: .2px;
     }
+
     .fc .fc-col-header-cell-cushion,
-    .fc .fc-daygrid-day-number { color: var(--text-muted); }
+    .fc .fc-daygrid-day-number {
+      color: var(--text-muted);
+    }
+
     .fc-theme-standard td,
     .fc-theme-standard th,
-    .fc .fc-scrollgrid { border-color: #2b2b2b; }
-  
-    /* Toolbar buttons styled like your UI */
+    .fc .fc-scrollgrid {
+      border-color: #2b2b2b;
+    }
+
     .fc .fc-button {
       background: #262a2e;
       color: var(--text-light);
@@ -49,22 +56,44 @@
       box-shadow: none;
       transition: background .15s ease, border-color .15s ease, transform .12s ease;
     }
-    .fc .fc-button:hover { background: #2e3338; transform: translateY(-1px); }
-    .fc .fc-button:disabled { opacity: .6; }
+
+    .fc .fc-button:hover {
+      background: #2e3338;
+      transform: translateY(-1px);
+    }
+
+    .fc .fc-button:disabled {
+      opacity: .6;
+    }
+
     .fc .fc-button-primary:not(:disabled).fc-button-active,
     .fc .fc-button-primary:not(:disabled):hover {
       background: var(--secondary-color);
       border-color: var(--secondary-color);
       color: #081313;
     }
-  
-    /* Grid polish */
-    .fc .fc-daygrid-day { background: transparent; }
-    .fc .fc-daygrid-day-frame { padding: 6px; }
-    .fc .fc-daygrid-day:hover { background: #222325; transition: background .15s ease; }
-    .fc .fc-day-today { background: #2a2718; } /* soft “today” chip in your palette */
-    .fc .fc-highlight { background: #20242a; } /* selection drag */
-  
+
+    .fc .fc-daygrid-day {
+      background: transparent;
+    }
+
+    .fc .fc-daygrid-day-frame {
+      padding: 6px;
+    }
+
+    .fc .fc-daygrid-day:hover {
+      background: #222325;
+      transition: background .15s ease;
+    }
+
+    .fc .fc-day-today {
+      background: #2a2718;
+    }
+
+    .fc .fc-highlight {
+      background: #20242a;
+    }
+
     /* Event chips */
     .fc .fc-event {
       background: #2a2f35;
@@ -73,52 +102,219 @@
       border-radius: 10px;
       padding: 4px 8px;
       line-height: 1.2;
-      box-shadow: 0 6px 16px rgba(0,0,0,.35);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, .35);
       transition: filter .12s ease, transform .12s ease;
     }
-    .fc .fc-event:hover { filter: brightness(1.08); transform: translateY(-1px); }
-  
-    /* Left accent bars (mapped in your eventDidMount) */
-    .fc-event-task { border-left: 4px solid var(--secondary-color) !important; }   /* tasks -> teal */
-    .fc-event-bill { border-left: 4px solid var(--primary-color) !important; }     /* bills -> coral */
-    .fc-event-sub  { border-left: 4px solid var(--accent-color) !important; }      /* subs  -> yellow */
-  
-    /* Keep text tidy in month cells */
+
+    .fc .fc-event:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+
+    .fc-event-task {
+      border-left: 4px solid var(--secondary-color) !important;
+    }
+
+    .fc-event-bill {
+      border-left: 4px solid var(--primary-color) !important;
+    }
+
+    .fc-event-sub {
+      border-left: 4px solid var(--accent-color) !important;
+    }
+
     .fc .fc-daygrid-event .fc-event-time,
     .fc .fc-daygrid-event .fc-event-title {
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-  
-    /* “More” popover */
+
     .fc .fc-popover {
       background: var(--background-light);
       border: 1px solid #2b2b2b;
       border-radius: 12px;
-      box-shadow: 0 12px 28px rgba(0,0,0,.45);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, .45);
     }
+
     .fc .fc-popover-header {
       background: #191c20;
       color: var(--text-light);
       border-bottom: 1px solid #2b2b2b;
     }
-  
-    /* Week/Day view: “now” line in your primary color */
+
     .fc .fc-timegrid-now-indicator-arrow,
-    .fc .fc-timegrid-now-indicator-line { border-color: var(--primary-color); }
-  
-    /* Month header pill backgrounds for better contrast */
-    .fc .fc-col-header-cell { background: #1b1d21; }
-  
+    .fc .fc-timegrid-now-indicator-line {
+      border-color: var(--primary-color);
+    }
+
+    .fc .fc-col-header-cell {
+      background: #1b1d21;
+    }
+
     /* Responsive tidy */
     @media (max-width: 720px) {
-      .fc .fc-toolbar-title { font-size: 1.05rem; }
-      .fc .fc-button { padding: 5px 9px; font-size: .9rem; }
+      .fc .fc-toolbar-title {
+        font-size: 1.05rem;
+      }
+
+      .fc .fc-button {
+        padding: 5px 9px;
+        font-size: .9rem;
+      }
     }
-  
-    /* keep your sidebar collapse behavior */
-    body.sb-expanded aside { width: 72px; }
+
+    body.sb-expanded aside {
+      width: 72px;
+    }
+
+
+    #eventPopover {
+      position: fixed;
+      z-index: 20;
+      width: 320px;
+      max-width: 92vw;
+      background: var(--background-light);
+      color: var(--text-light);
+      border: 1px solid #2b2b2b;
+      border-radius: 14px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, .55);
+      padding: 16px 16px 12px 16px;
+      opacity: 0;
+      transform: translateY(6px) scale(.98);
+      pointer-events: none;
+      transition: opacity .14s ease, transform .14s ease;
+    }
+
+    #eventPopover.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .pop-title {
+      margin: 0 0 .4rem 0;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+
+    .pop-meta {
+      margin: .15rem 0;
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: .25rem .6rem;
+      font-size: .92rem;
+    }
+
+    .pop-meta strong {
+      color: var(--text-light);
+      opacity: .9;
+    }
+
+    #pop-form {
+      display: none;
+      margin-top: .6rem;
+    }
+
+    #pop-form .row {
+      display: grid;
+      gap: .5rem;
+    }
+
+    #pop-form input[type="text"],
+    #pop-form input[type="datetime-local"] {
+      width: 100%;
+      background: #232323;
+      border: 1px solid #2b2b2b;
+      border-radius: 8px;
+      padding: .55rem .65rem;
+      color: var(--text-light);
+    }
+
+    #pop-form label {
+      font-size: .9rem;
+      color: var(--text-light);
+      opacity: .9;
+    }
+
+    .pop-actions {
+      display: flex;
+      gap: .5rem;
+      justify-content: flex-end;
+      margin-top: .8rem;
+    }
+
+    .pop-actions button {
+      padding: .5rem .8rem;
+      border-radius: 10px;
+      border: 1px solid #2f2f2f;
+      background: #262a2e;
+      color: var(--text-light);
+      cursor: pointer;
+      transition: transform .1s ease, background .15s ease, border-color .15s ease;
+    }
+
+    .pop-actions button:hover {
+      transform: translateY(-1px);
+      background: #2e3338;
+    }
+
+    .pop-actions .primary {
+      background: var(--secondary-color);
+      border-color: var(--secondary-color);
+      color: #081313;
+    }
+
+    .pop-actions .danger {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: #fff;
+    }
+
+    .pop-msg {
+      min-height: 1.1em;
+      font-size: .9rem;
+      margin-top: .35rem;
+    }
+
+    #eventPopover::after {
+      content: "";
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: var(--background-light);
+      border-left: 1px solid #2b2b2b;
+      border-top: 1px solid #2b2b2b;
+      transform: rotate(45deg);
+      top: 18px;
+      left: -6px;
+      box-shadow: -2px -2px 2px rgba(0, 0, 0, .05);
+    }
+
+    #eventPopover.arrow-left::after {
+      left: -6px;
+      right: auto;
+    }
+
+    #eventPopover.arrow-right::after {
+      right: -6px;
+      left: auto;
+      transform: rotate(225deg);
+    }
+
+    #pop-scrim {
+      position: fixed;
+      inset: 0;
+      background: transparent;
+      z-index: 15;
+      display: none;
+    }
+
+    #pop-scrim.show {
+      display: block;
+    }
   </style>
-  
 </head>
 
 <body>
@@ -127,42 +323,48 @@
       <nav class="nav">
         <ul class="nav-links">
           <li>
-            <a href="{% url 'UserProfile' %}" {% if request.resolver_match.url_name == 'TaskManager' %}{% endif %}>
+            <a href="{% url 'UserProfile' %}">
               <i class='bx bx bx-user'></i><span><strong>{{ user.username }}</strong></span>
             </a>
           </li>
           <li>
-            <a href="{% url 'TaskManager' %}" {% if request.resolver_match.url_name == 'TaskManager' %}class="active"{% endif %}>
+            <a href="{% url 'TaskManager' %}"
+              class="{% if request.resolver_match.url_name == 'TaskManager' %}active{% endif %}">
               <i class='bx bx-grid-alt'></i><span>Task Manager</span>
             </a>
           </li>
           <li>
-            <a href="{% url 'calendar' %}" {% if request.resolver_match.url_name == 'calendar' %}class="active"{% endif %}>
+            <a href="{% url 'calendar' %}"
+              class="{% if request.resolver_match.url_name == 'calendar' %}active{% endif %}">
               <i class='bx bx-calendar'></i><span>Calendar</span>
             </a>
           </li>
           <li>
-            <a href="{% url 'confirm_password' %}" {% if request.resolver_match.url_name == 'DocumentStorage' %}class="active"{% endif %}>
+            <a href="{% url 'confirm_password' %}"
+              class="{% if request.resolver_match.url_name == 'DocumentStorage' %}active{% endif %}">
               <i class='bx bx-folder'></i><span>Document Manager</span>
             </a>
           </li>
           <li>
-            <a href="{% url 'Subscription' %}" {% if request.resolver_match.url_name == 'Subscription' %}class="active"{% endif %}>
+            <a href="{% url 'Subscription' %}"
+              class="{% if request.resolver_match.url_name == 'Subscription' %}active{% endif %}">
               <i class='bx bx-cloud-download'></i><span>Subscription Tracker</span>
             </a>
           </li>
           <li>
-            <a href="{% url 'BillManager' %}" {% if request.resolver_match.url_name == 'BillManager' %}class="active"{% endif %}>
+            <a href="{% url 'BillManager' %}"
+              class="{% if request.resolver_match.url_name == 'BillManager' %}active{% endif %}">
               <i class='bx bx-receipt'></i><span>Bill Manager</span>
             </a>
           </li>
           <li>
-            <a href="{% url 'HealthManager' %}" {% if request.resolver_match.url_name == 'HealthManager' %}class="active"{% endif %}>
+            <a href="{% url 'HealthManager' %}"
+              class="{% if request.resolver_match.url_name == 'HealthManager' %}active{% endif %}">
               <i class='bx bx-dumbbell'></i><span>Health Manager</span>
             </a>
           </li>
         </ul>
-        
+
         <div class="collapse-btn">
           <a href="#" data-resize-btn>
             <i class='bx bx-chevrons-right'></i><span>Collapse</span>
@@ -188,158 +390,209 @@
     </main>
   </div>
 
+  <div id="pop-scrim"></div>
+  <div id="eventPopover" role="dialog" aria-modal="false" aria-labelledby="pop-title">
+    <h3 id="pop-title" class="pop-title"></h3>
+
+    <div class="pop-meta">
+      <strong>Start:</strong> <span id="pop-start"></span>
+      <strong>End:</strong> <span id="pop-end"></span>
+      <strong>All-day:</strong> <span id="pop-allDay"></span>
+    </div>
+
+    <form id="pop-form" novalidate>
+      <div class="row">
+        <label>Title
+          <input id="f-title" type="text" required>
+        </label>
+        <label>Start
+          <input id="f-start" type="datetime-local">
+        </label>
+        <label>End
+          <input id="f-end" type="datetime-local">
+        </label>
+        <label style="display:flex; gap:.45rem; align-items:center;">
+          <input id="f-allDay" type="checkbox"> All-day
+        </label>
+      </div>
+    </form>
+
+    <div id="pop-msg" class="pop-msg"></div>
+
+    <div class="pop-actions">
+      <button id="editBtn">Edit</button>
+      <button id="saveBtn" class="primary" style="display:none;">Save</button>
+      <button id="deleteBtn" class="danger">Delete</button>
+      <button id="closeBtn">Close</button>
+    </div>
+  </div>
+
+
+
   <script>
     document.querySelector("[data-resize-btn]")?.addEventListener("click", (e) => {
       e.preventDefault();
       document.body.classList.toggle("sb-expanded");
     });
-  
+
     function getCookie(name) {
       const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
       return m ? decodeURIComponent(m.pop()) : '';
     }
     const csrftoken = getCookie('csrftoken');
-  
+
+    function toLocalInputValue(iso) {
+      if (!iso) return "";
+      const d = new Date(iso);
+      const pad = n => String(n).padStart(2, "0");
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+    function fromLocalInputValue(v) {
+      if (!v) return null;
+      const d = new Date(v);
+      return isNaN(d) ? null : d.toISOString();
+    }
+
+    function positionPopover(triggerEl, popEl) {
+      const rect = triggerEl.getBoundingClientRect();
+      const popW = popEl.offsetWidth || 320;
+      const margin = 12;
+
+      let left = rect.right + margin;
+      let top = rect.top;
+
+      // flip to left side if overflowing right edge
+      const overflowRight = left + popW > window.innerWidth - 8;
+      popEl.classList.remove('arrow-left', 'arrow-right');
+      if (overflowRight) {
+        left = Math.max(8, rect.left - popW - margin);
+        popEl.classList.add('arrow-right');
+      } else {
+        popEl.classList.add('arrow-left');
+      }
+
+      const maxTop = window.innerHeight - popEl.offsetHeight - 8;
+      top = Math.min(Math.max(8, top), Math.max(8, maxTop));
+
+      // account for scroll
+      popEl.style.left = `${left}px`;
+      popEl.style.top = `${top}px`;
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
       const el = document.getElementById('calendar');
-  
+
       const plugins = [];
       if (typeof rrulePlugin !== 'undefined') {
         plugins.push(rrulePlugin);
       } else {
         console.warn('RRULE plugin not found; recurring events will be skipped.');
       }
-  
+
       const calendar = new FullCalendar.Calendar(el, {
         plugins,
         timeZone: 'local',
         initialView: 'dayGridMonth',
-  
-        /* ✅ New UX options */
+
         firstDay: 1,
         stickyHeaderDates: true,
         nowIndicator: true,
         dayMaxEventRows: 3,
         expandRows: true,
         buttonText: { today: 'today', month: 'month', week: 'week', day: 'day' },
-  
+
         height: 'auto',
         headerToolbar: {
           left: 'prev,next today',
           center: 'title',
           right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
-  
+
         eventSources: [
           {
             url: '{% url "calendar_events" %}',
             failure(err) { console.error('events fetch failed', err); }
           }
         ],
-  
+
         selectable: true,
         selectMirror: true,
         unselectAuto: true,
         select: async (selection) => {
           const title = prompt('Event title? (Leave blank to cancel)');
           if (!title) { calendar.unselect(); return; }
-  
+
           try {
             const res = await fetch('{% url "calendar_events_create" %}', {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken,
-              },
-              body: JSON.stringify({
-                title,
-                start: selection.startStr,
-                end: selection.endStr,
-                allDay: selection.allDay
-              })
+              headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+              body: JSON.stringify({ title, start: selection.startStr, end: selection.endStr, allDay: selection.allDay })
             });
             if (!res.ok) throw new Error(`Create failed: ${res.status}`);
             await calendar.refetchEvents();
           } catch (e) {
             console.error(e);
-            alert('Could not create event.');
           } finally {
             calendar.unselect();
           }
         },
-  
+
         editable: true,
         eventDurationEditable: true,
         eventDrop: async (info) => {
           try {
             const res = await fetch('{% url "calendar_events_update" %}', {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken,
-              },
-              body: JSON.stringify({
-                id: info.event.id,
-                start: info.event.startStr,
-                end: info.event.endStr
-              })
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+              body: JSON.stringify({ id: info.event.id, start: info.event.startStr, end: info.event.endStr })
             });
             if (!res.ok) throw new Error('Update failed');
           } catch (e) {
             info.revert();
-            alert('Could not save changes.');
           }
         },
         eventResize: async (info) => {
           try {
             const res = await fetch('{% url "calendar_events_update" %}', {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken,
-              },
-              body: JSON.stringify({
-                id: info.event.id,
-                start: info.event.startStr,
-                end: info.event.endStr
-              })
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+              body: JSON.stringify({ id: info.event.id, start: info.event.startStr, end: info.event.endStr })
             });
             if (!res.ok) throw new Error('Resize failed');
           } catch (e) {
             info.revert();
-            alert('Could not save resize.');
           }
         },
-  
-        eventClick: async (info) => {
-          const action = prompt(`"${info.event.title}"\nType: view / delete / cancel`, 'view');
-          if (action === 'delete') {
-            if (!confirm('Delete this event?')) return;
-            try {
-              const res = await fetch('{% url "calendar_events_delete" %}', {
-                method: 'DELETE',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'X-CSRFToken': csrftoken,
-                },
-                body: JSON.stringify({ id: info.event.id })
-              });
-              if (!res.ok) throw new Error('Delete failed');
-              info.event.remove();
-            } catch (e) {
-              console.error(e);
-              alert('Could not delete.');
-            }
-          } else if (action === 'view') {
-            alert([
-              `Title: ${info.event.title}`,
-              `Start: ${info.event.start?.toLocaleString() ?? ''}`,
-              `End: ${info.event.end?.toLocaleString() ?? ''}`,
-              `All-day: ${info.event.allDay ? 'Yes' : 'No'}`
-            ].join('\n'));
-          }
+
+        eventClick: (info) => {
+          const pop = document.getElementById('eventPopover');
+          const scrim = document.getElementById('pop-scrim');
+          document.getElementById('pop-title').textContent = info.event.title;
+          document.getElementById('pop-start').textContent = info.event.start?.toLocaleString() || '';
+          document.getElementById('pop-end').textContent = info.event.end?.toLocaleString() || '';
+          document.getElementById('pop-allDay').textContent = info.event.allDay ? 'Yes' : 'No';
+
+          // form fields
+          document.getElementById('f-title').value = info.event.title || '';
+          document.getElementById('f-start').value = toLocalInputValue(info.event.start?.toISOString());
+          document.getElementById('f-end').value = toLocalInputValue(info.event.end?.toISOString());
+          document.getElementById('f-allDay').checked = !!info.event.allDay;
+
+          pop.dataset.eventId = info.event.id;
+
+          document.getElementById('pop-form').style.display = 'none';
+          document.getElementById('saveBtn').style.display = 'none';
+          document.getElementById('editBtn').style.display = '';
+          const msgEl = document.getElementById('pop-msg');
+          msgEl.textContent = ''; msgEl.style.color = '';
+
+          pop.classList.add('show');
+          scrim.classList.add('show');
+          requestAnimationFrame(() => {
+            positionPopover(info.el, pop);
+          });
         },
-  
+
         eventDidMount(info) {
           const type = info.event.extendedProps?.type;
           if (type === 'task') info.el.classList.add('fc-event-task');
@@ -348,11 +601,108 @@
           info.el.title = info.event.title;
         }
       });
-  
+
       calendar.render();
       window.calendar = calendar;
-      console.log('FullCalendar version:', FullCalendar?.Calendar?.version);
+
+      const pop = document.getElementById('eventPopover');
+      const scrim = document.getElementById('pop-scrim');
+      const formEl = document.getElementById('pop-form');
+      const msgEl = document.getElementById('pop-msg');
+      const btnEdit = document.getElementById('editBtn');
+      const btnSave = document.getElementById('saveBtn');
+      const btnDel = document.getElementById('deleteBtn');
+      const btnClose = document.getElementById('closeBtn');
+
+      function hidePopover() {
+        pop.classList.remove('show');
+        scrim.classList.remove('show');
+      }
+      scrim.addEventListener('click', hidePopover);
+      btnClose.addEventListener('click', hidePopover);
+
+      btnEdit.addEventListener('click', () => {
+        formEl.style.display = 'block';
+        btnSave.style.display = '';
+        btnEdit.style.display = 'none';
+        msgEl.textContent = '';
+      });
+
+      btnSave.addEventListener('click', async () => {
+        const id = pop.dataset.eventId;
+        const payload = {
+          id,
+          title: document.getElementById('f-title').value.trim(),
+          start: fromLocalInputValue(document.getElementById('f-start').value),
+          end: fromLocalInputValue(document.getElementById('f-end').value),
+          allDay: document.getElementById('f-allDay').checked
+        };
+        try {
+          const res = await fetch('{% url "calendar_events_update" %}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) throw new Error(await res.text());
+
+          const ev = window.calendar.getEventById(id);
+          if (ev) {
+            if (payload.title) ev.setProp('title', payload.title);
+            if (payload.start) ev.setStart(payload.start);
+            if (payload.end !== null) ev.setEnd(payload.end);
+            ev.setAllDay(!!payload.allDay);
+          }
+          document.getElementById('pop-title').textContent = payload.title || ev.title;
+          document.getElementById('pop-start').textContent = ev.start?.toLocaleString() || '';
+          document.getElementById('pop-end').textContent = ev.end?.toLocaleString() || '';
+          document.getElementById('pop-allDay').textContent = ev.allDay ? 'Yes' : 'No';
+
+          formEl.style.display = 'none';
+          btnSave.style.display = 'none';
+          btnEdit.style.display = '';
+          msgEl.textContent = 'Saved ✓';
+          msgEl.style.color = getComputedStyle(document.documentElement).getPropertyValue('--secondary-color') || '#4ECDC4';
+
+          requestAnimationFrame(() => positionPopover(ev.el, pop));
+        } catch (err) {
+          msgEl.textContent = 'Could not update: ' + (err.message || '');
+          msgEl.style.color = getComputedStyle(document.documentElement).getPropertyValue('--primary-color') || '#FF6B6B';
+        }
+      });
+
+      btnDel.addEventListener('click', async () => {
+        const id = pop.dataset.eventId;
+        try {
+          const res = await fetch('{% url "calendar_events_delete" %}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+            body: JSON.stringify({ id })
+          });
+          if (!res.ok) throw new Error(await res.text());
+          const ev = window.calendar.getEventById(id);
+          if (ev) ev.remove();
+          hidePopover();
+        } catch (err) {
+          msgEl.textContent = 'Could not delete: ' + (err.message || '');
+          msgEl.style.color = getComputedStyle(document.documentElement).getPropertyValue('--primary-color') || '#FF6B6B';
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        const id = pop.dataset.eventId;
+        if (!id || !pop.classList.contains('show')) return;
+        const ev = window.calendar.getEventById(id);
+        if (ev && ev.el) positionPopover(ev.el, pop);
+      });
+      document.addEventListener('scroll', () => {
+        const id = pop.dataset.eventId;
+        if (!id || !pop.classList.contains('show')) return;
+        const ev = window.calendar.getEventById(id);
+        if (ev && ev.el) positionPopover(ev.el, pop);
+      }, true);
     });
-  </script>  
+  </script>
+
 </body>
+
 </html>

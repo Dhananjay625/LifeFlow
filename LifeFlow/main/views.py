@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseNotAllowed
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.utils import timezone
 
 from calendar import monthrange
@@ -287,54 +288,125 @@ def calendar_events_create(request):
 
 
 @login_required
+@require_POST
 def calendar_events_update(request):
     """
-    Move/resize or edit a Task from the calendar.
-    Body: { id, start?, end?, title? }
-    Only supports ids that start with 'task-'.
+    Edit/move events from the calendar.
+    Accepts Task (task-), Subscription (sub-), and Bill (bill-) ids.
+    Body: { id, title?, start?, end?, allDay? }
+    - For Task: title -> Task.title; start -> Task.due_date (aware datetime)
+    - For sub/bill: title -> name; start -> renewal_date (date)
     """
-    if request.method != 'PATCH':
-        return HttpResponseNotAllowed(['PATCH'])
     try:
         payload = json.loads(request.body or '{}')
-        full_id = payload.get('id') or ''
-        if not full_id.startswith('task-'):
-            return HttpResponseBadRequest('Only tasks can be updated from the calendar')
-        task_id = full_id.split('task-')[-1]
+    except Exception:
+        return HttpResponseBadRequest('Invalid JSON')
 
+    full_id = (payload.get('id') or '').strip()
+    if not full_id:
+        return HttpResponseBadRequest('Missing id')
+
+    # ----- Task -----
+    if full_id.startswith('task-'):
+        task_id = full_id.split('task-')[-1]
         task = get_object_or_404(Task, id=task_id, user=request.user)
 
-        if 'title' in payload and payload['title']:
-            task.title = payload['title'].strip()
-        if 'start' in payload and payload['start']:
-            # Calendar drag will send the new start; treat as new due_date
-            task.due_date = _parse_iso_to_aware(payload['start'], expect_date_only=True)
+        title = payload.get('title')
+        if isinstance(title, str) and title.strip():
+            task.title = title.strip()
+
+        start_str = payload.get('start')
+        if start_str:
+            # treat as date-only if allDay; otherwise datetime
+            all_day = bool(payload.get('allDay', True))
+            task.due_date = _parse_iso_to_aware(start_str, expect_date_only=all_day)
+
         task.save()
-        return JsonResponse({'ok': True})
-    except Exception as e:
-        return HttpResponseBadRequest(str(e))
+        return JsonResponse({'ok': True, 'id': full_id})
+
+    # ----- Subscription -----
+    if full_id.startswith('sub-'):
+        sub_id = full_id.split('sub-')[-1]
+        if _model_has_field(sub, 'user'):
+            s = get_object_or_404(sub, id=sub_id, user=request.user)
+        else:
+            s = get_object_or_404(sub, id=sub_id)
+
+        title = payload.get('title')
+        if isinstance(title, str) and title.strip():
+            s.name = title.strip()
+
+        start_str = payload.get('start')
+        if start_str:
+            # store the base renewal date (date)
+            s.renewal_date = _parse_iso_to_aware(start_str, expect_date_only=True).date()
+
+        s.save()
+        return JsonResponse({'ok': True, 'id': full_id})
+
+    # ----- Bill -----
+    if full_id.startswith('bill-'):
+        bill_id = full_id.split('bill-')[-1]
+        if _model_has_field(Bill, 'user'):
+            b = get_object_or_404(Bill, id=bill_id, user=request.user)
+        else:
+            b = get_object_or_404(Bill, id=bill_id)
+
+        title = payload.get('title')
+        if isinstance(title, str) and title.strip():
+            b.name = title.strip()
+
+        start_str = payload.get('start')
+        if start_str:
+            b.renewal_date = _parse_iso_to_aware(start_str, expect_date_only=True).date()
+
+        b.save()
+        return JsonResponse({'ok': True, 'id': full_id})
+
+    return HttpResponseBadRequest('Unknown id prefix')
 
 
 @login_required
+@require_POST
 def calendar_events_delete(request):
     """
-    Delete a Task from the calendar.
+    Delete Task / Subscription / Bill by id prefix.
     Body: { id }
-    Only supports ids that start with 'task-'.
     """
-    if request.method != 'DELETE':
-        return HttpResponseNotAllowed(['DELETE'])
     try:
         payload = json.loads(request.body or '{}')
-        full_id = payload.get('id') or ''
-        if not full_id.startswith('task-'):
-            return HttpResponseBadRequest('Only tasks can be deleted from the calendar')
+    except Exception:
+        return HttpResponseBadRequest('Invalid JSON')
+
+    full_id = (payload.get('id') or '').strip()
+    if not full_id:
+        return HttpResponseBadRequest('Missing id')
+
+    if full_id.startswith('task-'):
         task_id = full_id.split('task-')[-1]
         task = get_object_or_404(Task, id=task_id, user=request.user)
         task.delete()
         return JsonResponse({'ok': True})
-    except Exception as e:
-        return HttpResponseBadRequest(str(e))
+
+    if full_id.startswith('sub-'):
+        sub_id = full_id.split('sub-')[-1]
+        if _model_has_field(sub, 'user'):
+            s = get_object_or_404(sub, id=sub_id, user=request.user)
+        else:
+            s = get_object_or_404(sub, id=sub_id)
+        s.delete()
+        return JsonResponse({'ok': True})
+
+    if full_id.startswith('bill-'):
+        bill_id = full_id.split('bill-')[-1]
+        if _model_has_field(Bill, 'user'):
+            b = get_object_or_404(Bill, id=bill_id, user=request.user)
+        else:
+            b = get_object_or_404(Bill, id=bill_id)
+        b.delete()
+        return JsonResponse({'ok': True})
+
+    return HttpResponseBadRequest('Unknown id prefix')
 
 
 # ---------- other views ----------
