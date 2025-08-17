@@ -16,22 +16,109 @@
   <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@6.1.15/index.global.min.js"></script>
 
   <style>
-    .fc-event-task { border-left: 4px solid #2b8a3e; }
-    .fc-event-bill { border-left: 4px solid #e8590c; }
-    .fc-event-sub  { border-left: 4px solid #1c7ed6; }
-    #calendar { background: var(--panel-bg, #111); border-radius: 12px; padding: 12px; }
-
-    /* dark theme polish */
-    .fc .fc-daygrid-day-number,
-    .fc .fc-col-header-cell-cushion { color: #e6e6e6; }
-    .fc .fc-toolbar-title { color: #fff; }
-    .fc .fc-button { border: 1px solid #2b3748; }
-    .fc .fc-button-primary { background: #1f2937; border-color: #2b3748; }
-    .fc .fc-event { background: #1f2937; color: #f8fafc; border: 1px solid #2b3748; }
-    .fc .fc-event:hover { filter: brightness(1.1); }
-
+    /* Calendar card to match your panels */
+    #calendar {
+      background: var(--background-light);
+      border: 1px solid #2b2b2b;
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+    }
+  
+    /* FullCalendar base */
+    .fc { font-family: inherit; }
+    .fc .fc-toolbar-title {
+      color: var(--text-light);
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+    .fc .fc-col-header-cell-cushion,
+    .fc .fc-daygrid-day-number { color: var(--text-muted); }
+    .fc-theme-standard td,
+    .fc-theme-standard th,
+    .fc .fc-scrollgrid { border-color: #2b2b2b; }
+  
+    /* Toolbar buttons styled like your UI */
+    .fc .fc-button {
+      background: #262a2e;
+      color: var(--text-light);
+      border: 1px solid #2f2f2f;
+      border-radius: 10px;
+      padding: 6px 12px;
+      text-transform: none;
+      box-shadow: none;
+      transition: background .15s ease, border-color .15s ease, transform .12s ease;
+    }
+    .fc .fc-button:hover { background: #2e3338; transform: translateY(-1px); }
+    .fc .fc-button:disabled { opacity: .6; }
+    .fc .fc-button-primary:not(:disabled).fc-button-active,
+    .fc .fc-button-primary:not(:disabled):hover {
+      background: var(--secondary-color);
+      border-color: var(--secondary-color);
+      color: #081313;
+    }
+  
+    /* Grid polish */
+    .fc .fc-daygrid-day { background: transparent; }
+    .fc .fc-daygrid-day-frame { padding: 6px; }
+    .fc .fc-daygrid-day:hover { background: #222325; transition: background .15s ease; }
+    .fc .fc-day-today { background: #2a2718; } /* soft “today” chip in your palette */
+    .fc .fc-highlight { background: #20242a; } /* selection drag */
+  
+    /* Event chips */
+    .fc .fc-event {
+      background: #2a2f35;
+      color: #f3f6f9;
+      border: 1px solid #31363c;
+      border-radius: 10px;
+      padding: 4px 8px;
+      line-height: 1.2;
+      box-shadow: 0 6px 16px rgba(0,0,0,.35);
+      transition: filter .12s ease, transform .12s ease;
+    }
+    .fc .fc-event:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  
+    /* Left accent bars (mapped in your eventDidMount) */
+    .fc-event-task { border-left: 4px solid var(--secondary-color) !important; }   /* tasks -> teal */
+    .fc-event-bill { border-left: 4px solid var(--primary-color) !important; }     /* bills -> coral */
+    .fc-event-sub  { border-left: 4px solid var(--accent-color) !important; }      /* subs  -> yellow */
+  
+    /* Keep text tidy in month cells */
+    .fc .fc-daygrid-event .fc-event-time,
+    .fc .fc-daygrid-event .fc-event-title {
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+  
+    /* “More” popover */
+    .fc .fc-popover {
+      background: var(--background-light);
+      border: 1px solid #2b2b2b;
+      border-radius: 12px;
+      box-shadow: 0 12px 28px rgba(0,0,0,.45);
+    }
+    .fc .fc-popover-header {
+      background: #191c20;
+      color: var(--text-light);
+      border-bottom: 1px solid #2b2b2b;
+    }
+  
+    /* Week/Day view: “now” line in your primary color */
+    .fc .fc-timegrid-now-indicator-arrow,
+    .fc .fc-timegrid-now-indicator-line { border-color: var(--primary-color); }
+  
+    /* Month header pill backgrounds for better contrast */
+    .fc .fc-col-header-cell { background: #1b1d21; }
+  
+    /* Responsive tidy */
+    @media (max-width: 720px) {
+      .fc .fc-toolbar-title { font-size: 1.05rem; }
+      .fc .fc-button { padding: 5px 9px; font-size: .9rem; }
+    }
+  
+    /* keep your sidebar collapse behavior */
     body.sb-expanded aside { width: 72px; }
   </style>
+  
 </head>
 
 <body>
@@ -106,48 +193,57 @@
       e.preventDefault();
       document.body.classList.toggle("sb-expanded");
     });
-
+  
     function getCookie(name) {
       const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
       return m ? decodeURIComponent(m.pop()) : '';
     }
     const csrftoken = getCookie('csrftoken');
-
+  
     document.addEventListener('DOMContentLoaded', function () {
       const el = document.getElementById('calendar');
-
+  
       const plugins = [];
       if (typeof rrulePlugin !== 'undefined') {
         plugins.push(rrulePlugin);
       } else {
         console.warn('RRULE plugin not found; recurring events will be skipped.');
       }
-
+  
       const calendar = new FullCalendar.Calendar(el, {
         plugins,
         timeZone: 'local',
         initialView: 'dayGridMonth',
+  
+        /* ✅ New UX options */
+        firstDay: 1,
+        stickyHeaderDates: true,
+        nowIndicator: true,
+        dayMaxEventRows: 3,
+        expandRows: true,
+        buttonText: { today: 'today', month: 'month', week: 'week', day: 'day' },
+  
         height: 'auto',
         headerToolbar: {
           left: 'prev,next today',
           center: 'title',
           right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
-
+  
         eventSources: [
           {
             url: '{% url "calendar_events" %}',
             failure(err) { console.error('events fetch failed', err); }
           }
         ],
-
+  
         selectable: true,
         selectMirror: true,
         unselectAuto: true,
         select: async (selection) => {
           const title = prompt('Event title? (Leave blank to cancel)');
           if (!title) { calendar.unselect(); return; }
-
+  
           try {
             const res = await fetch('{% url "calendar_events_create" %}', {
               method: 'POST',
@@ -171,7 +267,7 @@
             calendar.unselect();
           }
         },
-
+  
         editable: true,
         eventDurationEditable: true,
         eventDrop: async (info) => {
@@ -214,7 +310,7 @@
             alert('Could not save resize.');
           }
         },
-
+  
         eventClick: async (info) => {
           const action = prompt(`"${info.event.title}"\nType: view / delete / cancel`, 'view');
           if (action === 'delete') {
@@ -243,7 +339,7 @@
             ].join('\n'));
           }
         },
-
+  
         eventDidMount(info) {
           const type = info.event.extendedProps?.type;
           if (type === 'task') info.el.classList.add('fc-event-task');
@@ -252,11 +348,11 @@
           info.el.title = info.event.title;
         }
       });
-
+  
       calendar.render();
       window.calendar = calendar;
       console.log('FullCalendar version:', FullCalendar?.Calendar?.version);
     });
-  </script>
+  </script>  
 </body>
 </html>
