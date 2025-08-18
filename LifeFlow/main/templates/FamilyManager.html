@@ -6,237 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Family - LifeFlow</title>
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-
-  <style>
-    /* =========================
-       LifeFlow — Global Theme
-       ========================= */
-    :root{
-      --primary-color:#FF6B6B;           /* coral (orange-y) */
-      --secondary-color:#4ECDC4;         /* teal */
-      --accent-color:#FFE66D;
-      --background-dark:#181818;
-      --background-light:#1f1f1f;
-      --text-light:#eee;
-      --text-muted:#bbb;
-      --sb-width:5rem;
-    }
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
-    body{
-      margin:0; background:var(--background-dark); color:var(--text-light);
-      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
-    }
-    body.sb-expanded{ --sb-width:20rem; }
-
-    @keyframes fadeInPage{ from{opacity:0} to{opacity:1} }
-    @keyframes fadeIn{ from{opacity:0; transform:scale(.98)} to{opacity:1; transform:scale(1)} }
-
-    /* ========================= Layout ========================= */
-    .container{
-      display:flex; min-height:100vh;
-      margin-left:calc(var(--sb-width) + 1rem); padding:0 1.5rem;
-      animation:fadeInPage .6s ease forwards; opacity:0;
-      transition:margin-left .4s ease-in-out;
-    }
-    main.content{ flex:1; padding:2rem 2rem; display:flex; flex-direction:column; gap:1rem; }
-    .header{ margin-bottom:.25rem; }
-    .date{ font-size:.9rem; color:var(--text-muted); }
-    h1{ margin:.4rem 0 0 0; font-size:2rem; }
-
-    /* ========================= Sidebar ========================= */
-    aside{
-      position:fixed; inset:0 auto 0 0; height:100vh; width:var(--sb-width);
-      background:var(--background-light); transition:width .4s ease-in-out;
-      padding:1rem; overflow-x:hidden; overflow-y:auto;
-      display:flex; flex-direction:column; justify-content:space-between;
-    }
-    .nav{ display:flex; flex-direction:column; height:100%; }
-    .nav ul{ list-style:none; padding:0; margin:0; flex:1; display:flex; flex-direction:column; gap:.35rem; }
-    .nav a{
-      display:flex; align-items:center; gap:1rem; white-space:nowrap;
-      text-decoration:none; font-size:1.25rem; color:#eee;
-      padding:.55rem .6rem; border-radius:.6rem; transition:background .25s, color .25s;
-    }
-    .nav a:hover,.nav a.active{ background:var(--primary-color); color:#fff; }
-    .nav a i{ font-size:2rem; }
-    .nav a span{ opacity:0; visibility:hidden; transition:opacity .25s, visibility .25s; }
-    body.sb-expanded .nav a span{ opacity:1; visibility:visible; }
-    .collapse-btn{ margin-top:auto; }
-    .logout-btn{ margin-top:1.5rem; }
-    .logout-btn a{
-      display:flex; align-items:center; gap:1rem; text-decoration:none; color:#eee;
-      padding:.55rem .6rem; border-radius:.6rem; transition:background .25s;
-    }
-    .logout-btn a:hover{ background:var(--primary-color); color:#fff; }
-
-    /* ========================= Cards ========================= */
-    .cards-grid{
-      display:grid; grid-template-columns:repeat(2,minmax(340px,1fr));
-      gap:28px; margin-top:1rem; align-items:stretch;
-    }
-    @media (max-width:980px){ .cards-grid{ grid-template-columns:1fr; } }
-
-    .card{
-      background:#1b1b1b; border:1px solid rgba(255,255,255,.06);
-      border-radius:20px; padding:1.4rem 1.2rem;
-      box-shadow:0 14px 28px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03);
-      display:flex; flex-direction:column; min-height:280px; height:100%;
-      animation:fadeIn .35s ease;
-    }
-    .card-header h2{
-      margin:0 0 .4rem; color:var(--primary-color);
-      font-size:1.45rem; font-weight:800; letter-spacing:.2px;
-    }
-    .card-sub{ margin:0; color:var(--text-muted); font-size:.96rem; }
-
-    .stats{
-      display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-top:1rem;
-    }
-    .stat{
-      background:#222; border:1px solid rgba(255,255,255,.05);
-      border-radius:14px; padding:1rem .9rem; min-height:84px;
-      display:flex; flex-direction:column; justify-content:center;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
-    }
-    .stat-label{ font-size:.82rem; color:var(--text-muted); }
-    .stat-value{ font-weight:800; margin-top:.2rem; }
-
-    .card-actions{ margin-top:1rem; display:flex; gap:.75rem; }
-
-    /* ========================= Buttons ========================= */
-    .btn{
-      appearance:none; border:none; outline:none;
-      display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
-      font-weight:700; letter-spacing:.15px; line-height:1;
-      padding:.9rem 1rem; border-radius:12px; text-decoration:none;
-      color:#fff; background:#2a2a2a;
-      transition:transform .06s, box-shadow .2s, background .2s, opacity .15s;
-      box-shadow:0 6px 16px rgba(0,0,0,.25);
-    }
-    .btn:hover{ transform:translateY(-1px); box-shadow:0 10px 22px rgba(0,0,0,.28); }
-    .btn:active{ transform:translateY(0); opacity:.95; }
-    .btn-primary{ background:var(--primary-color); color:#fff; }
-    .btn-secondary{ background:var(--secondary-color); color:#0f0f0f; }
-    .btn-ghost{ background:transparent; color:var(--text-light); border:2px solid rgba(255,255,255,.14); box-shadow:none; }
-    .btn-lg{ width:100%; }
-    .btn-pill{ border-radius:999px; }
-
-    /* Option button (for Switch Family) */
-    .option-btn{
-      width:100%; margin-top:.8rem; background:#262626; color:#fff;
-      border:2px solid rgba(255,255,255,.14); border-radius:12px;
-      padding:.95rem 1rem; font-weight:800;
-      display:flex; align-items:center; justify-content:center; gap:.5rem;
-      box-shadow:0 6px 16px rgba(0,0,0,.18);
-      transition:transform .06s, box-shadow .2s, background .2s, border-color .2s;
-    }
-    .option-btn i{ font-size:1.2rem; }
-    .option-btn:hover{ transform:translateY(-1px); box-shadow:0 10px 22px rgba(0,0,0,.25); border-color:rgba(255,255,255,.22); }
-
-    /* Form controls */
-    .form-actions{ text-align:center; }
-    .form-group{ margin-bottom:1.1rem; }
-    .form-group label{ display:block; margin-bottom:.5rem; font-weight:600; color:var(--text-muted); }
-    .form-group input, .form-group select, .form-group textarea{
-      width:100%; background:#222; color:var(--text-light);
-      border:1px solid rgba(255,255,255,.08); border-radius:12px;
-      padding:.7rem .8rem; outline:none; transition:border .15s, box-shadow .15s, background .15s;
-    }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus{
-      border-color:var(--primary-color); box-shadow:0 0 0 3px rgba(255,107,107,.18);
-    }
-
-    /* Join with Invite Code row */
-    .join-row{
-      display:flex; align-items:center; gap:.6rem; margin-top:.2rem;
-    }
-    .join-row input[type="text"]{
-      flex:1; min-width:0;
-      height:44px;                      /* match button height visually */
-      padding:.6rem .8rem;
-      border-radius:12px;
-      background:#222; color:var(--text-light);
-      border:1px solid rgba(255,255,255,.08);
-    }
-    .join-row .btn{ height:44px; padding:0 1rem; } /* same height as input */
-    @media (max-width:520px){
-      .join-row{ flex-direction:column; align-items:stretch; }
-      .join-row .btn{ width:100%; }
-    }
-
-    /* Lists */
-    .title{ font-size:1.5rem; color:var(--primary-color); margin:0 0 .6rem; }
-    .task-list{ display:flex; flex-direction:column; gap:15px; margin:0; padding:0; list-style:none; }
-    .task-item{
-      background:var(--background-light); padding:20px 30px; border-radius:12px;
-      display:flex; align-items:center; gap:20px; min-height:30px; box-shadow:0 2px 5px rgba(0,0,0,.3);
-    }
-    .task-item label{ font-size:1.05rem; color:var(--text-light); }
-    .status-dot{ width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:8px; }
-    .delete-btn{ background:transparent; border:none; color:#FF6B6B; font-size:24px; cursor:pointer; transition:transform .2s; }
-    .delete-btn:hover{ transform:scale(1.12); }
-
-    /* Modal */
-    .modal{ display:none; position:fixed; z-index:10; inset:0; background:rgba(0,0,0,.6); }
-    .modal-content{
-      background:#1f1f1f; margin:10% auto; padding:24px; border-radius:12px;
-      width:90%; max-width:420px; color:#eee; text-align:center;
-      animation:fadeIn .25s ease; border:1px solid #333;
-    }
-    .modal-buttons{ display:flex; gap:.75rem; justify-content:space-between; margin-top:1.1rem; }
-    .delete-confirm{ background:var(--primary-color); color:#fff; }
-
-    /* ===== Sidebar — force same sizing as Calendar ===== */
-:root{
-  /* exact sidebar width used by Calendar */
-  --sb-width: 5.25rem;              /* 84px */
-}
-
-/* width + page offset */
-aside{ width: var(--sb-width) !important; }
-.container{ margin-left: calc(var(--sb-width) + 1rem) !important; }
-
-/* icon sizing + row height */
-.nav a,
-.nav-links a{
-  height: 3.25rem;                  /* 52px tap target */
-  padding: 0 .9rem !important;
-}
-
-/* icon size (match calendar) */
-.nav a i,
-.nav-links a i,
-.logout-btn a i{
-  font-size: 2.25rem !important;    /* 36px */
-  width: 2.25rem;
-  min-width: 2.25rem;
-  line-height: 1;
-}
-
-/* label visibility behavior remains identical */
-.nav a span,
-.nav-links a span{
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity .25s, visibility .25s;
-}
-body.sb-expanded .nav a span,
-body.sb-expanded .nav-links a span{
-  opacity: 1;
-  visibility: visible;
-}
-
-/* keep collapse + logout rows aligned */
-.collapse-btn,
-.logout-btn{ width: 100%; }
-.logout-btn a{
-  height: 3.25rem;
-  padding: 0 .9rem !important;
-}
-
-  </style>
+  <link rel="stylesheet" href="{% static 'index.css' %}?v=2">
 </head>
 
 <body>
@@ -252,11 +22,6 @@ body.sb-expanded .nav-links a span{
           <li><a href="{% url 'Subscription' %}"><i class='bx bx-cloud-download'></i><span>Subscription Tracker</span></a></li>
           <li><a href="{% url 'BillManager' %}"><i class='bx bx-receipt'></i><span>Bill Manager</span></a></li>
           <li><a href="{% url 'HealthManager' %}"><i class='bx bx-dumbbell'></i><span>Health Manager</span></a></li>
-          <li>
-            <a href="http://127.0.0.1:8000" target="_blank">
-              <i class='bx bx-map'></i><span>GeoDesk</span>
-            </a>
-          </li>
           <li><a href="#" class="active"><i class='bx bx-group'></i><span>Family</span></a></li>
         </ul>
 
@@ -338,7 +103,7 @@ body.sb-expanded .nav-links a span{
             {% csrf_token %}
             <div class="join-row">
               <input type="text" name="invite_code" placeholder="Paste invite code">
-              <button class="btn btn-primary btn-pill" type="submit">Join</button> <!-- orange button -->
+              <button class="btn btn-primary btn-pill" type="submit">Join</button>
             </div>
           </form>
         </div>
@@ -369,7 +134,6 @@ body.sb-expanded .nav-links a span{
       <section style="margin-top:1.2rem;margin-bottom:2rem;">
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <h2 class="title">Recent Tasks</h2>
-          <a class="btn btn-secondary" href="{% url 'TaskManager' %}">Open Tasks</a>
         </div>
         <ul class="task-list">
           {% for t in tasks %}

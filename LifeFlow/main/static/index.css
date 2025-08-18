@@ -52,19 +52,11 @@ body.sb-expanded {
   margin-bottom: 40px;
 }
 
-aside {
-  position: fixed;
-  inset: 0 auto 0 0;
-  height: 100vh;
-  width: var(--sb-width);
-  background: var(--background-light);
-  transition: width 0.4s ease-in-out;
-  padding: 1rem;
-  overflow-x: hidden;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+aside{
+  position:fixed; inset:0 auto 0 0; height:100vh; width:var(--sb-width);
+  background:var(--background-light); transition:width .4s ease-in-out;
+  padding:1rem; overflow-x:hidden; overflow-y:auto;
+  display:flex; flex-direction:column; justify-content:space-between;
 }
 
 
@@ -1177,110 +1169,496 @@ h1 {
   from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
 }
-/* ===== Classy Family page patch ===== */
+/* ============================================================
+   FAMILY PAGE STYLING (moved from family.html template <style>)
+   ============================================================ */
 
-.page-hero {
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:1rem;
-  margin-bottom:1.2rem;
+   .family-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: var(--background-light);
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    animation: fadeInUp 0.8s ease;
+  }
+  
+  .family-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .family-header h1 {
+    font-size: 2rem;
+    color: var(--text-light);
+  }
+  
+  .family-header button {
+    background: var(--primary-color);
+    border: none;
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+  }
+  
+  .family-header button:hover {
+    background: var(--secondary-color);
+  }
+  
+  .family-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .family-item {
+    background: var(--background-dark);
+    border: 1px solid #333;
+    padding: 1rem;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s ease, background 0.3s ease;
+  }
+  
+  .family-item:hover {
+    transform: translateY(-3px);
+    background: #222;
+  }
+  
+  .family-item span {
+    font-size: 1.1rem;
+    color: var(--text-light);
+  }
+  
+  .family-actions button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    margin-left: 0.5rem;
+    font-size: 1.4rem;
+    color: var(--text-muted);
+    transition: color 0.3s ease;
+  }
+  
+  .family-actions button:hover {
+    color: var(--accent-color);
+  }
+  
+  /* Modal Styling */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background: var(--background-light);
+    padding: 2rem;
+    border-radius: 1.5rem;
+    width: 400px;
+    max-width: 90%;
+    animation: scaleIn 0.3s ease;
+  }
+  
+  .modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--text-light);
+  }
+  
+  .modal-content label {
+    display: block;
+    margin: 0.8rem 0 0.3rem;
+    color: var(--text-muted);
+  }
+  
+  .modal-content input,
+  .modal-content select {
+    width: 100%;
+    padding: 0.6rem;
+    border-radius: 0.5rem;
+    border: 1px solid #555;
+    background: var(--background-dark);
+    color: var(--text-light);
+  }
+  
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+  }
+  
+  .modal-actions button {
+    background: var(--secondary-color);
+    border: none;
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    margin-left: 0.5rem;
+    transition: background 0.3s ease;
+  }
+  
+  .modal-actions button:hover {
+    background: var(--primary-color);
+  }
+  
+  /* Confirm Delete Modal Special */
+  .delete-confirm {
+    background: var(--primary-color);
+    color: #fff;
+  }
+  
+  /* Animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  /* =========================
+   CORE BUTTONS (restored)
+   ========================= */
+.btn{
+  -webkit-appearance:none;
+  appearance:none;
+  border:none;
+  outline:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:.5rem;
+  font-weight:700;
+  letter-spacing:.15px;
+  line-height:1;
+  min-height:44px;
+  padding:.9rem 1rem;
+  border-radius:12px;
+  text-decoration:none;
+  color:#fff;
+  background:#2a2a2a;
+  transition:transform .06s, box-shadow .2s, background .2s, opacity .15s;
+  box-shadow:0 6px 16px rgba(0,0,0,.25);
 }
-.page-title {
-  margin: .2rem 0 .4rem 0;
-  font-size: 2.2rem;
-  letter-spacing: .3px;
-}
-.muted { color: var(--text-muted); }
+.btn:hover{ transform:translateY(-1px); box-shadow:0 10px 22px rgba(0,0,0,.28); }
+.btn:active{ transform:translateY(0); opacity:.95; }
 
-.hero-actions { display:flex; gap:.6rem; align-items:center; }
+.btn-primary{ background:var(--primary-color); color:#fff; }
+.btn-secondary{ background:var(--secondary-color); color:#0f0f0f; }
+.btn-ghost{ background:transparent; color:var(--text-light); border:2px solid rgba(255,255,255,.14); box-shadow:none; }
 
-/* buttons */
-.btn {
-  display:inline-flex; align-items:center; gap:.5rem;
-  padding:.6rem .9rem; border-radius:10px; text-decoration:none;
-  font-weight:600; cursor:pointer; border:1px solid transparent;
-  background: #2a2a2a; color: var(--text-light);
-  transition: transform .15s ease, background .2s ease, border-color .2s ease;
-}
-.btn i { font-size:1.1rem; }
-.btn:hover { transform: translateY(-1px); }
-.btn-primary { background: linear-gradient(135deg, var(--secondary-color), #37b5ad); color:#fff; }
-.btn-ghost { background: transparent; border-color:#333; }
-.btn-danger { background: var(--primary-color); color:#fff; }
+.btn-lg{ width:auto; }          /* prevent full-width stretch */
+.btn-pill{ border-radius:999px; }
 
-/* layout grids */
-.grid { display:grid; gap:1rem; }
-.grid-3 { grid-template-columns: repeat(3, minmax(220px, 1fr)); }
-.grid-2 { grid-template-columns: repeat(2, minmax(320px, 1fr)); }
-@media (max-width: 980px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+/* Make icon in Invite button sit nicely */
+#openInviteModal i{ font-size:1.2rem; vertical-align:-2px; }
 
-/* cards */
-.card {
-  background: radial-gradient(1200px 600px at 10% -10%, rgba(255,255,255,.04), transparent 70%),
-              var(--background-light);
-  border: 1px solid rgba(255,255,255,.06);
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.28);
-  padding: 1rem;
-}
-.card-header {
-  display:flex; align-items:center; justify-content:space-between; margin-bottom:.5rem;
-}
-.card-header h2 { margin:0; font-size:1.3rem; }
-.card-actions { display:flex; gap:.4rem; }
-
-/* stat cards */
-.stat { display:flex; align-items:center; gap:.9rem; }
-.stat-icon {
-  width:44px; height:44px; border-radius:12px; display:grid; place-items:center;
-  background: #222; color: var(--accent-color); font-size:1.3rem;
-  border:1px solid #333;
-}
-.stat-value { font-size:1.5rem; font-weight:800; }
-.stat-label { color: var(--text-muted); font-size:.95rem; }
-
-/* lists */
-.list { list-style:none; padding:0; margin:0; }
-.list-divided .list-item { padding: .8rem .4rem; display:flex; align-items:center; justify-content:space-between; }
-.list-divided .list-item + .list-item { border-top: 1px dashed rgba(255,255,255,.08); }
-
-/* members */
-.member-item { gap:.8rem; }
-.member-main { display:flex; flex-direction:column; gap:.2rem; }
-.member-name { font-weight:700; }
-.member-meta { display:flex; gap:.4rem; align-items:center; }
-.avatar {
-  width:42px; height:42px; border-radius:50%;
-  display:grid; place-items:center; font-weight:800;
-  background: linear-gradient(145deg, #2b2b2b, #202020);
-  border:1px solid #333; color:#fff;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
-}
-.icon-btn {
-  background:transparent; border:none; color:#ff7a7a; font-size:1.3rem; cursor:pointer;
-  padding:.2rem .4rem; border-radius:8px;
-}
-.icon-btn:hover { background:#2b1f1f; }
-
-/* tasks */
-.task-left { display:flex; align-items:center; gap:.7rem; }
-.task-title { font-weight:600; }
-
-/* invites */
-.invite-row { display:flex; align-items:center; justify-content:space-between; gap:.8rem; }
-.invite-main { display:flex; align-items:center; gap:.6rem; }
-.invite-actions { display:flex; gap:.4rem; }
-
-/* pills */
-.pill {
-  display:inline-flex; align-items:center; gap:.35rem;
-  padding:.25rem .6rem; border-radius:999px; font-size:.85rem; font-weight:700;
-  background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); color:#ddd;
-}
-.pill-ghost {
-  background: transparent; border-color:#333; color: var(--text-muted);
+/* =========================
+   FAMILY HEADING SIZE FIX
+   ========================= */
+main.content .title{
+  font-size:1.5rem;
+  color:var(--primary-color);
 }
 
+/* (Optional) keep Join row pill look aligned */
+.join-row .btn{
+  min-height:44px;
+  padding:0 18px;
+  border-radius:999px;
+}
+/* =========================
+   FAMILY PAGE — LAYOUT RESTORE (scoped + !important)
+   ========================= */
 
+/* Grid: two columns on desktop */
+main.content .cards-grid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(340px,1fr)) !important;
+  gap:28px !important;
+  margin-top:1rem !important;
+  align-items:stretch !important;
+}
+@media (max-width:980px){
+  main.content .cards-grid{ grid-template-columns:1fr !important; }
+}
 
+/* Card surface */
+main.content .card{
+  background:#1b1b1b !important;
+  border:1px solid rgba(255,255,255,.06) !important;
+  border-radius:20px !important;
+  padding:1.4rem 1.2rem !important;
+  box-shadow:0 14px 28px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03) !important;
+  display:flex !important;
+  flex-direction:column !important;
+  min-height:280px !important;
+  height:100% !important;
+}
+
+/* Card header */
+main.content .card .card-header h2{
+  margin:0 0 .4rem !important;
+  color:var(--primary-color) !important;
+  font-size:1.45rem !important;
+  font-weight:800 !important;
+  letter-spacing:.2px !important;
+}
+main.content .card .card-sub{ margin:0 !important; color:var(--text-muted) !important; font-size:.96rem !important; }
+
+/* Stats tiles */
+main.content .card .stats{
+  display:grid !important;
+  grid-template-columns:repeat(3,1fr) !important;
+  gap:1rem !important;
+  margin-top:1rem !important;
+}
+main.content .card .stat{
+  background:#222 !important;
+  border:1px solid rgba(255,255,255,.05) !important;
+  border-radius:14px !important;
+  padding:1rem .9rem !important;
+  min-height:84px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+main.content .card .stat-label{ font-size:.82rem !important; color:var(--text-muted) !important; }
+main.content .card .stat-value{ font-weight:800 !important; margin-top:.2rem !important; }
+
+/* Actions + Switch Family button */
+main.content .card .card-actions{ margin-top:1rem !important; display:flex !important; gap:.75rem !important; }
+main.content .option-btn{
+  width:100% !important; margin-top:.8rem !important;
+  background:#262626 !important; color:#fff !important;
+  border:2px solid rgba(255,255,255,.14) !important; border-radius:12px !important;
+  padding:.95rem 1rem !important; font-weight:800 !important;
+  display:flex !important; align-items:center !important; justify-content:center !important; gap:.5rem !important;
+  box-shadow:0 6px 16px rgba(0,0,0,.18) !important;
+}
+
+/* Forms */
+main.content .form-actions{ text-align:center !important; }
+main.content .form-group{ margin-bottom:1.1rem !important; }
+main.content .form-group label{ display:block !important; margin-bottom:.5rem !important; font-weight:600 !important; color:var(--text-muted) !important; }
+main.content .form-group input,
+main.content .form-group select,
+main.content .form-group textarea{
+  width:100% !important; background:#222 !important; color:var(--text-light) !important;
+  border:1px solid rgba(255,255,255,.08) !important; border-radius:12px !important;
+  padding:.7rem .8rem !important; outline:none !important;
+}
+main.content .form-group input:focus,
+main.content .form-group select:focus,
+main.content .form-group textarea:focus{
+  border-color:var(--primary-color) !important; box-shadow:0 0 0 3px rgba(255,107,107,.18) !important;
+}
+
+/* Join row */
+main.content .join-row{ display:flex !important; align-items:center !important; gap:.6rem !important; margin-top:.2rem !important; }
+main.content .join-row input[type="text"]{
+  flex:1 !important; min-width:0 !important; height:44px !important; padding:.6rem .8rem !important;
+  border-radius:12px !important; background:#222 !important; color:var(--text-light) !important;
+  border:1px solid rgba(255,255,255,.08) !important;
+}
+main.content .join-row .btn{ height:44px !important; padding:0 1rem !important; border-radius:999px !important; }
+@media (max-width:520px){
+  main.content .join-row{ flex-direction:column !important; align-items:stretch !important; }
+  main.content .join-row .btn{ width:100% !important; }
+}
+
+/* Members list card look */
+main.content .task-list{ display:flex !important; flex-direction:column !important; gap:15px !important; margin:0 !important; padding:0 !important; list-style:none !important; }
+main.content .task-item{
+  background:var(--background-light) !important;
+  padding:20px 30px !important; border-radius:12px !important;
+  display:flex !important; align-items:center !important; gap:20px !important;
+  min-height:30px !important; box-shadow:0 2px 5px rgba(0,0,0,.3) !important;
+  border:1px solid rgba(255,255,255,.06) !important;
+}
+main.content .task-item label{ font-size:18px !important; color:var(--text-light) !important; }
+
+/* Family section subtitle size */
+main.content .title{ font-size:1.5rem !important; color:var(--primary-color) !important; margin:0 0 .6rem !important; }
+/* =========================
+   FAMILY PAGE — MICRO POLISH
+   ========================= */
+
+/* 1) Create button: align with input (was centered) */
+.cards-grid .card form .form-actions{
+  margin-top:.6rem !important;
+  display:flex !important;
+  justify-content:flex-start !important;   /* left align */
+}
+.cards-grid .card form .form-actions .btn{
+  min-height:40px !important;
+  padding:.6rem 1rem !important;
+}
+
+/* 2) Invite button: slightly smaller to match scale */
+#openInviteModal.btn{
+  min-height:42px !important;
+  padding:.65rem 1rem !important;
+}
+
+/* 3) Card rhythm: a touch more space after stats, less before switch */
+.cards-grid .card .stats{ margin-bottom:.4rem !important; }
+.cards-grid .card .card-actions{ margin-top:.8rem !important; }
+.cards-grid .option-btn{ margin-top:.6rem !important; }
+
+/* 4) Join row: tidy baseline & spacing */
+.cards-grid .join-row{
+  gap:.55rem !important;
+  align-items:center !important;
+}
+.cards-grid .join-row input[type="text"]{
+  height:42px !important;
+  padding:.55rem .8rem !important;
+}
+.cards-grid .join-row .btn{
+  min-height:42px !important;
+  padding:0 16px !important;
+  border-radius:999px !important;
+}
+
+/* 5) Section heading spacing before Members */
+main.content .title{
+  margin:1.1rem 0 .6rem !important;
+}
+
+/* 6) Member rows: keep icons aligned & reduce extra height on small lines */
+.task-list .task-item{
+  padding:16px 22px !important;
+}
+.task-list .task-item label{
+  line-height:1.25 !important;
+}
+
+/* ===== FAMILY — requested tweaks ===== */
+
+/* 1) Make "Invite Member" span the card like "Switch Family" */
+.cards-grid .card .card-actions #openInviteModal{
+  display:flex !important;
+  width:100% !important;                /* full width */
+  justify-content:center !important;    /* center the label inside */
+  min-height:44px !important;
+  padding:.8rem 1rem !important;
+}
+
+/* 2) "Create" button: left-align and stop centering */
+.cards-grid .card .form-actions{
+  display:flex !important;
+  justify-content:flex-start !important; /* left */
+  align-items:center !important;
+  text-align:left !important;            /* override old center rule */
+  margin-top:.6rem !important;
+}
+.cards-grid .card .form-actions .btn{
+  width:auto !important;                 /* not full-width */
+  min-height:40px !important;
+  padding:.6rem 1rem !important;
+}
+
+/* 3) Give breathing room before the Members section */
+.cards-grid{ margin-bottom:1.2rem !important; }
+.cards-grid + section .title{ margin-top:.4rem !important; }  /* extra space */
+
+/* ===== FAMILY — final fixes ===== */
+
+/* 0) Safety: never let form pieces overflow the card */
+.cards-grid .card,
+.cards-grid .card * { box-sizing: border-box !important; }
+.cards-grid .card input,
+.cards-grid .card select,
+.cards-grid .card textarea {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+/* 1) CREATE: make the primary action fill the card width */
+.cards-grid .card form .form-actions{
+  display: flex !important;
+  justify-content: stretch !important;
+  align-items: center !important;
+  margin-top: .8rem !important;
+}
+.cards-grid .card form .form-actions .btn{
+  display: flex !important;
+  width: 100% !important;          /* full width */
+  justify-content: center !important;
+  min-height: 48px !important;     /* same height as Join below */
+  padding: .8rem 1rem !important;
+  border-radius: 12px !important;
+}
+
+/* 2) JOIN: stack input then a full-width button (same size as Create) */
+.cards-grid .card .join-row{
+  flex-direction: column !important;   /* input on top, button below */
+  align-items: stretch !important;
+  gap: .6rem !important;
+}
+.cards-grid .card .join-row .btn{
+  width: 100% !important;              /* full width */
+  min-height: 48px !important;         /* match Create */
+  padding: .8rem 1rem !important;
+  border-radius: 12px !important;      /* match Create (not pill) */
+}
+
+/* 3) Extra breathing room before "Members" so nothing crowds */
+.cards-grid{ margin-bottom: 1.8rem !important; }
+.cards-grid + section{ margin-top: .4rem !important; position: relative; z-index: 0; }
+.cards-grid + section .title{ margin-top: .6rem !important; }
+
+/* 4) Minor: keep the invite button look consistent (unchanged width) */
+#openInviteModal.btn{
+  min-height: 48px !important;
+  padding: .8rem 1rem !important;
+}
+
+/* ===== FAMILY CARD SPACING FIX ===== */
+
+/* Tighten vertical rhythm inside the family card */
+.cards-grid .card .stats{
+  margin-bottom:.6rem !important;   /* less gap under stats */
+}
+
+.cards-grid .card .card-actions{
+  margin-top:.6rem !important;      /* bring Invite closer */
+}
+
+.cards-grid .option-btn{
+  margin-top:.5rem !important;      /* bring Switch closer */
+  width:100% !important;            /* make width match Invite */
+}
