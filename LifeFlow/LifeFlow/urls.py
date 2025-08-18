@@ -3,18 +3,22 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
+
 from main import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.LandingPage, name='LandingPage'),
 
+    # Family (front-end page)
+    path('FamilyManager/', views.FamilyManager, name='FamilyManager'),  # ← NEW
+
     # Calendar + events
     path('calendar/', views.calendar_view, name='calendar'),
     path('calendar/events/', views.calendar_events, name='calendar_events'),
-    path('calendar/events/create/', views.calendar_events_create, name='calendar_events_create'),   # NEW
-    path('calendar/events/update/', views.calendar_events_update, name='calendar_events_update'),   # NEW
-    path('calendar/events/delete/', views.calendar_events_delete, name='calendar_events_delete'),   # NEW
+    path('calendar/events/create/', views.calendar_events_create, name='calendar_events_create'),
+    path('calendar/events/update/', views.calendar_events_update, name='calendar_events_update'),
+    path('calendar/events/delete/', views.calendar_events_delete, name='calendar_events_delete'),
 
     # App sections
     path('Subscription/', views.SubscriptionTracker, name='Subscription'),

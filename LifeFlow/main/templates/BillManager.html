@@ -49,6 +49,8 @@
               <i class='bx bx-dumbbell'></i><span>Health Manager</span>
             </a>
           </li>
+          <li><a href="{% url 'FamilyManager' %}" {% if request.resolver_match.url_name == 'FamilyManager' %}class="active"{% endif %}>
+          <i class='bx bx-group'></i><span>Family</span></a></li>
            <li>
             <a href="http://127.0.0.1:8000" target="_blank">
               <i class='bx bx-map'></i><span>GeoDesk</span>
