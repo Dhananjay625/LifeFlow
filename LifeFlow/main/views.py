@@ -1,19 +1,27 @@
-# app/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseNotAllowed
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-
 from calendar import monthrange
 import calendar as cal
 from datetime import date, datetime, timedelta
 import json
-
+from django.conf import settings
+from google_auth_oauthlib.flow import Flow
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
 from .forms import TaskForm
 from .models import Bill, Document, sub, Task
+from google.oauth2 import id_token
+from google.auth.transport import requests
+import os
+import secrets
+from google.oauth2.credentials import Credentials as GoogleCreds
 
+# Allow HTTP for local dev (never in prod)
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 # ---------- helpers ----------
 
@@ -64,8 +72,81 @@ def _parse_iso_to_aware(s: str, expect_date_only=False):
         dt = timezone.make_aware(dt, timezone.get_current_timezone())
     return dt.astimezone(timezone.get_current_timezone())
 
+def _google_flow_config(redirect_uri: str):
+    return {
+        "web": {
+            "client_id": settings.GOOGLE_CLIENT_ID,
+            "project_id": "lifeflow-469400",
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+            "client_secret": settings.GOOGLE_CLIENT_SECRET,
+            "redirect_uris": [redirect_uri],
+        }
+    }
 
-# ---------- auth ----------
+# Request everything we need in one flow (prevents double sign-in)
+GCAL_SCOPES = [
+    "openid",
+    "https://www.googleapis.com/auth/userinfo.profile",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/calendar",
+]
+
+from google.auth.exceptions import RefreshError
+
+def _sync_gcal_events_to_tasks(request, max_results=50, creds=None):
+    """
+    Pull upcoming Google events and upsert into Task table.
+    If creds is provided, use it (fresh from callback). Otherwise rebuild from session.
+    """
+    if creds is None:
+        creds_dict = request.session.get("google_credentials")
+        if not creds_dict or not request.user.is_authenticated:
+            return
+        creds = GoogleCreds.from_authorized_user_info(creds_dict, scopes=creds_dict.get("scopes"))
+
+    try:
+        service = build("calendar", "v3", credentials=creds)
+        resp = service.events().list(
+            calendarId="primary",
+            maxResults=max_results,
+            singleEvents=True,
+            orderBy="startTime",
+        ).execute()
+    except RefreshError:
+        # No refresh_token or invalid creds — skip silently
+        return
+
+    items = resp.get("items", [])
+    for ev in items:
+        summary = ev.get("summary") or "(No title)"
+        start = ev.get("start", {})
+        start_iso = start.get("dateTime") or start.get("date")
+        if not start_iso:
+            continue
+        all_day = "date" in start
+        due_dt = _parse_iso_to_aware(start_iso, expect_date_only=all_day)
+
+        if _model_has_field(Task, 'external_id'):
+            obj, _ = Task.objects.get_or_create(
+                user=request.user,
+                external_id=ev.get("id"),
+                defaults={"title": summary, "due_date": due_dt, "status": "pending"},
+            )
+            changed = False
+            if obj.title != summary:
+                obj.title = summary; changed = True
+            if obj.due_date != due_dt:
+                obj.due_date = due_dt; changed = True
+            if changed:
+                obj.save()
+        else:
+            if not Task.objects.filter(user=request.user, title=summary, due_date=due_dt).exists():
+                Task.objects.create(user=request.user, title=summary, due_date=due_dt, status="pending")
+
+
+# ---------- auth (username/password) ----------
 
 def login_view(request):
     if request.method == 'POST':
@@ -78,7 +159,6 @@ def login_view(request):
             return redirect(next_url or 'TaskManager')
         return render(request, 'index.html', {'error': 'Invalid username or password.'})
     return render(request, 'index.html')
-
 
 def register(request):
     if request.method == 'POST':
@@ -98,7 +178,6 @@ def register(request):
         return redirect('login')
 
     return render(request, 'register.html')
-
 
 # ---------- tasks ----------
 
@@ -134,7 +213,6 @@ def archive_task(request, task_id):
     task.save()
     return redirect('task_list')
 
-
 # ---------- calendar ----------
 
 @login_required
@@ -158,7 +236,6 @@ def calendar_view(request):
     }
     return render(request, 'calendar.html', context)
 
-
 @login_required
 def calendar_events(request):
     events = []
@@ -175,6 +252,7 @@ def calendar_events(request):
             'extendedProps': {'type': 'task', 'status': t['status'], 'priority': t['priority']},
         })
 
+    # Bills
     bills_qs = Bill.objects.filter(status='active')
     if _model_has_field(Bill, 'user'):
         bills_qs = bills_qs.filter(user=request.user)
@@ -212,6 +290,7 @@ def calendar_events(request):
                 'extendedProps': {'type': 'bill'},
             })
 
+    # Subscriptions
     subs_qs = sub.objects.filter(status='active')
     if _model_has_field(sub, 'user'):
         subs_qs = subs_qs.filter(user=request.user)
@@ -249,17 +328,40 @@ def calendar_events(request):
                 'extendedProps': {'type': 'subscription'},
             })
 
+    # Append Google Calendar events (live) if connected
+    creds_dict = request.session.get("google_credentials")
+    if creds_dict:
+        try:
+            gcreds = GoogleCreds.from_authorized_user_info(creds_dict, scopes=creds_dict.get("scopes"))
+            service = build("calendar", "v3", credentials=gcreds)
+            gitems = service.events().list(
+                calendarId="primary", maxResults=50, singleEvents=True, orderBy="startTime"
+            ).execute().get("items", [])
+
+            for ev in gitems:
+                start = ev.get("start", {})
+                end = ev.get("end", {})
+                start_iso = start.get("dateTime") or start.get("date")
+                end_iso = end.get("dateTime") or end.get("date")
+                if not start_iso:
+                    continue
+                all_day = "date" in start
+                events.append({
+                    'id': f"gcal-{ev.get('id')}",
+                    'title': ev.get('summary') or '(No title)',
+                    'start': start_iso,
+                    'end': end_iso,
+                    'allDay': all_day,
+                    'extendedProps': {'type': 'gcal', 'htmlLink': ev.get('htmlLink')},
+                })
+        except Exception:
+            # token errors etc — ignore gracefully
+            pass
+
     return JsonResponse(events, safe=False)
-
-
-# -------- FullCalendar mutations for Tasks --------
 
 @login_required
 def calendar_events_create(request):
-    """
-    Create a new Task from a selection on the calendar.
-    Body: { title, start, end?, allDay? }
-    """
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])
     try:
@@ -271,7 +373,6 @@ def calendar_events_create(request):
         if not start_str:
             return HttpResponseBadRequest('start required')
 
-        # treat allDay selections as date-only (midnight local)
         all_day = bool(payload.get('allDay', False))
         due_dt = _parse_iso_to_aware(start_str, expect_date_only=all_day)
 
@@ -285,35 +386,181 @@ def calendar_events_create(request):
     except Exception as e:
         return HttpResponseBadRequest(str(e))
 
+# ---------- Google OAuth (single flow) ----------
 
-@login_required
+def google_connect(request):
+    redirect_uri = settings.GOOGLE_REDIRECT_URI
+    state = secrets.token_urlsafe(32)
+    request.session["oauth_state"] = state
+
+    flow = Flow.from_client_config(
+        _google_flow_config(redirect_uri),
+        scopes=GCAL_SCOPES,
+        state=state,
+    )
+    flow.redirect_uri = redirect_uri
+
+    have_refresh = bool(request.session.get("google_credentials", {}).get("refresh_token"))
+    auth_kwargs = dict(
+        access_type="offline",
+        include_granted_scopes="true",  
+        state=state,
+    )
+    if not have_refresh:
+        auth_kwargs["prompt"] = "consent"
+
+    auth_url, _ = flow.authorization_url(**auth_kwargs)
+    return redirect(auth_url)
+
+
+
+def google_callback(request):
+    """
+    Callback: verify state, fetch tokens, log in Django user, store creds, sync events, go to profile.
+    Also fills first/last name when available.
+    """
+    expected_state = request.session.get("oauth_state")
+    returned_state = request.GET.get("state")
+    if not expected_state or expected_state != returned_state:
+        request.session.pop("oauth_state", None)
+        return redirect("google_connect")
+
+    redirect_uri = settings.GOOGLE_REDIRECT_URI
+    flow = Flow.from_client_config(
+        _google_flow_config(redirect_uri),
+        scopes=GCAL_SCOPES,
+        state=expected_state,
+    )
+    flow.redirect_uri = redirect_uri
+
+    flow.fetch_token(
+        authorization_response=request.build_absolute_uri(),
+        state=expected_state,
+    )
+    credentials = flow.credentials  # fresh access token (likely not expired yet)
+
+    # Identify user via Google ID token
+    idinfo = id_token.verify_oauth2_token(
+        credentials.id_token, requests.Request(), settings.GOOGLE_CLIENT_ID
+    )
+    email = idinfo.get("email")
+
+    # Prefer split name fields; fall back gracefully
+    first = idinfo.get("given_name")
+    last = idinfo.get("family_name")
+    if not first and not last:
+        full = (idinfo.get("name") or "").strip()
+        if full:
+            parts = full.split()
+            first = parts[0]
+            last = " ".join(parts[1:]) if len(parts) > 1 else ""
+        else:
+            local = (email or "").split("@")[0]
+            first = local or ""
+            last = ""
+
+    user, created = User.objects.get_or_create(username=email, defaults={"email": email})
+
+    changed = False
+    if created:
+        if first: user.first_name = first; changed = True
+        if last:  user.last_name = last;  changed = True
+    else:
+        if first and not user.first_name: user.first_name = first; changed = True
+        if last and not user.last_name:   user.last_name = last;   changed = True
+        if not user.email and email:      user.email = email;      changed = True
+    if changed:
+        user.save()
+
+    login(request, user)
+    request.session.pop("oauth_state", None)
+
+    # Save Google creds (include expiry!)
+    request.session["google_credentials"] = {
+        "token": credentials.token,
+        "refresh_token": credentials.refresh_token,
+        "token_uri": credentials.token_uri,
+        "client_id": credentials.client_id,
+        "client_secret": credentials.client_secret,
+        "scopes": credentials.scopes,
+        "expiry": credentials.expiry.isoformat() if getattr(credentials, "expiry", None) else None,
+    }
+
+    # Sync immediately using the fresh creds (no refresh needed)
+    _sync_gcal_events_to_tasks(request, creds=credentials)
+
+    return redirect("user_profile")
+
+
+# ---------- calendar event mutations ----------
+
 def calendar_events_update(request):
-    """
-    Move/resize or edit a Task from the calendar.
-    Body: { id, start?, end?, title? }
-    Only supports ids that start with 'task-'.
-    """
-    if request.method != 'PATCH':
-        return HttpResponseNotAllowed(['PATCH'])
     try:
-        payload = json.loads(request.body or '{}')
-        full_id = payload.get('id') or ''
-        if not full_id.startswith('task-'):
-            return HttpResponseBadRequest('Only tasks can be updated from the calendar')
-        task_id = full_id.split('task-')[-1]
+        payload = json.loads((request.body or b"{}").decode("utf-8"))
+    except ValueError:
+        return HttpResponseBadRequest("Invalid JSON")
 
+    full_id = str(payload.get("id") or "").strip()
+    if not full_id:
+        return HttpResponseBadRequest("Missing id")
+
+    title = payload.get("title")
+    start_str = payload.get("start")
+
+    # ---- Task ----
+    if full_id.startswith("task-"):
+        task_id = full_id.split("task-")[-1]
         task = get_object_or_404(Task, id=task_id, user=request.user)
 
-        if 'title' in payload and payload['title']:
-            task.title = payload['title'].strip()
-        if 'start' in payload and payload['start']:
-            # Calendar drag will send the new start; treat as new due_date
-            task.due_date = _parse_iso_to_aware(payload['start'], expect_date_only=True)
-        task.save()
-        return JsonResponse({'ok': True})
-    except Exception as e:
-        return HttpResponseBadRequest(str(e))
+        if isinstance(title, str) and title.strip():
+            task.title = title.strip()
 
+        if start_str:
+            # If allDay is not provided, default to True for tasks (same as your code)
+            all_day = bool(payload.get("allDay", True))
+            # Your helper decides whether to parse as date-only or datetime
+            task.due_date = _parse_iso_to_aware(start_str, expect_date_only=all_day)
+
+        task.save()
+        return JsonResponse({"ok": True, "id": full_id})
+
+    # ---- Subscription ----
+    if full_id.startswith("sub-"):
+        sub_id = full_id.split("sub-")[-1]
+        if _model_has_field(Subscription, "user"):
+            s = get_object_or_404(Subscription, id=sub_id, user=request.user)
+        else:
+            s = get_object_or_404(Subscription, id=sub_id)
+
+        if isinstance(title, str) and title.strip():
+            s.name = title.strip()
+
+        if start_str:
+            # Calendar drag for subs is date-based
+            s.renewal_date = _parse_iso_to_aware(start_str, expect_date_only=True).date()
+
+        s.save()
+        return JsonResponse({"ok": True, "id": full_id})
+
+    # ---- Bill ----
+    if full_id.startswith("bill-"):
+        bill_id = full_id.split("bill-")[-1]
+        if _model_has_field(Bill, "user"):
+            b = get_object_or_404(Bill, id=bill_id, user=request.user)
+        else:
+            b = get_object_or_404(Bill, id=bill_id)
+
+        if isinstance(title, str) and title.strip():
+            b.name = title.strip()
+
+        if start_str:
+            b.renewal_date = _parse_iso_to_aware(start_str, expect_date_only=True).date()
+
+        b.save()
+        return JsonResponse({"ok": True, "id": full_id})
+
+    # Unknown prefix
+    return HttpResponseBadRequest("Unknown id prefix")
 
 @login_required
 def calendar_events_delete(request):
@@ -335,7 +582,6 @@ def calendar_events_delete(request):
         return JsonResponse({'ok': True})
     except Exception as e:
         return HttpResponseBadRequest(str(e))
-
 
 # ---------- other views ----------
 
@@ -376,7 +622,6 @@ def add_item(request, item_type):
             return redirect('Subscription')
 
     return render(request, 'add_item.html', {'item_type': item_type})
-
 
 @login_required
 def SubscriptionTracker(request):
@@ -454,7 +699,7 @@ def delete_sub(request, sub_id):
     subscription.delete()
     return redirect('Subscription')
 
-
+# Convenience aliases
 calendar = calendar_view
 calender_view = calendar_view
 

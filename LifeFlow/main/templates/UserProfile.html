@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>User Profile - LifeFlow</title>
   <link rel="stylesheet" href="{% static 'index.css' %}?v=3">
-  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -16,7 +16,14 @@
         <ul class="nav-links">
           <li>
             <a href="{% url 'UserProfile' %}" class="active">
-              <i class='bx bx-user'></i><span><strong>{{ user.username }}</strong></span>
+              <i class='bx bx-user'></i>
+              <span>
+                <strong>
+                  {% with display_name=user.get_full_name|default:user.first_name|default:user.email %}
+                    {{ display_name }}
+                  {% endwith %}
+                </strong>
+              </span>
             </a>
           </li>
           <li>
@@ -71,60 +78,75 @@
 
     <main class="content">
       <header class="header">
-        <div class="date">{{ date|default:"Monday, December 14, 2025" }}</div>
+        <div class="date">{% now "l, F j, Y" %}</div>
         <h1>User Profile</h1>
       </header>
-    
+
       <section class="profile-layout" style="
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  margin-top: 2rem;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  padding-bottom: 1rem;
-">
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-top: 2rem;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 1rem;
+      ">
 
         <!-- Welcome Card -->
         <div class="form-container" style="max-width: 250px; padding: 3rem;">
-          <h2 style="font-size: 2rem; color: var(--primary-color); margin-bottom: 1.2rem;">Welcome, {{ user.username }}!</h2>
+          <h2 style="font-size: 2rem; color: var(--primary-color); margin-bottom: 1.2rem;">
+            Welcome,
+            {% with full=user.get_full_name %}
+              {% if full and full|length > 1 %}
+                {{ full }}
+              {% elif user.first_name %}
+                {{ user.first_name }}
+              {% else %}
+                {{ user.email }}
+              {% endif %}
+            {% endwith %}!
+          </h2>
           <p style="font-size: 16px; color: var(--text-light); line-height: 1.7;">
-            Thank you for being a part of LifeFlow. We're here to help simplify your day-to-day life. Whether it's managing tasks, tracking bills, or staying on top of your wellness goals — everything is now in one place.
+            Thank you for being a part of LifeFlow. We're here to help simplify your day-to-day life. Whether it's managing tasks,
+            tracking bills, or staying on top of your wellness goals — everything is now in one place.
             <br><br>
             Stay focused, stay healthy, and keep thriving. You've got this!
           </p>
         </div>
-      
+
         <!-- User Info Card -->
         <div class="form-container" style="min-width: 250px; padding: 3rem;">
           <h2 style="color: var(--primary-color); font-size: 2rem; margin-bottom: 1.2rem;">Personal Info</h2>
           <div style="font-size: 17px; color: var(--text-light); line-height: 2;">
-            <p><strong>Username:</strong><br> {{ user.username }}</p>
+            <p><strong>Name:</strong><br>
+              {{ user.get_full_name|default:user.first_name|default:"(not set)" }}
+            </p>
+            <p style="margin-top: 1rem;"><strong>Username:</strong><br> {{ user.username }}</p>
             <p style="margin-top: 1rem;"><strong>Email:</strong><br> {{ user.email }}</p>
           </div>
         </div>
-      
+
         <!-- Change Password Card -->
         <div class="form-container" style="max-width: 300px; padding: 3rem;">
           <h2 style="color: var(--primary-color); font-size: 2rem; margin-bottom: 1.2rem;">Change Password</h2>
           <form method="POST" action="{% url 'change_password' %}">
             {% csrf_token %}
-            
-            <div class="form-group" style= "margin-right: 1rem;" >
+
+            <div class="form-group" style="margin-right: 1rem;">
               <label for="old_password" style="font-size: 16px;">Current Password</label>
               <input type="password" id="old_password" name="old_password" required />
             </div>
-      
-            <div class="form-group" style= "margin-right: 1rem;">
+
+            <div class="form-group" style="margin-right: 1rem;">
               <label for="new_password1" style="font-size: 16px;">New Password</label>
               <input type="password" id="new_password1" name="new_password1" required />
             </div>
-      
-            <div class="form-group" style= "margin-right: 1rem;">
+
+            <div class="form-group" style="margin-right: 1rem;">
               <label for="new_password2" style="font-size: 16px;">Confirm New Password</label>
               <input type="password" id="new_password2" name="new_password2" required />
             </div>
-      
+
             <div class="form-actions" style="margin-top: 1.5rem;">
               <button type="submit" style="
                 background: var(--primary-color);
@@ -143,12 +165,9 @@
             </div>
           </form>
         </div>
-      
+
       </section>
-      
     </main>
-    
-    
   </div>
 
   <script>

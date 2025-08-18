@@ -1,0 +1,6 @@
+regex:SECRET_KEY\s*=\s*["\'][^"\']+["\']:SECRET_KEY = "REDACTED"
+
+regex:GOOGLE_CLIENT_ID\s*=\s*["\'][^"\']+["\']:GOOGLE_CLIENT_ID = "REDACTED"
+regex:GOOGLE_CLIENT_SECRET\s*=\s*["\'][^"\']+["\']:GOOGLE_CLIENT_SECRET = "REDACTED"
+regex:GOOGLE_OAUTH_CLIENT_ID\s*=\s*["\'][^"\']+["\']:GOOGLE_OAUTH_CLIENT_ID = "REDACTED"
+regex:GOOGLE_OAUTH_CLIENT_SECRET\s*=\s*["\'][^"\']+["\']:GOOGLE_OAUTH_CLIENT_SECRET = "REDACTED"
