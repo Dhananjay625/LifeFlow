@@ -40,6 +40,6 @@ git reset --hard origin/master
 
 # Scan locally before pushing
 
-``brew install gitleaks
-gitleaks detect``
+``brew install gitleaks``
+``gitleaks detect``
 
