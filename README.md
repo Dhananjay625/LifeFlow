@@ -10,7 +10,7 @@ A Django web app to manage Tasks, Subscriptions, Bills and a unified Calendar. O
 - Documents: upload & delete user documents
 
 ### Quickstart (macOS/Linux)
-`
+```
 # 1) Clone & enter
 git clone <REPO_URL>
 cd LifeFlow
@@ -45,7 +45,8 @@ pip install -r requirements.txt
 python manage.py migrate
 
 # 5) Run
-python manage.py runserver `
+python manage.py runserver
+```
 
 # Local login vs Google login
 
