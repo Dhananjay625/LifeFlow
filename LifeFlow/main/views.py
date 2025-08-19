@@ -1,24 +1,37 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.models import User
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponse
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
+# stdlib
+from datetime import date, datetime, timedelta
 from calendar import monthrange
 import calendar as cal
-from datetime import date, datetime, timedelta
 import json
-from django.conf import settings
-from google_auth_oauthlib.flow import Flow
-from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
-from .forms import TaskForm
-from .models import Bill, Document, sub, Task
-from google.oauth2 import id_token
-from google.auth.transport import requests
 import os
 import secrets
-from google.oauth2.credentials import Credentials as GoogleCreds
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import (
+    JsonResponse,
+    HttpResponseBadRequest,
+    HttpResponseNotAllowed,
+    HttpResponse,
+)
+from django.contrib.auth import authenticate, login, get_user_model
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from django.views.decorators.http import require_http_methods
+from django.conf import settings
+
+# google api
+from google_auth_oauthlib.flow import Flow
+from googleapiclient.discovery import build
+from google.oauth2 import id_token
+from google.oauth2.credentials import Credentials as GoogleCredentials
+from google.auth.transport import requests as google_requests  
+from .forms import TaskForm
+from .models import Bill, Document, Task
+try:
+    from .models import Subscription  
+except Exception:
+    from .models import sub
+User = get_user_model()
+
 
 # Allow HTTP for local dev (never in prod)
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -441,7 +454,7 @@ def google_callback(request):
 
     # Identify user via Google ID token
     idinfo = id_token.verify_oauth2_token(
-        credentials.id_token, requests.Request(), settings.GOOGLE_CLIENT_ID
+        credentials.id_token, google_requests.Request(), settings.GOOGLE_CLIENT_ID
     )
     email = idinfo.get("email")
 

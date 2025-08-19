@@ -1,0 +1,16 @@
+# --- Core ---
+Django>=4.1,<4.2
+python-dotenv>=1.0
+
+# --- Google OAuth & Calendar ---
+google-api-python-client>=2.0
+google-auth>=2.0
+google-auth-oauthlib>=1.0
+
+# --- HTTP utilities ---
+requests>=2.31
+
+# --- File uploads / images (for media/) ---
+Pillow>=9.5
+
+
