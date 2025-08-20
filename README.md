@@ -29,7 +29,8 @@ python manage.py runserver `
 
 ### Quickstart (Windows PowerShell)
 
-`
+```
+```
 # 1) Clone & enter
 git clone <REPO_URL>
 cd LifeFlow
