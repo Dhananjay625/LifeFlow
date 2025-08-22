@@ -3,9 +3,9 @@
 - `.env` must be ignored by Git. Keep `.env.example` with placeholders.
 - *Secrets* belong in environment variables in production.
 
-`.gitignore` rules\n
-`.env \n
-.env.* \n
+`.gitignore` rules
+`.env 
+.env.*
 !.env.example`
 
 ## If you accidentally committed .env:
