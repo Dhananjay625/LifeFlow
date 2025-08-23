@@ -1,0 +1,91 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'appboard/css/sidebar.css' %}" />
+
+<div id="sidebar" class="sidebar">
+  <nav class="sticky-top position-sticky">
+    <ul class="navbar-nav flex-column text-ofx-light px-3">
+      <li class="nav-item py-3 text-center">
+        <img class="img-profile" src="{% static 'website/images/logo/GeoDesk.Ai_logo-with_text.png' %}">
+      </li>
+
+      <hr class="text-ofx-gray my-2">
+
+      <!-- My Apps -->
+      <li class="side-menu-item">
+        <a href="#" class="side-main-btn" id="side-main-btn-1">
+          <i class="fa-solid fa-computer fa-2x"></i><br>
+          My Apps
+        </a>
+
+        <ul class="side-menu-sub-item" id="my_apps">
+          {% if subscriptions and subscriptions|length > 0 %}
+            {% for subscription in subscriptions %}
+              {% if subscription.status == "PAUSED" %}
+                <li>
+                  <div class="pause-sub cursor-pointer btn text-ofx-red"
+                       data-toggle="modal" data-target="#subPauseModal" style="cursor:pointer">
+                    {{ subscription.application.name }}
+                  </div>
+                </li>
+              {% else %}
+                <li>
+                  <a href="{{ subscription.application.app_url }}">{{ subscription.application.name }}</a>
+                </li>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            <li>
+              <center>
+                <div style="color: rgba(255, 255, 255, 0.499); margin: 1rem 0;">
+                  You have not subscribed to any app yet.
+                </div>
+              </center>
+            </li>
+          {% endif %}
+        </ul>
+      </li>
+
+      <!-- Project Menu -->
+      <li class="side-menu-item">
+        <a href="#" class="side-main-btn" id="side-main-btn-2">
+          <i class="fa-solid fa-users-line fa-2x"></i><br>
+          Project Menu
+        </a>
+
+        <ul class="side-menu-sub-item" id="project_menu">
+          <li>
+            <a href="{% url 'dashboard' %}?tab=nav-projects-tab&tabContent=nav-projects">My Projects</a>
+          </li>
+          <li>
+            <a href="{% url 'dashboard' %}?tab=nav-tenements-tab&tabContent=nav-tenements">My Tenements</a>
+          </li>
+
+          {% comment %} These features aren’t wired up in LifeFlow yet. Hook them when the apps exist. {% endcomment %}
+          <li><a href="#">Knowledge Management System</a></li>
+          <li><a href="#">Landowner Management System</a></li>
+
+          {% comment %} This used to point at data_catalogue:get_projects in the other repo. {% endcomment %}
+          <li><a href="#">Data Catalogue</a></li>
+        </ul>
+      </li>
+
+      <!-- Regional Menu -->
+      <li class="side-menu-item">
+        <a href="#" class="side-main-btn" id="side-main-btn-3">
+          <i class="fa-solid fa-map-location-dot fa-2x"></i><br>
+          Regional Menu
+        </a>
+
+        <ul class="side-menu-sub-item" id="regional_menu">
+          {% comment %} Add an internal link when an 'interactive_map' app/namespace exists. {% endcomment %}
+          <li><a href="#">Queensland Tenure Monitoring Map</a></li>
+          <li><a href="https://georesglobe.information.qld.gov.au/" target="_blank" rel="noopener">GeoRes Globe</a></li>
+          <li><a href="https://qldglobe.information.qld.gov.au/" target="_blank" rel="noopener">Queensland Globe</a></li>
+          <li><a href="https://geoscience.data.qld.gov.au/" target="_blank" rel="noopener">GSQ Open Data Portal</a></li>
+          <li><a href="https://qldspatial.information.qld.gov.au/catalogue/" target="_blank" rel="noopener">Queensland Spatial Catalogue</a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+</div>

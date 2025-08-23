@@ -37,7 +37,7 @@ if _csrf:
     CSRF_TRUSTED_ORIGINS = [u for u in _csrf.split(",") if u]
 
 LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/dashboard/'
+LOGIN_REDIRECT_URL = '/dashboard-v2/'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -47,6 +47,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main.apps.MainConfig',
+    'dal',
+    'dal_select2',
+    'appboard',
+
 ]
 
 MIDDLEWARE = [
@@ -115,3 +119,7 @@ GOOGLE_REDIRECT_URI = os.getenv(
 
 if DEBUG and (not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET):
     print("[WARN] Missing GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET in .env (dev)")
+
+
+GDAL_LIBRARY_PATH = '/opt/homebrew/Cellar/gdal/3.11.3/lib/libgdal.31.dylib'
+GEOS_LIBRARY_PATH = '/opt/homebrew/Cellar/geos/3.14.0/lib/libgeos_c.1.dylib'
