@@ -22,10 +22,10 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt 
 
 # 4) DB setup
-python manage.py migrate
+python3 manage.py migrate
 
 # 5) Run
-python manage.py runserver `
+python3 manage.py runserver `
 
 ### Quickstart (Windows PowerShell)
 
@@ -43,10 +43,10 @@ py -m venv .venv
 pip install -r requirements.txt
 
 # 4) DB setup
-python manage.py migrate
+python3 manage.py migrate
 
 # 5) Run
-python manage.py runserver
+python3 manage.py runserver
 ```
 
 # Local login vs Google login
