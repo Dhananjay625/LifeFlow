@@ -76,3 +76,25 @@ class Document(models.Model):
 
     def __str__(self):
         return self.doc_name
+    
+class HealthMetric(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="health_metrics")
+    water_intake = models.FloatField(help_text="Litres of water intake")
+    steps = models.PositiveIntegerField(help_text="Number of steps walked")
+    calories = models.PositiveIntegerField(help_text="Calories consumed")
+    date = models.DateField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-date']   # latest first
+        unique_together = ('user', 'date')  # prevent duplicates for same day
+
+    def __str__(self):
+        return f"{self.user.username} - {self.date}"
+    
+class Reminder(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reminders")
+    text = models.CharField(max_length=255)
+    date = models.DateField()
+
+    def __str__(self):
+        return f"{self.text} - {self.date}"

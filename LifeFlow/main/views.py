@@ -15,7 +15,9 @@ from django.shortcuts import get_object_or_404, redirect
 from .models import sub
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
-
+from .models import HealthMetric, Reminder
+from .forms import HealthMetricForm
+from django.utils import timezone
 
 
 def login_view(request):
@@ -295,4 +297,49 @@ def delete_sub(request, sub_id):
     subscription = get_object_or_404(sub, id=sub_id)
     subscription.delete()
     return redirect('Subscription')
+
+@login_required
+def health_manager(request):
+    metrics = HealthMetric.objects.filter(user=request.user).order_by('-date')[:7]
+    reminders = Reminder.objects.filter(user=request.user).order_by('-date')[:7]
+
+    if request.method == 'POST':
+        if 'save_metrics' in request.POST:
+            print("POST data:", request.POST)
+            form = HealthMetricForm(request.POST)
+            if form.is_valid():
+                print("Form is valid")
+                data = form.cleaned_data
+                today = timezone.now().date()
+                # metric = form.save(commit=False)
+                # metric.user = request.user
+                # metric.date = timezone.now().date()
+                HealthMetric.objects.update_or_create(
+                    user=request.user,
+                    date=today,
+                    defaults={
+                        'water_intake': data['water_intake'],
+                        'steps': data['steps'],
+                        'calories': data['calories'],
+                    }
+                )
+                return redirect('HealthManager')
+            else:
+                print("Form errors:", form.errors)
+            
+        elif 'save_reminder' in request.POST:
+            reminder_text = request.POST.get('reminder_text')
+            reminder_date = request.POST.get('reminder_date')
+            if reminder_text:
+                Reminder.objects.create(
+                    user=request.user,
+                    text=reminder_text,
+                    date=reminder_date or timezone.now().date()
+                )
+                return redirect('HealthManager')
+    context = {
+        'metrics': metrics.first() if metrics else None,
+        'reminders': reminders
+    }
+    return render(request, 'HealthManager.html', context)
 
