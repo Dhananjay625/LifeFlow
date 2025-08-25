@@ -142,7 +142,7 @@
               </button>
 
               <button class="chip" onclick="prepQuick('calories','kcal')">
-                <i class='bx bx-fire'></i>
+                <i class='bx bx-fire-alt'></i>
                 <span>Calories</span>
                 <strong>{{ metrics.calories|default:'—' }}</strong>
               </button>
@@ -174,7 +174,7 @@
       <h2>Update Daily Measures</h2>
       <form method="POST" action="">
         {% csrf_token %}
-        <label>Water Intake (litres)</label>
+        <label>Water Intake (ml)</label>
         <input type="number" name="water_intake" step="0.1" min="0" value="{{ metrics.water_intake|default:'' }}" required>
 
         <label>Steps</label>
