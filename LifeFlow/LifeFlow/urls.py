@@ -39,6 +39,7 @@ urlpatterns = [
     path('complete/<int:task_id>/', views.complete_task, name='complete_task'),
     path('archive/<int:task_id>/', views.archive_task, name='archive_task'),
     path('HealthManager/', views.health_manager, name='HealthManager'),
+    path('health/search/', views.health_search, name='health_search'),   # NEW
     path('dashboard/', views.dashboard, name='dashboard'),
     path('calendar/events/', views.calendar_events, name='calendar_events'),
     path('add/<str:item_type>/', views.add_item, name='add_item'),

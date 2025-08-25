@@ -65,130 +65,200 @@
     </aside>
 
     <main class="content">
-      <header class="header">
-        <div class="date">{{ now|date:"l, F jS, Y" }}</div>
-        <h1>Health Manager</h1>
-      </header>
-
-      <!-- User Information -->
-      <section class = "user-info">
-        <h2>User Information</h2>
-        <div class="info-row">
-          <div class="info-item">
-            <span class="label">Age:</span>
-            <span class="value">50 years</span>
-          </div>
-          <div class="info-item">
-            <span class="label">Weight:</span>
-            <span class="value">70kg</span>
-          </div>
-        </div>
-        <div class="info-row">
-          <div class="info-item">
-            <span class="label">Body Fat:</span>
-            <span class="value">25.6%</span>
-          </div>
-          <div class="info-item">
-            <span class="label">Medication:</span>
-            <span class="value"></span>
-          </div>
-        </div>
-      </section>
-
-      <!-- Daily Measures & Reminders -->
-      <section class="two-column">
-      <!-- Daily Measures -->
-      <div class="card">
-        <div class="card-header">
-          <h2>Health Log</h2>
-          <button class="plus-btn" onclick="openModal('measuresModal')"><i class='bx bx-plus'></i></button>
-        </div>
-        <ul class="card-list">
-          <li>Water Intake: {{ metrics.water_intake }}</li>
-          <li>Steps: {{ metrics.steps }}</li>
-          <li>Calories: {{ metrics.calories }}</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <h2>Reminders</h2>
-          <button class="plus-btn" onclick="openModal('reminderModal')"><i class='bx bx-plus'></i></button>
+      <header class="header tight-header">
+        <div>
+          <div class="date">{{ now|date:"l, F jS, Y" }}</div>
+          <h1>Health Manager</h1>
         </div>
         
-        <ul class="card-list">
-          {% for reminder in reminders %}
-             <li>{{ reminder.text }} - {{ reminder.date }}</li>
-          {% empty %}
-            <li>No reminders yet.</li>
-          {% endfor %}
-        </ul>
-      
-      </div>
-    </section>
+        <!-------- Top-right search icon ---------->
+        <div class="search-wrap">
+          <button id="openSearch" class="icon-btn" title="Search health topics">
+            <i class='bx bx-search'></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Compact grid: left = user+metrics; right = reminders -->
+      <section class="health-grid-compact">
+        <div class="stack">
+          <section class="card compact">
+            <div class="card-header">
+              <h2>Your Details</h2>
+            </div>
+            <form method="POST" class="grid-3 tight" action="">
+              {% csrf_token %}
+              {{ profile_form.non_field_errors }}
+              <div class="form-mini">
+                <label>Age (years)</label>
+                {{ profile_form.age }}
+              </div>
+              <div class="form-mini">
+                <label>Height (cm)</label>
+                {{ profile_form.height_cm }}
+              </div>
+              <div class="form-mini">
+                <label>Weight (kg)</label>
+                {{ profile_form.weight_kg }}
+              </div>
+              <div class="bmi-row">
+                <div class="bmi-pill">BMI: <strong>{% if bmi %}{{ bmi }}{% else %}N/A{% endif %}</strong></div>
+                <div class="bmi-tag">{{ bmi_cat }}</div>
+              </div>
+              <div class="actions-right">
+                <button type="submit" name="save_profile" class="btn primary">Save</button>
+              </div>
+            </form>
+            <div class="advice">
+              <h3>Health Advice</h3>
+              <ul class="advice-list">
+                {% for tip in advice %}
+                <li>{{ tip }}</li>
+              {% empty %}
+                <li>Enter your details to receive advice.</li>
+              {% endfor %}
+              </ul>
+            </div>
+          </section>
+
+          <!------ Health Log with quick chips ------->
+          <section class="card compact">
+            <div class="card-header">
+              <h2>Health Log (Today)</h2>
+              <button class="plus-btn" onclick="openModal('metricsModal')"><i class='bx bx-plus'></i></button>
+            </div>
+
+            <div class="chips">
+              <button class="chip" onclick="prepQuick('water_intake','litres')">
+                <i class='bx bx-droplet'></i>
+                <span>Water</span>
+                <strong>{{ metrics.water_intake|default:'—' }}</strong>
+              </button>
+
+              <button class="chip" onclick="prepQuick('steps','steps')">
+                <i class='bx bx-walk'></i>
+                <span>Steps</span>
+                <strong>{{ metrics.steps|default:'—' }}</strong>
+              </button>
+
+              <button class="chip" onclick="prepQuick('calories','kcal')">
+                <i class='bx bx-fire'></i>
+                <span>Calories</span>
+                <strong>{{ metrics.calories|default:'—' }}</strong>
+              </button>
+            </div>
+          </section>
+        </div>
+
+        <!-- RIGHT COLUMN: Reminders -->
+        <section class="card compact">
+          <div class="card-header">
+            <h2>Reminders</h2>
+            <button class="plus-btn" onclick="openModal('reminderModal')"><i class='bx bx-plus'></i></button>
+          </div>
+          <ul class="card-list">
+            {% for reminder in reminders %}
+              <li>{{ reminder.text }} — {{ reminder.date }}</li>
+            {% empty %}
+              <li>No reminders yet.</li>
+            {% endfor %}
+          </ul>
+        </section>
+      </section>
     </main>
   </div>
-<div class="modal" id="measuresModal">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal('measuresModal')">&times;</span>
-    <h2>Update Daily Measures</h2>
-    <form method="POST" action="">
-      {% csrf_token %}
+  <!-------- Metrics Modal (full form) ----------->
+  <div class="modal" id="metricsModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('metricsModal')">&times;</span>
+      <h2>Update Daily Measures</h2>
+      <form method="POST" action="">
+        {% csrf_token %}
+        <label>Water Intake (litres)</label>
+        <input type="number" name="water_intake" step="0.1" min="0" value="{{ metrics.water_intake|default:'' }}" required>
 
-      <label for="water">Water Intake (ml):</label>
-      <input type="number" name="water_intake" id="water" value="{{ metrics.water_intake|default:'' }}" required><br>
-      
-      <label for="steps">Steps:</label>
-      <input type="number" name="steps" id="steps" value="{{ metrics.steps|default:'' }}" required><br>
-      
-      <label for="calories">Calories:</label>
-      <input type="number" name="calories" id="calories" value="{{ metrics.calories|default:'' }}" required><br>
-      
-      <button type="submit" name="save_metrics">Save</button>
-    </form>
+        <label>Steps</label>
+        <input type="number" name="steps" min="0" value="{{ metrics.steps|default:'' }}" required>
+
+        <label>Calories</label>
+        <input type="number" name="calories" min="0" value="{{ metrics.calories|default:'' }}" required>
+
+        <button type="submit" name="save_metrics">Save</button>
+      </form>
+    </div>
   </div>
-</div>
 
-<div class="modal" id="reminderModal">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal('reminderModal')">&times;</span>
-    <h2>Add Reminder</h2>
-    <form method="POST" action="">
-      {% csrf_token %}
-
-      <label for="reminder_text">New Reminder:</label>
-      <input type="text" name="reminder_text" required>
-      
-      <label for="reminder_date">Date:</label>
-      <input type="date" name="reminder_date">
-      
-      <button type="submit" name="save_reminder">Save</button>
-    </form>
-    <ul>
-      {% for reminder in reminders %}
-        <li>{{ reminder.text }} ({{ reminder.date }})</li>
-      {% empty % }
-        <li>No reminders yet.</li>
-      {% endfor %}
-    </ul>
+  <div class="modal" id="quickModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('quickModal')">&times;</span>
+      <h2 id="quickTitle">Update</h2>
+      <form method="POST" action="">
+        {% csrf_token %}
+        <input type="hidden" name="metric_type" id="metricType">
+        <label id="metricLabel"></label>
+        <input type="number" id="metricValue" name="metric_value" required step="0.1" min="0">
+        <button type="submit" name="quick_metric">Save</button>
+      </form>
+    </div>
   </div>
-</div>
 
+  <!-- Reminder Modal -->
+  <div class="modal" id="reminderModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('reminderModal')">&times;</span>
+      <h2>Add Reminder</h2>
+      <form method="POST" action="">
+        {% csrf_token %}
+        <label>New Reminder</label>
+        <input type="text" name="text" required>
+
+        <label>Date</label>
+        <input type="date" name="date" required>
+
+        <button type="submit" name="save_reminder">Save</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Search Drawer -->
+  <div class="modal" id="searchModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('searchModal')">&times;</span>
+      <h2>Search Health Topics</h2>
+      <form method="GET" action="{% url 'health_search' %}" target="_blank">
+        <input type="text" name="q" placeholder="e.g. back pain, migraine, diabetes" required>
+        <button type="submit">Search</button>
+      </form>
+      <small>Searches trusted sources (HealthDirect, WHO, CDC).</small>
+    </div>
+  </div>
 <script>
-function openModal(id) {
-  document.getElementById(id).style.display = 'block';
-}
-function closeModal(id) {
-  document.getElementById(id).style.display = 'none';
-}
-const resizeBtn = document.querySelector("[data-resize-btn]");
+  function openModal(id){ document.getElementById(id).style.display='block'; }
+  function closeModal(id){ document.getElementById(id).style.display='none'; }
+
+
+  const resizeBtn = document.querySelector("[data-resize-btn]");
+  if (resizeBtn) {
     resizeBtn.addEventListener("click", function (e) {
       e.preventDefault();
       document.body.classList.toggle("sb-expanded");
     });
+  }
 
+  // Search icon
+  document.getElementById('openSearch').addEventListener('click', () => openModal('searchModal'));
 
+  // Quick metric prep
+  function prepQuick(type, unit){
+    document.getElementById('metricType').value = type;
+    const label = document.getElementById('metricLabel');
+    const title = document.getElementById('quickTitle');
+    if (type === 'water_intake'){ title.textContent = 'Update Water'; label.textContent = 'Water Intake ('+unit+')'; }
+    else if (type === 'steps'){ title.textContent = 'Update Steps'; label.textContent = 'Steps'; }
+    else { title.textContent = 'Update Calories'; label.textContent = 'Calories ('+unit+')'; }
+    document.getElementById('metricValue').value = '';
+    openModal('quickModal');
+  }
 </script>
-
 </body>
 </html>

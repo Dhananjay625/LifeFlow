@@ -15,9 +15,10 @@ from django.shortcuts import get_object_or_404, redirect
 from .models import sub
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
-from .models import HealthMetric, Reminder
-from .forms import HealthMetricForm
+from .models import HealthMetric, Reminder, UserHealthProfile
+from .forms import HealthMetricForm, HealthProfileForm, ReminderForm
 from django.utils import timezone
+from urllib.parse import urlencode
 
 
 def login_view(request):
@@ -298,48 +299,133 @@ def delete_sub(request, sub_id):
     subscription.delete()
     return redirect('Subscription')
 
+#-------- AI Helpers -----------
+# Uses the official OpenAI Python SDK v1.x 
+def _rule_based_advice(age, bmi):
+    """
+    Simple built-in AI advice (works without external APIs).
+    """
+    tips = []
+    if bmi is None:
+        return ["Enter your height and weight to get BMI-based advice."]
+    if bmi < 18.5:
+        tips.append("Your BMI suggests you're underweight. Consider nutrient-dense meals and speak to a GP or dietitian.")
+    elif bmi < 25:
+        tips.append("Great—your BMI is in the healthy range. Keep up regular activity and balanced meals.")
+    elif bmi < 30:
+        tips.append("Your BMI suggests you're overweight. Aim for consistent activity (e.g., brisk walking 30 mins/day) and watch portion sizes.")
+    else:
+        tips.append("Your BMI suggests obesity. Consider a structured plan with a healthcare professional.")
+
+    if age and age >= 45:
+        tips.append("For 45+, include strength training 2–3×/week to preserve muscle and bone health.")
+    tips.append("Hydration: ~2–2.5L/day (adjust for activity and climate).")
+    tips.append("Aim for 7–9 hours of sleep and regular checkups.")
+    return tips
+
 @login_required
 def health_manager(request):
-    metrics = HealthMetric.objects.filter(user=request.user).order_by('-date')[:7]
+    # Ensure profile exists
+    profile, _ = UserHealthProfile.objects.get_or_create(user=request.user)
+
+    # Latest metrics for quick display
+    today = timezone.now().date()
+    today_metrics = HealthMetric.objects.filter(user=request.user, date=today).first()
     reminders = Reminder.objects.filter(user=request.user).order_by('-date')[:7]
 
+    # Forms
+    metric_form = HealthMetricForm(initial={
+        'water_intake': getattr(today_metrics, 'water_intake', ''),
+        'steps': getattr(today_metrics, 'steps', ''),
+        'calories': getattr(today_metrics, 'calories', ''),
+    })
+    profile_form = HealthProfileForm(instance=profile)
+    reminder_form = ReminderForm()
+
+    # POST handlers
     if request.method == 'POST':
-        if 'save_metrics' in request.POST:
-            print("POST data:", request.POST)
+        if 'save_profile' in request.POST:
+            profile_form = HealthProfileForm(request.POST, instance=profile)
+            if profile_form.is_valid():
+                profile_form.save()
+                return redirect('HealthManager')
+
+        elif 'save_metrics' in request.POST:
             form = HealthMetricForm(request.POST)
             if form.is_valid():
-                print("Form is valid")
                 data = form.cleaned_data
-                today = timezone.now().date()
-                # metric = form.save(commit=False)
-                # metric.user = request.user
-                # metric.date = timezone.now().date()
                 HealthMetric.objects.update_or_create(
                     user=request.user,
                     date=today,
-                    defaults={
-                        'water_intake': data['water_intake'],
-                        'steps': data['steps'],
-                        'calories': data['calories'],
-                    }
+                    defaults=data
                 )
                 return redirect('HealthManager')
-            else:
-                print("Form errors:", form.errors)
-            
+
+        elif 'quick_metric' in request.POST:
+            # Quick add individual metric from chips
+            metric_type = request.POST.get('metric_type')  # 'water_intake' | 'steps' | 'calories'
+            value = request.POST.get('metric_value')
+            if metric_type not in ['water_intake', 'steps', 'calories']:
+                return HttpResponseBadRequest("Invalid metric type")
+
+            defaults = {}
+            try:
+                if metric_type == 'water_intake':
+                    defaults['water_intake'] = float(value)
+                elif metric_type == 'steps':
+                    defaults['steps'] = int(value)
+                else:
+                    defaults['calories'] = int(value)
+            except (TypeError, ValueError):
+                return HttpResponseBadRequest("Invalid value")
+
+            # Keep any existing values
+            existing = HealthMetric.objects.filter(user=request.user, date=today).first()
+            if existing:
+                defaults.setdefault('water_intake', existing.water_intake)
+                defaults.setdefault('steps', existing.steps)
+                defaults.setdefault('calories', existing.calories)
+
+            HealthMetric.objects.update_or_create(
+                user=request.user, date=today, defaults=defaults
+            )
+            return redirect('HealthManager')
+
         elif 'save_reminder' in request.POST:
-            reminder_text = request.POST.get('reminder_text')
-            reminder_date = request.POST.get('reminder_date')
-            if reminder_text:
-                Reminder.objects.create(
-                    user=request.user,
-                    text=reminder_text,
-                    date=reminder_date or timezone.now().date()
-                )
+            reminder_form = ReminderForm(request.POST)
+            if reminder_form.is_valid():
+                rem = reminder_form.save(commit=False)
+                rem.user = request.user
+                rem.save()
                 return redirect('HealthManager')
+
+    bmi = profile.bmi()
+    bmi_cat = profile.bmi_category()
+    advice = _rule_based_advice(profile.age, bmi)
+
     context = {
-        'metrics': metrics.first() if metrics else None,
-        'reminders': reminders
+        'profile_form': profile_form,
+        'metric_form': metric_form,
+        'reminder_form': reminder_form,
+        'metrics': today_metrics,
+        'reminders': reminders,
+        'bmi': bmi,
+        'bmi_cat': bmi_cat,
+        'advice': advice,
     }
     return render(request, 'HealthManager.html', context)
 
+@login_required
+def health_search(request):
+    """
+    Redirects to a trusted health site search in a new tab based on query.
+    You can change domains below to your preference.
+    """
+    q = request.GET.get('q', '').strip()
+    if not q:
+        return redirect('HealthManager')
+    # Example: search across reputable sources
+    # Using Google with site filters for consumer-friendly info
+    query = f"site:healthdirect.gov.au OR site:who.int OR site:cdc.gov {q}"
+    params = urlencode({'q': query})
+    return redirect(f"https://www.google.com/search?{params}")
