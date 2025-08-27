@@ -3,7 +3,7 @@
 <li class="nav-item dropdown">
   <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userMenu"
      role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    <img src="{% static 'website/images/default-avatar.png' %}" alt="" class="rounded-circle" width="28" height="28">
+    <img src="{% static 'appboard/images/default-avatar.jpg' %}" alt="" class="rounded-circle" width="28" height="28">
     <span class="ms-2">
       {{ request.user.get_short_name|default:request.user.username|default:"User" }}
     </span>

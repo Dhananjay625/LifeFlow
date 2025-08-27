@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
     <meta name="description" content=""/>
     <meta name="author" content=""/>
-    <link rel="shortcut icon" href="{% static 'website/images/favicon.ico' %}">
+    <link rel="shortcut icon" href="{% static 'appboard/images/favicon.ico' %}">
 
     <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
 
@@ -37,13 +37,13 @@
     <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"></script>
 
      {# CSS and JavaScript for Layers Tree #}
-    <link rel="stylesheet" href="{% static 'interactive_map/css/L.Control.Layers.Tree.css' %}" />
-    <script src="{% static 'interactive_map/js/L.Control.Layers.Tree.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'appboard/css/L.Control.Layers.Tree.css' %}" />
+    <script src="{% static 'appboard/js/L.Control.Layers.Tree.js' %}"></script>
     
-    <link rel="stylesheet" href="{% static 'appboard/widget_library.css' %}">
+    <link rel="stylesheet" href="{% static 'appboard/css/widget_library.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'appboard/css/appboard.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'appboard/css/orefox.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'notification/css/notification.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'appboard/css/notification.css' %}"/>
 
     <title>{% block head_title %}{% endblock %} - GeoDesk Ai</title>
 
@@ -89,7 +89,7 @@
 <!-- Include Leaflet Draw JavaScript -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.js"></script>
 
-<script src="{% static 'notification/js/notification.js' %}"></script>
+<script src="{% static 'appboard/js/notification.js' %}"></script>
 
 {% block extra_body %} {% endblock %}
 <button onclick="topFunction()" id="scrollUp"></button>

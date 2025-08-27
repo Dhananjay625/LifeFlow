@@ -1,0 +1,851 @@
+/* Base Page Display */
+body,
+html {
+    /* height: auto; */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+#main-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    /* min-height: 100vh;  */
+}
+#main-content::before {
+    content: "";
+    /* flex-grow: 1; */
+}
+
+.fixed-bottom-new {
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1030;
+  }
+.sticky-top {
+    position: sticky;
+    top: 0;
+}
+
+footer {
+    /* background-color: #333; */
+    color: #000;
+    text-align: center;
+    padding: 10px 0;
+    flex-shrink: 0; 
+}
+.sidebar-expanded {
+    width: 15.5rem;
+    font-size: 0.95rem;
+}
+/*.bright {filter: brightness(400%)}*/
+.bright { filter:brightness(0) invert(1) }
+.sidebar-collapsed {
+    width: 7rem;
+    text-align: center;
+}
+
+@media only screen and (max-width: 768px) {
+    .sidetoggle {
+        display: none;
+    }
+
+    .sidebar-expanded {
+        width: 6.75rem;
+        text-align: center;
+    }
+
+    .side-orefox {
+        display: none;
+    }
+
+    .side-item {
+        display: grid;
+        font-size: x-small;
+    }
+
+    .collapse-align {
+        align-items: center;
+    }
+}
+
+header {
+    position: fixed;
+    top: 0;
+    height: var(--header-height);
+    z-index: 1000;
+    width: 100%;
+}
+
+/* remove the below if you don't want smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+.sidetoggle {
+    height: 2.75rem;
+    width: 2.75rem;
+    background-color: rgba(170, 170, 170, 0.2);
+}
+
+.sidetoggle:hover {
+    background-color: rgba(170, 170, 170, 0.4);
+}
+
+li {
+    list-style-type: none;
+}
+
+/* #sidebar {
+    min-height: 100vh;
+    position: fixed;
+    max-width: 15rem;
+    overflow-y: scroll;
+    top: 0;
+    bottom: 0;
+    z-index: 10;
+}
+
+#sidebar ul>li>a {
+    opacity: 0.75;
+    color: var(--ofx-light);
+    width: 100%;
+}
+
+#sidebar ul>li>a>i {
+    opacity: 1;
+    margin: 20px;
+}
+
+#sidebar ul>li>a:hover {
+    opacity: 1;
+    color: var(--ofx-light);
+}
+
+#sidebar ul>li>a:hover .fas {
+    opacity: 1;
+    color: var(--ofx-light);
+}
+*/
+
+/* Current side bar option appears white */
+/* #sidebar ul>li.active>a {
+    color: var(--ofx-light);
+    font-weight: 700;
+    font-size: 1rem;
+    opacity: 1;
+}
+
+#sidebar ul>li.active>a .fas {
+    color: var(--ofx-light);
+    font-weight: 700;
+    font-size: 1rem;
+    opacity: 1;
+}  */
+
+.collapse-item {
+    display: grid;
+    font-size: 0.7rem;
+}
+
+#scrollUp {
+    display: none;
+    position: fixed;
+    bottom: 30px;
+    right: 10px;
+    z-index: 2100;
+    border: none;
+    outline: none;
+    background-color: #555;
+    color: white;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 5px;
+}
+
+#scrollUp:hover {
+    background-color: var(--ofx-blue)
+}
+
+#scrollUp:before {
+    content: "";
+    position: absolute;
+    inset: 40%;
+    transform: translateY(20%) rotate(-45deg);
+    border-top: 3px solid #fff;
+    border-right: 3px solid #fff;
+}
+
+/* ------------------------------------ New side bar menu styling ------------------------------------ */
+
+.img-profile {
+    width: 75%;
+    height: 75%;
+    object-fit: contain;
+}
+
+.orefox-text {
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 750;
+    text-align: center;
+    letter-spacing: 0.05rem;
+    z-index: 1;
+}
+
+.sidebar {
+    min-height: 100vh;
+    position: fixed;
+    width: 15rem;
+    overflow-y: scroll;
+    top: 0;
+    bottom: 0;
+    z-index: 10000;
+    background-color: var(--ofx-blue);
+}
+
+.sidebar a {
+    text-decoration: none;
+}
+
+.side-menu-item {
+    width: 100%;
+    overflow: hidden;
+    text-align: center;
+    /* margin-bottom: 0.5rem; */
+}
+
+.side-main-btn {
+    display: block;
+    padding: 1rem 1.2rem;
+    color: var(--ofx-light);
+    position: relative;
+    opacity: 0.5;
+}
+
+.side-main-btn:hover {
+    opacity: 1;
+    color: white;
+    transition: 0.3s;
+    font-weight: 700;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 7px;
+}
+
+.side-main-btn.active {
+    opacity: 1;
+    color: white;
+    font-weight: 700;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 7px;
+}
+
+.side-menu-sub-item {
+    display: none;
+    text-align: left;
+    font-size: medium;
+    padding: 0.3rem;
+}
+
+.side-menu-sub-item li.active {
+    color: var(--ofx-light);
+    background-color: rgba(255, 255, 255, 0.089);
+    border-radius: 7px;
+    transition: 0.3s;
+}
+
+.side-menu-sub-item li a {
+    color: var(--ofx-light);
+    display: block;
+    /* margin-top: 0.5rem;
+    margin-bottom: 0.5rem; */
+    padding: 0.3rem;
+}
+
+.side-menu-sub-item li a:hover {
+    color: var(--ofx-light);
+    background-color: rgba(255, 255, 255, 0.089);
+    border-radius: 7px;
+    transition: 0.3s;
+}
+
+/* Top nav bar menu items */
+.navbar-top {
+    border: 1px solid black;
+}
+
+.main-nav-btn {
+    margin-right: 1.5rem;
+    text-decoration: none;
+    color: var(--ofx-gray);
+}
+
+.main-nav-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.main-nav-btn:hover {
+    color: var(--ofx-blue);
+    transition: 0.2s;
+}
+
+#topbar {
+    width: auto;
+    margin-left: 14.5rem;
+}
+
+#topbar ul>li.active>a {
+    color: var(--ofx-blue);
+}
+
+/* Media Queries to make sidebar and topbar adapable */
+@media only screen and (max-width: 768px ) {
+    #sidebar {
+        width: 10rem !important;
+    }
+    
+    #topbar {
+        margin-left: 10rem;
+    }
+
+    #dashboard-main-content{
+        margin-left: 10rem !important; 
+    }
+}
+
+@media only screen and (max-width: 480px ) {
+    #sidebar {
+        width: 7rem !important;
+    }
+
+    #topbar {
+        margin-left: 7rem;
+    }
+
+    #dashboard-main-content{
+        margin-left: 7rem !important; 
+    }
+
+    .side-menu-item{
+        font-size: smaller;
+    }
+}
+
+@media (max-width: 991px) { /* Bootstrap lg breakpoint */
+    #nav-topbar-left {
+        display: none;
+    }
+    
+    #nav-topbar-left.show {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        background-color: white;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .navbar-toggler {
+        background: none;
+        border: none;
+        font-size: 2rem;
+        cursor: pointer;
+        color: var(--ofx-gray);
+        box-shadow: none !important;
+    }
+
+    .navbar-toggler:hover {
+        color: var(--ofx-blue);
+        transition: 0.2s;
+    }
+}
+
+/* -------------------------------------------------------------------------------------------------- */
+
+table.dataTable {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+table.dataTable thead th {
+    background-color: #c8ddfc;
+    border-bottom: 1px solid #ddd;
+    font-weight: bold;
+    text-align: center;
+    font-size: .85rem;
+}
+
+table.dataTable tbody td {
+    padding: 0.5rem;
+    text-align: center;
+    font-size: .80rem;
+    border-bottom: 1px solid #ddd;
+    vertical-align: middle;
+}
+
+.p-dash-table {
+    font-size: .85rem;
+}
+
+/* The 'View' button that will be next to the project name */
+.view-projects-btn {
+    float: right;
+    width: 3.125rem;
+    height: 1.5rem;
+    border: none;
+    border-radius: 0.3rem;
+    background-color: green;
+    color: white;
+    cursor: pointer;
+}
+
+.view-projects-btn:hover {
+    background-color: white;
+    color: green;
+    border-color: green;
+    border-style: solid;
+    border-width: thin;
+    transition: 0.5s;
+}
+
+/* Styling for alternate rows */
+table.dataTable tbody tr:nth-child(even) {
+    background-color: #c8ddfc;
+}
+
+/* Styling for selected row */
+table.dataTable tbody tr.selected {
+    background-color: #fcf8e3;
+}
+
+table.dataTable tbody tr:hover {
+    background-color: #ddd
+}
+
+table.dataTable .noowrap {
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Pagination styling */
+.dataTables_paginate {
+    text-align: center;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.sidebar-icons {
+    animation: blink 1s infinite;
+}
+
+.tools-link:hover,
+.tools-link a:hover {
+    background-color: var(--ofx-orange);
+}
+
+.dataTables_paginate .paginate_button {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+.dataTables_paginate .paginate_button.current {
+    background-color: #f7f7f7;
+    border-color: #ddd;
+}
+
+.p-dash-table tbody tr:nth-child(odd) {
+    background-color: #c8ddfc;
+}
+
+/* Styling for selected row */
+.p-dash-table tbody tr.selected {
+    background-color: #fcf8e3;
+}
+
+.p-dash-table tbody tr:hover {
+    background-color: #f3f3f3
+}
+
+.p-dash-nav {
+    font-size: .95rem;
+    padding-left: 0rem;
+    padding-right: .2rem;
+}
+
+.swiper-slide-shadow-bottom {
+    background-color: #fdefde;
+
+}
+
+.content-margin-top-offest {
+    margin-top: 20px;
+
+}
+
+#flash-message {
+
+    position: relative;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    margin-top: 0px;
+    width: 90%; /* Add this line to make it full width */    
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* semi-transparent black */
+    z-index: 9999;
+    /* make sure the overlay appears on top of everything else */
+    cursor: wait;
+    /* show the wait cursor */
+}
+
+.modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    pointer-events: auto;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 0.3rem;
+    outline: 0;
+    z-index: 3000
+}
+
+.dataTables_filter {
+
+    text-align: end;
+    margin-bottom: 10px;
+
+}
+
+.dataTables_filter>label {
+
+    text-align: start;
+
+
+}
+
+.dataTable .child .dtr-data {
+    word-wrap: break-word;
+    word-break: break-all;
+    overflow-wrap: break-word;
+}
+
+/* Target Chrome's scrollbar */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+
+}
+
+.dashboard-row .card{
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+
+/* widget library dropdown ----------------------------------------------------*/ 
+#widgetLibraryMenu {
+    width: 300px;  
+    height: 840px; 
+    padding: 15px;              /* Add some padding inside the dropdown */
+    background-color: #3f4b83;  
+    color: white;           
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for depth */
+    border-radius: 35px;         /* Smooth out the corners */
+    position: absolute;
+    right: 10px;                /* Position it near the right edge */
+    top: 40px;                  
+    z-index: 999;               
+    flex-direction: column;
+    transition: right 0.3s ease;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#widgetLibraryDropdown::after {
+    display: none !important; /* Hides the dropdown arrow only for this dropdown */
+}
+
+/* Widgets Title and Close Button */
+.widget-header-container {
+    position: relative;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.widget-header i {
+    margin-right: 12px;  /* Adjust the spacing here */
+}
+
+.widget-title {
+    font-size: 1.5rem;
+    margin: 0;
+    padding: 15px 0;
+    padding-bottom: 30px;
+}
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: white;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    cursor: pointer;
+}
+
+/* Widgets Scroll Container  */
+.widget-item {
+    height: 650px;
+    margin: 10px;
+    overflow-y: scroll;
+    scrollbar-width: thin;
+    scrollbar-color:  white transparent;
+}
+
+
+/* Up/Down Arrow Buttons */
+/* [buttons were removed for now]
+.widget-carousel-up, .widget-carousel-down {
+    background-color: white;
+    border-radius: 50%;
+    border: none;
+    color: #3f4b83;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    font-size: 1.2rem;
+}
+*/
+
+/* Adjust the styling for the widgets inside */
+#widgetLibraryMenu .widget {
+    margin: 10px;
+    margin-bottom: 20px;
+    border-radius: 12px;         
+}
+
+#widgetLibraryMenu .widget-header {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    background-color: #232D67;  /* Dark blue for header background */
+    padding: 8px;
+    border-radius: 10px 10px 0 0; /* Rounded top corners */      
+}
+
+.widget-content {
+    background-color: #f8f9fa;  /* Light grey background for content */
+    padding: 10px;
+    border-radius: 0 0 12px 12px; /* Rounded bottom corners */
+    font-size: 14px;
+    color: #495057;    
+    padding-left: 5px;              
+}
+
+#forecastCelcius {
+    position: relative;
+    text-align: center;
+    font-weight: bold;
+    font-size: 25px;
+}
+
+#forecastHeader {
+    position: relative;
+    text-align: center;
+}
+
+#selectNews, #writeNotesHeader, #farmName, #mineName{
+    font-weight: bold;
+}
+
+#selectMapLocation{
+    font-weight: bold;
+}
+
+/* controll all .widget-item fas font awesome icon sizes */
+.widget-item .fas {
+    font-size: 130% !important;
+}
+
+
+
+/*---------------------------------------------------------------------------------------*/
+/* The following CSS, styles the accounts page drop down */
+.account-menu {
+    width: 300px; /* Set width of dropdown */
+    background-color: #192A56; /* Dark blue background */
+    color: white; /* White text color */
+    border-radius: 10px; /* Rounded corners */
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Box shadow */
+}
+
+/* Account header (user avatar and username) */
+.account-header {
+    text-align: center; /* Center the content */
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.account-header .avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto; /* Center the avatar */
+    position: relative;
+    background-color: #f5f6fa; /* Light background for the avatar */
+}
+
+.account-header .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.account-header .edit-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: #273c75; /* Icon background */
+    color: #fff;
+    border-radius: 50%;
+    padding: 4px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.account-header .username {
+    margin-top: 10px;
+    font-size: 1rem;
+    color: #fff;
+    font-weight: bold;
+}
+
+/* User Information Styling */
+.account-info {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.account-info .info-item {
+    background-color: #f0f0f0; /* Light gray background */
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 8px;
+    text-align: center;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+/* Action buttons */
+.account-actions .dropdown-item {
+    color: white;
+    background-color: transparent;
+    text-align: left;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    border: none;
+}
+
+.account-actions .dropdown-item i {
+    margin-right: 10px;
+}
+
+.account-actions .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Subtle hover effect */
+}
+
+/* Style for the email link in the dropdown */
+.nav-link {
+    color: #00bcd4; 
+    text-decoration: none; 
+}
+
+.nav-link:hover {
+    color: #0097a7; 
+    text-decoration: underline; 
+}
+
+.card {
+    cursor: grab; /* Change cursor to indicate draggable */
+}
+
+.card:active {
+    cursor: grabbing; /* Change cursor when dragging */
+}
+
+
+/* weather widget */
+#weather-search-input {
+    font-size: 14px;
+    padding: 6px;
+}
+#weather-location-dropdown {
+    font-size: 14px;
+}
+
+.fade-out {
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
+}
+
+.fade-in {
+    opacity: 1;
+    transition: opacity 0.3s ease-in;
+}
