@@ -1,1 +1,4 @@
 *.zip
+
+# macOS junk
+.DS_Store
