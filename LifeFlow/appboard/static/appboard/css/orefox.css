@@ -1,24 +1,35 @@
 :root {
-    --ofx-orange: #EB8E2B;
-    --ofx-orange-light: #F89B33;
-    --ofx-blue: #232D67;
-    --ofx-blue-light: #49517c;
+    --primary-color: #FF6B6B; 
+    --secondary-color: #4ECDC4; 
+    --accent-color: #FFE66D; 
+    --background-dark: #181818;
+    --background-light: #1f1f1f;
+    --text-light: #eee;
+    --text-muted: #bbb;
+  
+    --sb-width: 5rem; 
+    --panel-brd: #2b3748;
+    --today-cell: #222427;
+    --hover-cell: #212225;
+    --select-bg: #20242a;
+  
+    /* Map old Orefox tokens to dark theme */
+    --ofx-blue: var(--background-light);
+    --ofx-blue-light: #2a2a2a;
+    --ofx-light: var(--text-light);
     --ofx-dark: #000000;
-    --ofx-light: #ffffff;
-    --ofx-red: #a6310e;
-    --ofx-red-light: #FF0000;
+    --ofx-orange: var(--primary-color);
+    --ofx-orange-light: #ff7f7f;
+    --ofx-gray: var(--text-muted);
+    --ofx-gray-light: #2b2f36;
+    --ofx-red: #e35d6a;
+    --ofx-red-light: #ff7a88;
     --ofx-green: #9ccf41;
     --ofx-green-light: #87d452;
-    --ofx-gray: #AAAAAA;
-    --ofx-gray-light: #DEE2E6;
-
-    --primary-color: #FFFFFF;
-
-    --ofx-fs-small: 14pt;
-
+  
     --header-height: 50px;
-}
-
+ }
+  
 * {
     box-sizing: border-box;
     margin: 0;
