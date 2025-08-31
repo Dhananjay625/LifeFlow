@@ -124,7 +124,7 @@
           <!------ Health Log with quick chips ------->
           <section class="card compact">
             <div class="card-header">
-              <h2>Health Log (Today)</h2>
+              <h2>Health Log</h2>
               <button class="plus-btn" onclick="openModal('metricsModal')"><i class='bx bx-plus'></i></button>
             </div>
 
@@ -182,8 +182,8 @@
 
         <label>Calories</label>
         <input type="number" name="calories" min="0" value="{{ metrics.calories|default:'' }}" required>
-
-        <button type="submit" name="save_metrics">Save</button>
+        
+        <button type="submit" name="save_metrics" class="btn primary">Save</button>
       </form>
     </div>
   </div>

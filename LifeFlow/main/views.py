@@ -21,6 +21,8 @@ from django.utils import timezone
 from urllib.parse import urlencode
 
 
+
+
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -424,8 +426,7 @@ def health_search(request):
     q = request.GET.get('q', '').strip()
     if not q:
         return redirect('HealthManager')
-    # Example: search across reputable sources
-    # Using Google with site filters for consumer-friendly info
+    
     query = f"site:healthdirect.gov.au OR site:who.int OR site:cdc.gov {q}"
     params = urlencode({'q': query})
     return redirect(f"https://www.google.com/search?{params}")

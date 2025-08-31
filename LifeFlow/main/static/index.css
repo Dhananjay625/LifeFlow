@@ -1190,6 +1190,7 @@ h1{
   display:flex;
   align-items:center;
   gap:.5rem;
+  padding: 0.5rem 1rem;
 }
 .icon-btn{
   background:#2a2a2a;
@@ -1198,6 +1199,7 @@ h1{
   padding:.55rem .7rem;
   cursor:pointer;
   color:#fff;
+  font-size: 1.4rem;
 }
 .icon-btn:hover{
   background:#323232
@@ -1213,8 +1215,8 @@ h1{
 .card.compact{
   padding: 14px;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start;
+  align-items: flex-start;
   gap: 10px;
   flex-direction: column;
 }
@@ -1228,13 +1230,17 @@ h1{
 }
 
 .card-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom:.4rem;
 }
-.card-header h2{font-size:1.15rem;margin:0;}
-.plus-btn{background:var(--secondary-color);border:none;border-radius:50%;width:38px;height:38px;cursor:pointer;color:#000;font-size:1.3rem;display:flex;align-items:center;justify-content:center;}
+.card-header h2{font-size:1.9rem;margin:0;}
+.plus-btn{background:var(--secondary-color);border:none;border-radius:50%;
+  width:38px;height:38px;cursor:pointer;color:#000;
+  font-size:1.2rem; margin-left: auto;text-align: center;
+  line-height: 38px;
+}
 .plus-btn:hover{filter:brightness(.95);}
 .card-list{list-style:none;margin:.4rem 0 0;padding:0;}
 .card-list li{padding:.5rem 0;border-bottom:1px solid #333;font-size:.95rem;}
@@ -1254,11 +1260,25 @@ h1{
 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:.4rem 0 .4rem;}
 @media (max-width:700px){.grid-3{grid-template-columns:1fr;}}
 .form-mini label{display:block;margin:0 0 .2rem;font-size:2rem;color:var(--text-muted);}
-.form-mini input{width:100%;padding:.5rem .6rem;background:#232323;border:1px solid #333;border-radius:8px;color:#fff;}
-.actions-right{display:flex;justify-content:flex-end;margin-top:.3rem;}
-.btn{border:none;border-radius:8px;padding:.6rem 1rem;cursor:pointer;}
-.btn.primary{background:var(--primary-color);color:#fff;}
+.form-mini input{width:94%;padding:.5rem .6rem;background:#232323;border:1px solid #333;border-radius:8px;color:#fff;}
+.actions-right{
+  display: block;
+  margin-top: 0.3rem;
+  margin-left: 150%;
+  
+}
+.btn{border:none;border-radius:8px;padding: 0.6rem 1rem;cursor:pointer;}
+.actions-right .btn.primary{
+  background:var(--primary-color);
+  color:#fff;
+  padding: 0.4rem 0.8rem;
+  margin-left: 0;
+  margin-bottom: 50%;
+  font-size: 1.8rem; 
+  margin-right: 0.5rem;
+}
 .btn.primary:hover{filter:brightness(.95);}
+
 
 /* BMI display */
 .bmi-row{display:flex;align-items:center;gap:10px;margin:.2rem 0 .6rem;}
@@ -1267,7 +1287,7 @@ h1{
 
 /* Advice list */
 .advice{margin-top:.6rem;}
-.advice h3{margin:.2rem 0 .4rem;font-size:1rem;color:var(--secondary-color);}
+.advice h3{margin:.2rem 0 .4rem;font-size:2rem;color:var(--secondary-color);}
 .advice-list{margin:.2rem 0 0; padding-left:1.1rem;}
 .advice-list li{margin:.2rem 0;color:#ddd;}
 
@@ -1300,10 +1320,12 @@ h1{
 }
 .chip i{
   font-size: 2.4rem;
+  color: white;
 }
 
 .chip span{
   font-size: 1.6rem;
+  color: white;
 }
 
 .chip strong{
@@ -1324,7 +1346,7 @@ h1{
   background:var(--secondary-color);
   color:#111;border:none;
   border-radius:12px;
-  padding:20px 40px;
+  padding:8px 20px;
   cursor:pointer;
   font-size: 24px;}
 .modal-content button:hover{filter:brightness(.95);}
