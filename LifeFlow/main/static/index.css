@@ -263,7 +263,7 @@ h1 {
 }
 
 .status.active {
-  background: var(--secondary-color);
+  background: var(--primary-color);
   color: white;
 }
 
@@ -708,9 +708,6 @@ h1 {
 .progress-ring-fill {
   fill: none;
   stroke-width: 10;
-  cx: 60;
-  cy: 60;
-  r: 50;
 }
 
 .progress-ring-bg {
@@ -1515,7 +1512,6 @@ main.content .title{ font-size:1.5rem !important; color:var(--primary-color) !im
    FAMILY PAGE — MICRO POLISH
    ========================= */
 
-/* 1) Create button: align with input (was centered) */
 .cards-grid .card form .form-actions{
   margin-top:.6rem !important;
   display:flex !important;
@@ -1526,18 +1522,15 @@ main.content .title{ font-size:1.5rem !important; color:var(--primary-color) !im
   padding:.6rem 1rem !important;
 }
 
-/* 2) Invite button: slightly smaller to match scale */
 #openInviteModal.btn{
   min-height:42px !important;
   padding:.65rem 1rem !important;
 }
 
-/* 3) Card rhythm: a touch more space after stats, less before switch */
 .cards-grid .card .stats{ margin-bottom:.4rem !important; }
 .cards-grid .card .card-actions{ margin-top:.8rem !important; }
 .cards-grid .option-btn{ margin-top:.6rem !important; }
 
-/* 4) Join row: tidy baseline & spacing */
 .cards-grid .join-row{
   gap:.55rem !important;
   align-items:center !important;
@@ -1552,12 +1545,10 @@ main.content .title{ font-size:1.5rem !important; color:var(--primary-color) !im
   border-radius:999px !important;
 }
 
-/* 5) Section heading spacing before Members */
 main.content .title{
   margin:1.1rem 0 .6rem !important;
 }
 
-/* 6) Member rows: keep icons aligned & reduce extra height on small lines */
 .task-list .task-item{
   padding:16px 22px !important;
 }
@@ -1565,38 +1556,30 @@ main.content .title{
   line-height:1.25 !important;
 }
 
-/* ===== FAMILY — requested tweaks ===== */
 
-/* 1) Make "Invite Member" span the card like "Switch Family" */
 .cards-grid .card .card-actions #openInviteModal{
   display:flex !important;
-  width:100% !important;                /* full width */
-  justify-content:center !important;    /* center the label inside */
+  width:100% !important;                
+  justify-content:center !important;    
   min-height:44px !important;
   padding:.8rem 1rem !important;
 }
 
-/* 2) "Create" button: left-align and stop centering */
 .cards-grid .card .form-actions{
   display:flex !important;
-  justify-content:flex-start !important; /* left */
+  justify-content:flex-start !important; 
   align-items:center !important;
-  text-align:left !important;            /* override old center rule */
+  text-align:left !important;            
   margin-top:.6rem !important;
 }
 .cards-grid .card .form-actions .btn{
-  width:auto !important;                 /* not full-width */
+  width:auto !important;                 
   min-height:40px !important;
   padding:.6rem 1rem !important;
 }
 
-/* 3) Give breathing room before the Members section */
 .cards-grid{ margin-bottom:1.2rem !important; }
-.cards-grid + section .title{ margin-top:.4rem !important; }  /* extra space */
-
-/* ===== FAMILY — final fixes ===== */
-
-/* 0) Safety: never let form pieces overflow the card */
+.cards-grid + section .title{ margin-top:.4rem !important; }  
 .cards-grid .card,
 .cards-grid .card * { box-sizing: border-box !important; }
 .cards-grid .card input,
@@ -1607,7 +1590,6 @@ main.content .title{
   overflow: hidden !important;
 }
 
-/* 1) CREATE: make the primary action fill the card width */
 .cards-grid .card form .form-actions{
   display: flex !important;
   justify-content: stretch !important;
@@ -1616,32 +1598,29 @@ main.content .title{
 }
 .cards-grid .card form .form-actions .btn{
   display: flex !important;
-  width: 100% !important;          /* full width */
+  width: 100% !important;          
   justify-content: center !important;
-  min-height: 48px !important;     /* same height as Join below */
+  min-height: 48px !important;     
   padding: .8rem 1rem !important;
   border-radius: 12px !important;
 }
 
-/* 2) JOIN: stack input then a full-width button (same size as Create) */
 .cards-grid .card .join-row{
-  flex-direction: column !important;   /* input on top, button below */
+  flex-direction: column !important;   
   align-items: stretch !important;
   gap: .6rem !important;
 }
 .cards-grid .card .join-row .btn{
-  width: 100% !important;              /* full width */
-  min-height: 48px !important;         /* match Create */
+  width: 100% !important;              
+  min-height: 48px !important;         
   padding: .8rem 1rem !important;
-  border-radius: 12px !important;      /* match Create (not pill) */
+  border-radius: 12px !important;      
 }
 
-/* 3) Extra breathing room before "Members" so nothing crowds */
 .cards-grid{ margin-bottom: 1.8rem !important; }
 .cards-grid + section{ margin-top: .4rem !important; position: relative; z-index: 0; }
 .cards-grid + section .title{ margin-top: .6rem !important; }
 
-/* 4) Minor: keep the invite button look consistent (unchanged width) */
 #openInviteModal.btn{
   min-height: 48px !important;
   padding: .8rem 1rem !important;
@@ -1649,16 +1628,103 @@ main.content .title{
 
 /* ===== FAMILY CARD SPACING FIX ===== */
 
-/* Tighten vertical rhythm inside the family card */
 .cards-grid .card .stats{
-  margin-bottom:.6rem !important;   /* less gap under stats */
+  margin-bottom:.6rem !important;   
 }
 
 .cards-grid .card .card-actions{
-  margin-top:.6rem !important;      /* bring Invite closer */
+  margin-top:.6rem !important;      
 }
 
 .cards-grid .option-btn{
-  margin-top:.5rem !important;      /* bring Switch closer */
-  width:100% !important;            /* make width match Invite */
+  margin-top:.5rem !important;      
+  width:100% !important;            
 }
+
+/* === Kanban Styles === */
+.kanban-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(260px,1fr));
+  gap:12px;
+  margin-top:20px;
+}
+
+.kanban-col{
+  background:var(--background-light);
+  border:1px solid var(--panel-brd);
+  border-radius:12px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 10px 24px rgba(0,0,0,.22);
+}
+
+.kanban-col-header{
+  font-weight:800;
+  padding:12px 14px;
+  text-align:center;
+  color:var(--text-light);
+  background:linear-gradient(to bottom, color-mix(in oklab, var(--primary-color) 18%, transparent), transparent);
+  border-bottom:1px solid var(--panel-brd);
+  letter-spacing:.02em;
+}
+
+.kanban-column{
+  flex:1;
+  min-height:320px;
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  background:var(--background-dark);
+}
+
+.kanban-item{
+  background:#141414;
+  border:1px solid var(--panel-brd);
+  border-left:4px solid var(--primary-color);
+  border-radius:10px;
+  padding:10px 12px;
+  cursor:grab;
+  color:var(--text-light);
+  box-shadow:0 8px 16px rgba(0,0,0,.25);
+}
+.kanban-item:active{ transform:scale(.98); }
+.kanban-item.dragging{
+  opacity:.7;
+  border-style:solid;
+  box-shadow:0 12px 24px rgba(0,0,0,.35);
+}
+
+.kanban-empty{
+  color:var(--text-muted);
+  font-size:.95rem;
+  text-align:center;
+  padding:16px 0;
+  border:1px dashed var(--panel-brd);
+  border-radius:10px;
+  background:transparent;
+}
+
+/* Drop target highlight; toggle from JS by adding .drag-over on the column */
+.kanban-column.drag-over{
+  outline:2px dashed var(--primary-color);
+  outline-offset:3px;
+  background:color-mix(in oklab, var(--primary-color) 10%, var(--background-dark));
+}
+
+/* Responsive columns */
+@media (max-width:1100px){ .kanban-grid{ grid-template-columns:repeat(3,1fr); } }
+@media (max-width:720px){  .kanban-grid{ grid-template-columns:1fr; } }
+
+/* Optional: themed inputs & buttons used in the add-task form */
+.input{
+  background:#111; color:var(--text-light);
+  border:1px solid var(--panel-brd); border-radius:10px; padding:.6rem .8rem;
+}
+.input::placeholder{ color:var(--text-muted); }
+.btn{ display:inline-flex; align-items:center; gap:.5rem; padding:.6rem 1rem;
+  border-radius:10px; border:1px solid var(--panel-brd); background:#171717; color:var(--text-light);
+}
+.btn-accent{ background:var(--primary-color); color:#0b0b0b; border-color:transparent; }
+.btn-accent:hover{ filter:brightness(.96); }

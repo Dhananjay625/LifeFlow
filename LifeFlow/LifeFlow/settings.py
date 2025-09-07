@@ -50,8 +50,12 @@ INSTALLED_APPS = [
     'dal',
     'dal_select2',
     'appboard',
+    'kanban.apps.KanbanConfig',
 
 ]
+
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

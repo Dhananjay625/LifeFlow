@@ -13,14 +13,9 @@ urlpatterns = [
     # Landing
     path('', main_views.LandingPage, name='LandingPage'),
 
-    # Legacy dashboard (keep working)
+    path("kanban/", include(("kanban.urls", "kanban"), namespace="kanban")),
     path('dashboard/', main_views.dashboard, name='dashboard'),
-
-    # New dashboard (namespaced)
-    path(
-        'dashboard-v2/', include(('appboard.urls', 'appboard'), namespace='appboard')),
-
-    # --- the rest of your routes ---
+    path('dashboard-v2/', include(('appboard.urls', 'appboard'), namespace='appboard')),
     path('FamilyManager/', main_views.FamilyManager, name='FamilyManager'),
     path('google/connect/', main_views.google_connect, name='google_connect'),
     path('google/callback/', main_views.google_callback, name='google_callback'),

@@ -22,7 +22,7 @@ from django.conf import settings
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 from google.oauth2 import id_token
-from google.oauth2.credentials import Credentials as GoogleCredentials
+from google.oauth2.credentials import Credentials as GoogleCreds
 from google.auth.transport import requests as google_requests  
 from .forms import TaskForm
 from .models import Bill, Document, Task
@@ -31,7 +31,8 @@ try:
 except Exception:
     from .models import sub
 User = get_user_model()
-
+from types import SimpleNamespace
+from datetime import datetime, timedelta
 
 # Allow HTTP for local dev (never in prod)
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -715,11 +716,6 @@ def delete_sub(request, sub_id):
 # Convenience aliases
 calendar = calendar_view
 calender_view = calendar_view
-
-# main/views.py
-from django.shortcuts import render
-from types import SimpleNamespace
-from datetime import datetime, timedelta
 
 def FamilyManager(request):
     family = SimpleNamespace(id=1, name="The Rai Family", created_at=datetime.now())

@@ -19,8 +19,8 @@
             </a>
           </li>
           <li>
-            <a href="{% url 'TaskManager' %}" {% if request.resolver_match.url_name == 'TaskManager' %}class="active"{% endif %}>
-              <i class='bx bx-grid-alt'></i><span>Task Manager</span>
+            <a href="{% url 'kanban:kanbanTable' %}" class="{% if request.resolver_match.url_name == 'kanbanTable' %}active{% endif %}">
+              <i class='bx bx-columns'></i><span>Kanban</span>
             </a>
           </li>
           <li>
