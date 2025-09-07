@@ -1,0 +1,8 @@
+*.zip
+
+# macOS junk
+.DS_Store
+
+# local-only stuff
+SSH/
+Settings/
