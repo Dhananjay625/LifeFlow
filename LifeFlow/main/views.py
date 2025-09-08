@@ -203,7 +203,7 @@ def create_task(request):
             task = form.save(commit=False)
             task.user = request.user
             task.save()
-            return redirect('TaskManager')
+            return redirect('dashboard-v2')
     else:
         form = TaskForm()
     return render(request, 'add_item.html', {'form': form, 'item_type': 'task'})

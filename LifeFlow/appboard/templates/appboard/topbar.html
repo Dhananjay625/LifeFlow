@@ -6,55 +6,6 @@
       </button>
   
       <!-- Left side -->
-      <div id="nav-topbar-left" class="collapse navbar-collapse d-lg-flex flex-wrap flex-lg-nowrap align-items-center" style="gap: 0.5rem 1rem;">
-        <div class="top-nav-item d-inline-flex align-items-center" id="dashboard">
-          <a class="main-nav-btn" href="{% url 'appboard:home' %}">
-            <center>
-              <i class="fas fa-fw fa-tachometer-alt"></i><br>
-              <span class="ms-1 main-nav-text">Dashboard</span>
-            </center>
-          </a>
-        </div>
-  
-        <div class="top-nav-item d-inline-flex align-items-center" id="my-projects">
-          <!-- Legacy dashboard “My Projects” tab -->
-          <a class="main-nav-btn" href="{% url 'dashboard' %}?tab=nav-projects-tab&tabContent=nav-projects">
-            <center>
-              <i class="fas fa-fw fal fa-project-diagram"></i><br>
-              <span class="ms-1 main-nav-text">My Projects</span>
-            </center>
-          </a>
-        </div>
-  
-        <div class="top-nav-item d-inline-flex align-items-center" id="create-project">
-          <a class="main-nav-btn" href="#">
-            <center>
-              <i class="fas fa-fw fal fa-folder-plus"></i><br>
-              <span class="ms-1 main-nav-text">Create New Project</span>
-            </center>
-          </a>
-        </div>
-  
-        <div class="top-nav-item d-inline-flex align-items-center" id="task-list">
-          <!-- Point to an existing route in your urls.py -->
-          <a class="main-nav-btn" href="{% url 'TaskManager' %}">
-            <center>
-              <i class="fas fa-fw fal fa-list-check"></i><br>
-              <span class="ms-1 main-nav-text">Activity Manager</span>
-            </center>
-          </a>
-        </div>
-  
-        <div class="top-nav-item d-inline-flex align-items-center" id="app-store">
-          <a class="main-nav-btn" href="https://appstore.geodesk.ai/" target="_blank" rel="noopener">
-            <center>
-              <i class="fas fa-fw fa-store"></i><br>
-              <span class="ms-1 main-nav-text">App Store</span>
-            </center>
-          </a>
-        </div>
-      </div>
-  
       <!-- Right side -->
       <div id="nav-topbar-right" class="navbar-nav ms-auto">
         {% if request.user.is_authenticated %}
