@@ -1,0 +1,36 @@
+{% extends "appboard/base.html" %}
+{% load static %}
+{% block head_title %}Document Storage{% endblock %}
+{% block content %}
+
+<div class="container-xxl">
+  <h4 class="mb-3">Document Storage</h4>
+
+  <form action="{% url 'appboard:document_upload' %}" method="post" enctype="multipart/form-data" class="d-flex gap-2 mb-4">
+    {% csrf_token %}
+    <input type="file" name="file" class="form-control" required>
+    <button type="submit" class="btn btn-primary">Upload</button>
+  </form>
+
+  {% if messages %}
+    {% for m in messages %}
+      <div class="alert alert-{{ m.tags }} py-2">{{ m }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="card bg-dark border-0">
+    <div class="card-header">Files</div>
+    <ul class="list-group list-group-flush">
+      {% for f in files %}
+        <li class="list-group-item bg-transparent d-flex justify-content-between">
+          <span>{{ f.name }}</span>
+          <a href="{{ f.url }}" class="btn btn-sm btn-outline-primary" target="_blank">Open</a>
+        </li>
+      {% empty %}
+        <li class="list-group-item bg-transparent text-muted">No files uploaded yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+{% endblock %}

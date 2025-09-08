@@ -70,7 +70,7 @@ body.no-overflow {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color: #333333;
+  color: #7c7777;
   font-family: "Merriweather", serif;
   font-weight: 700;
   margin-top: 0;
@@ -2393,7 +2393,7 @@ input[type=checkbox] {
   z-index: 999;
   transition: all 0.5s cubic-bezier(0.645, 0.045, 0.355, 1);
   box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.1);
-  background-color: #fff;
+  background-color: #181818;
 }
 .header-area .is-sticky .navigation-menu--text_white > ul > li > a {
   color: #444;

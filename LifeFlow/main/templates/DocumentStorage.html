@@ -77,14 +77,15 @@
       </header>
 
       <section class="subscription-list">
-       <!-- Inside <section class="subscription-list"> -->
 {% for doc in documents %}
 <div class="subscription-item" style="display: flex; justify-content: space-between; align-items: center;">
   <div class="details">
     <h3>{{ doc.doc_name }}</h3>
     <a href="{{ doc.file.url }}" target="_blank" style="color: #FF6B6B; text-decoration: underline;">View</a>
   </div>
-  <button class="delete-btn" onclick="openConfirmModal({{ doc.id }})">
+  <button class="delete-btn" data-doc-id="{{ doc.id }}">
+    <i class='bx bx-trash' style="color: #FF6B6B; font-size: 1.3rem;"></i>
+  </button>
     <i class='bx bx-trash' style="color: #FF6B6B; font-size: 1.3rem;"></i>
   </button>
 </div>
@@ -173,29 +174,35 @@
     }
   </style>
 
-  <script>
-    const resizeBtn = document.getElementById("resizeBtn");
-    resizeBtn.addEventListener("click", function (e) {
-      e.preventDefault();
-      document.body.classList.toggle("sb-expanded");
+<script>
+  const resizeBtn = document.getElementById("resizeBtn");
+  resizeBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    document.body.classList.toggle("sb-expanded");
+  });
+
+  function openConfirmModal(docId) {
+    const form = document.getElementById('confirmDeleteForm');
+    form.action = '/delete-document/' + docId + '/';
+    document.getElementById('customConfirmModal').style.display = 'block';
+  }
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.docId; 
+      openConfirmModal(id);
     });
+  });
 
-    function openConfirmModal(docId) {
-      const form = document.getElementById('confirmDeleteForm');
-      form.action = `/delete-document/${docId}/`;
-      document.getElementById('customConfirmModal').style.display = 'block';
+  document.getElementById('cancelBtn').addEventListener('click', function () {
+    document.getElementById('customConfirmModal').style.display = 'none';
+  });
+
+  window.onclick = function (event) {
+    const modal = document.getElementById('customConfirmModal');
+    if (event.target === modal) {
+      modal.style.display = 'none';
     }
-
-    document.getElementById('cancelBtn').addEventListener('click', function () {
-      document.getElementById('customConfirmModal').style.display = 'none';
-    });
-
-    window.onclick = function(event) {
-      const modal = document.getElementById('customConfirmModal');
-      if (event.target == modal) {
-        modal.style.display = "none";
-      }
-    }
-  </script>
+  };
+</script>
 </body>
 </html>
