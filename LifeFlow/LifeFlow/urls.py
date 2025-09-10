@@ -5,6 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from main import views as main_views 
+from main import views
 
 urlpatterns = [
     # Admin
@@ -30,6 +31,12 @@ urlpatterns = [
     path('Subscription/', main_views.SubscriptionTracker, name='Subscription'),
     path('TaskManager/', main_views.TaskManager, name='TaskManager'),
     path('BillManager/', main_views.BillManager, name='BillManager'),
+    path('HealthManager/', main_views.health_manager, name='HealthManager'),
+    path('health/search/', main_views.health_search, name='health_search'),   # NEW
+    path('google-fit-auth/', main_views.google_fit_auth, name="google_fit_auth"),
+    path('google-fit-login/', main_views.google_fit_login, name="google_fit_login"),
+    path('oauth2callback', views.oauth2callback, name="oauth2callback"),
+    path('google-fit-callback', views.google_fit_callback, name="google_fit_callback"),
     path('register/', main_views.register, name='register'),
     path('login/', main_views.login_view, name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),

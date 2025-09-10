@@ -5,103 +5,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Health Manager - LifeFlow</title>
-  <link rel="stylesheet" href="{% static 'index.css' %}?v=3">
+  <link rel="stylesheet" href="{% static 'index.css' %}?v=4">
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-  <style>
-    .health-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 60px;
-      margin-top: 40px;
-    }
-
-    .health-row {
-      display: flex;
-      justify-content: center;
-      gap: 80px;
-      flex-wrap: wrap;
-    }
-
-    .progress-container.large {
-      width: 160px;
-      height: 160px;
-      position: relative;
-    }
-
-    .progress-ring {
-      transform: rotate(-90deg);
-    }
-
-    .progress-ring-bg,
-    .progress-ring-fill {
-      fill: none;
-      stroke-width: 12;
-      cx: 80;
-      cy: 80;
-      r: 70;
-    }
-
-    .progress-ring-bg {
-      stroke: #2e2e2e;
-    }
-
-    .progress-ring-fill {
-      stroke-linecap: round;
-      stroke-dasharray: 440;
-      stroke-dashoffset: 440;
-      transition: stroke-dashoffset 1s ease-out;
-    }
-
-    .progress-ring-fill.weight {
-      stroke: #4ECDC4;
-      stroke-dashoffset: calc(440 - (440 * 0.77));
-    }
-
-    .progress-ring-fill.bodyfat {
-      stroke: #7ED957;
-      stroke-dashoffset: calc(440 - (440 * 0.256));
-    }
-
-    .progress-ring-fill.water {
-      stroke: #FFE66D;
-      stroke-dashoffset: calc(440 - (440 * 0.6));
-    }
-
-    .progress-ring-fill.steps {
-      stroke: #1e90ff;
-      stroke-dashoffset: calc(440 - (440 * 0.25));
-    }
-
-    .progress-ring-fill.calories {
-      stroke: #ff9f43;
-      stroke-dashoffset: calc(440 - (440 * 0.66));
-    }
-
-    .progress-label {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-    }
-
-    .progress-label .value {
-      font-size: 22px;
-      font-weight: bold;
-      color: var(--text-light);
-    }
-
-    .progress-label .label {
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-  </style>
 </head>
-
 <body>
   <div class="container">
     <aside>
+      <!--  Sidebar Nav. -->
       <nav class="nav">
         <ul class="nav-links">
           <li>
@@ -110,8 +20,8 @@
             </a>
           </li>
           <li>
-            <a href="{% url 'kanban:kanbanTable' %}" class="{% if request.resolver_match.url_name == 'kanbanTable' %}active{% endif %}">
-              <i class='bx bx-columns'></i><span>Kanban</span>
+            <a href="{% url 'TaskManager' %}" {% if request.resolver_match.url_name == 'TaskManager' %}class="active"{% endif %}>
+              <i class='bx bx-grid-alt'></i><span>Task Manager</span>
             </a>
           </li>
           <li>
@@ -139,12 +49,6 @@
               <i class='bx bx-dumbbell'></i><span>Health Manager</span>
             </a>
           </li>
-          <li><a href="#"><i class='bx bx-group'></i><span>Family</span></a></li>
-          <li>
-            <a href="http://127.0.0.1:8000" target="_blank">
-              <i class='bx bx-map'></i><span>GeoDesk</span>
-            </a>
-          </li>
         </ul>
         
         <div class="collapse-btn">
@@ -161,80 +65,202 @@
     </aside>
 
     <main class="content">
-      <header class="header">
-        <div class="date">Monday, December 14th, 2025</div>
-        <h1>Health Manager</h1>
+      <header class="header tight-header">
+        <div>
+          <div class="date">{{ now|date:"l, F jS, Y" }}</div>
+          <h1>Health Manager</h1>
+        </div>
+        
+        <!-------- Top-right search icon ---------->
+        <div class="search-wrap">
+          <button id="openSearch" class="icon-btn" title="Search health topics">
+            <i class='bx bx-search'></i>
+          </button>
+        </div>
       </header>
 
-      <section class="health-section">
-        <div class="health-row">
-          <div class="progress-container large">
-            <svg class="progress-ring" width="160" height="160">
-              <circle class="progress-ring-bg" cx="80" cy="80" r="70"/>
-              <circle class="progress-ring-fill weight" cx="80" cy="80" r="70"/>
-            </svg>
-            <div class="progress-label">
-              <div class="value">77kg</div>
-              <div class="label">Weight</div>
+      <!-- Compact grid: left = user+metrics; right = reminders -->
+      <section class="health-grid-compact">
+        <div class="stack">
+          <section class="card compact">
+            <div class="card-header">
+              <h2>Your Details</h2>
             </div>
-          </div>
+            <form method="POST" class="grid-3 tight" action="">
+              {% csrf_token %}
+              {{ profile_form.non_field_errors }}
+              <div class="form-mini">
+                <label>Age (years)</label>
+                {{ profile_form.age }}
+              </div>
+              <div class="form-mini">
+                <label>Height (cm)</label>
+                {{ profile_form.height_cm }}
+              </div>
+              <div class="form-mini">
+                <label>Weight (kg)</label>
+                {{ profile_form.weight_kg }}
+              </div>
+              <div class="bmi-row">
+                <div class="bmi-pill">BMI: <strong>{% if bmi %}{{ bmi }}{% else %}N/A{% endif %}</strong></div>
+                <div class="bmi-tag">{{ bmi_cat }}</div>
+              </div>
+              <div class="actions-right">
+                <button type="submit" name="save_profile" class="btn primary">Save</button>
+              </div>
+            </form>
+            <div class="advice">
+              <h3>Health Advice</h3>
+              <ul class="advice-list">
+                {% for tip in advice %}
+                <li>{{ tip }}</li>
+              {% empty %}
+                <li>Enter your details to receive advice.</li>
+              {% endfor %}
+              </ul>
+            </div>
+          </section>
 
-          <div class="progress-container large">
-            <svg class="progress-ring" width="160" height="160">
-              <circle class="progress-ring-bg" cx="80" cy="80" r="70"/>
-              <circle class="progress-ring-fill bodyfat" cx="80" cy="80" r="70"/>
-            </svg>
-            <div class="progress-label">
-              <div class="value">25.6%</div>
-              <div class="label">Body Fat</div>
+          <!------ Health Log with quick chips ------->
+          <section class="card compact">
+            <div class="card-header">
+              <h2>Health Log</h2>
             </div>
-          </div>
+
+            <div class="chips">
+              <button class="chip" onclick="prepQuick('water_intake','litres')">
+                <i class='bx bx-droplet'></i>
+                <span>Water</span>
+                <strong>{{ google_fit_data.water_intake|default:"—" }}</strong>
+              </button>
+
+              <button class="chip" onclick="prepQuick('steps','steps')">
+                <i class='bx bx-walk'></i>
+                <span>Steps</span>
+                <strong>{{ google_fit_data.steps|default:"—" }}</strong>
+              </button>
+
+              <button class="chip" onclick="prepQuick('calories','kcal')">
+                <i class='bx bx-receipt'></i>
+                <span>Calories</span>
+                <strong>{{ google_fit_data.calories|default:"—" }}</strong>
+              </button>
+            </div>
+          </section>
         </div>
 
-        <div class="health-row">
-          <div class="progress-container large">
-            <svg class="progress-ring" width="160" height="160">
-              <circle class="progress-ring-bg" cx="80" cy="80" r="70"/>
-              <circle class="progress-ring-fill water" cx="80" cy="80" r="70"/>
-            </svg>
-            <div class="progress-label">
-              <div class="value">1.5L</div>
-              <div class="label">Water</div>
-            </div>
+        <!-- RIGHT COLUMN: Reminders -->
+        <section class="card compact">
+          <div class="card-header">
+            <h2>Reminders</h2>
+            <button class="plus-btn" onclick="openModal('reminderModal')"><i class='bx bx-plus'></i></button>
           </div>
-
-          <div class="progress-container large">
-            <svg class="progress-ring" width="160" height="160">
-              <circle class="progress-ring-bg" cx="80" cy="80" r="70"/>
-              <circle class="progress-ring-fill steps" cx="80" cy="80" r="70"/>
-            </svg>
-            <div class="progress-label">
-              <div class="value">2500</div>
-              <div class="label">Steps</div>
-            </div>
-          </div>
-
-          <div class="progress-container large">
-            <svg class="progress-ring" width="160" height="160">
-              <circle class="progress-ring-bg" cx="80" cy="80" r="70"/>
-              <circle class="progress-ring-fill calories" cx="80" cy="80" r="70"/>
-            </svg>
-            <div class="progress-label">
-              <div class="value">3300</div>
-              <div class="label">Calories</div>
-            </div>
-          </div>
-        </div>
+          <ul class="card-list">
+            {% for reminder in reminders %}
+              <li>{{ reminder.text }} — {{ reminder.date }}</li>
+            {% empty %}
+              <li>No reminders yet.</li>
+            {% endfor %}
+          </ul>
+          <a href="{% url 'google_fit_auth' %}" class="google-fit-btn">
+                <i class='bx bxs-heart'></i> Connect Google Fit
+          </a>
+        </section>
       </section>
     </main>
   </div>
+  <!-------- Metrics Modal (full form) ----------->
+  <div class="modal" id="metricsModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('metricsModal')">&times;</span>
+      <h2>Update Daily Measures</h2>
+      <form method="POST" action="">
+        {% csrf_token %}
+        <label>Water Intake (ml)</label>
+        <input type="number" name="water_intake" step="0.1" min="0" value="{{ metrics.water_intake|default:'' }}" required>
 
-  <script>
-    const resizeBtn = document.querySelector("[data-resize-btn]");
+        <label>Steps</label>
+        <input type="number" name="steps" min="0" value="{{ metrics.steps|default:'' }}" required>
+
+        <label>Calories</label>
+        <input type="number" name="calories" min="0" value="{{ metrics.calories|default:'' }}" required>
+        
+        <button type="submit" name="save_metrics" class="btn primary">Save</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="quickModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('quickModal')">&times;</span>
+      <h2 id="quickTitle">Update</h2>
+      <form method="POST" action="">
+        {% csrf_token %}
+        <input type="hidden" name="metric_type" id="metricType">
+        <label id="metricLabel"></label>
+        <input type="number" id="metricValue" name="metric_value" required step="0.1" min="0">
+        <button type="submit" name="quick_metric">Save</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Reminder Modal -->
+  <div class="modal" id="reminderModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('reminderModal')">&times;</span>
+      <h2>Add Reminder</h2>
+      <form method="POST" action="">
+        {% csrf_token %}
+        <label>New Reminder</label>
+        <input type="text" name="text" required>
+
+        <label>Date</label>
+        <input type="date" name="date" required>
+
+        <button type="submit" name="save_reminder">Save</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Search Drawer -->
+  <div class="modal" id="searchModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('searchModal')">&times;</span>
+      <h2>Search Health Topics</h2>
+      <form method="GET" action="{% url 'health_search' %}" target="_blank">
+        <input type="text" name="q" placeholder="e.g. back pain, migraine, diabetes" required>
+        <button type="submit">Search</button>
+      </form>
+      <small>Searches trusted sources (HealthDirect, WHO, CDC).</small>
+    </div>
+  </div>
+<script>
+  function openModal(id){ document.getElementById(id).style.display='block'; }
+  function closeModal(id){ document.getElementById(id).style.display='none'; }
+
+
+  const resizeBtn = document.querySelector("[data-resize-btn]");
+  if (resizeBtn) {
     resizeBtn.addEventListener("click", function (e) {
       e.preventDefault();
       document.body.classList.toggle("sb-expanded");
     });
-  </script>
+  }
+
+  // Search icon
+  document.getElementById('openSearch').addEventListener('click', () => openModal('searchModal'));
+
+  // Quick metric prep
+  function prepQuick(type, unit){
+    document.getElementById('metricType').value = type;
+    const label = document.getElementById('metricLabel');
+    const title = document.getElementById('quickTitle');
+    if (type === 'water_intake'){ title.textContent = 'Update Water'; label.textContent = 'Water Intake ('+unit+')'; }
+    else if (type === 'steps'){ title.textContent = 'Update Steps'; label.textContent = 'Steps'; }
+    else { title.textContent = 'Update Calories'; label.textContent = 'Calories ('+unit+')'; }
+    document.getElementById('metricValue').value = '';
+    openModal('quickModal');
+  }
+</script>
 </body>
 </html>

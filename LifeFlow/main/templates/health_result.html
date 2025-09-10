@@ -1,0 +1,25 @@
+{% extends "healthmanager.html" %}
+
+{% block content %}
+<main class="content">
+  <header class="header tight-header">
+    <h1>Health Assistant</h1>
+  </header>
+
+  <section class="card compact">
+    <div class="card-header">
+      <h2>Your Question</h2>
+    </div>
+    <p><strong>{{ query }}</strong></p>
+  </section>
+
+  <section class="card compact">
+    <div class="card-header">
+      <h2>ChatGPT’s Answer</h2>
+    </div>
+    <p style="white-space: pre-line;">{{ answer }}</p>
+  </section>
+
+  <a href="{% url 'HealthManager' %}" class="btn">Back to Health Manager</a>
+</main>
+{% endblock %}

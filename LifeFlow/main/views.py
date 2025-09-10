@@ -33,6 +33,10 @@ except Exception:
 User = get_user_model()
 from types import SimpleNamespace
 from datetime import datetime, timedelta
+from .models import HealthMetric, Reminder, UserHealthProfile
+from .forms import HealthMetricForm, HealthProfileForm, ReminderForm
+
+
 
 # Allow HTTP for local dev (never in prod)
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -736,3 +740,267 @@ def FamilyManager(request):
         "family": family, "owner": owner, "members": members,
         "invites": invites, "tasks": tasks, "families": [family],
     })
+
+#-------- AI Helpers -----------
+# Uses the official OpenAI Python SDK v1.x 
+def _rule_based_advice(age, bmi):
+    """
+    Simple built-in AI advice (works without external APIs).
+    """
+    tips = []
+    if bmi is None:
+        return ["Enter your height and weight to get BMI-based advice."]
+    if bmi < 18.5:
+        tips.append("Your BMI suggests you're underweight. Consider nutrient-dense meals and speak to a GP or dietitian.")
+    elif bmi < 25:
+        tips.append("Great—your BMI is in the healthy range. Keep up regular activity and balanced meals.")
+    elif bmi < 30:
+        tips.append("Your BMI suggests you're overweight. Aim for consistent activity (e.g., brisk walking 30 mins/day) and watch portion sizes.")
+    else:
+        tips.append("Your BMI suggests obesity. Consider a structured plan with a healthcare professional.")
+
+    if age and age >= 45:
+        tips.append("For 45+, include strength training 2–3×/week to preserve muscle and bone health.")
+    tips.append("Hydration: ~2–2.5L/day (adjust for activity and climate).")
+    tips.append("Aim for 7–9 hours of sleep and regular checkups.")
+    return tips
+
+# Path to your Google OAuth client credentials
+GOOGLE_CLIENT_SECRETS_FILE = os.path.join(settings.BASE_DIR, "credentials.json")
+SCOPES = ["https://www.googleapis.com/auth/fitness.activity.read"]
+
+# Save credentials in session or DB in real app
+SCOPES = ["https://www.googleapis.com/auth/fitness.activity.read",
+          "https://www.googleapis.com/auth/fitness.nutrition.read",
+          "https://www.googleapis.com/auth/fitness.body.read"]
+
+def google_fit_login(request):
+    flow = Flow.from_client_secrets_file(
+        os.path.join(settings.BASE_DIR, "credentials.json"),
+        scopes=SCOPES,
+        redirect_uri="http://localhost:8000/oauth2callback"
+    )
+    auth_url, _ = flow.authorization_url(prompt="consent")
+    request.session["flow"] = flow.authorization_url
+    return redirect(auth_url)
+
+def oauth2callback(request):
+    flow = Flow.from_client_secrets_file(
+        os.path.join(settings.BASE_DIR, "credentials.json"),
+        scopes=SCOPES,
+        redirect_uri="http://localhost:8000/oauth2callback"
+    )
+    flow.fetch_token(authorization_response=request.build_absolute_uri())
+
+    credentials = flow.credentials
+    request.session["credentials"] = credentials.to_json()
+    return redirect("HealthManager")
+
+@login_required
+def health_manager(request):
+    profile, _ = UserHealthProfile.objects.get_or_create(user=request.user)
+    today = timezone.now().date()
+    today_metrics = HealthMetric.objects.filter(user=request.user, date=today).first()
+    reminders = Reminder.objects.filter(user=request.user).order_by('-date')[:7]
+
+    metric_form = HealthMetricForm(initial={
+        'water_intake': getattr(today_metrics, 'water_intake', ''),
+        'steps': getattr(today_metrics, 'steps', ''),
+        'calories': getattr(today_metrics, 'calories', ''),
+    })
+    profile_form = HealthProfileForm(instance=profile)
+    reminder_form = ReminderForm()
+
+    if request.method == 'POST':
+        if 'save_profile' in request.POST:
+            profile_form = HealthProfileForm(request.POST, instance=profile)
+            if profile_form.is_valid():
+                profile_form.save()
+                return redirect('HealthManager')
+
+        elif 'save_metrics' in request.POST:
+            form = HealthMetricForm(request.POST)
+            if form.is_valid():
+                data = form.cleaned_data
+
+                # Ensure no NULLs for required fields
+                data['steps'] = data.get('steps') or 0
+                data['calories'] = data.get('calories') or 0
+                data['water_intake'] = data.get('water_intake') or 0
+
+                HealthMetric.objects.update_or_create(
+                    user=request.user,
+                    date=today,
+                    defaults=data
+                )
+                return redirect('HealthManager')
+
+        elif 'quick_metric' in request.POST:
+            metric_type = request.POST.get('metric_type')
+            value = request.POST.get('metric_value')
+
+            if metric_type not in ['water_intake', 'steps', 'calories']:
+                return HttpResponseBadRequest("Invalid metric type")
+
+            defaults = {}
+            try:
+                if metric_type == 'water_intake':
+                    defaults['water_intake'] = float(value)
+                elif metric_type == 'steps':
+                    defaults['steps'] = int(value)
+                else:
+                    defaults['calories'] = int(value)
+            except (TypeError, ValueError):
+                return HttpResponseBadRequest("Invalid value")
+
+            existing = HealthMetric.objects.filter(user=request.user, date=today).first()
+            if existing:
+                defaults.setdefault('water_intake', existing.water_intake or 0)
+                defaults.setdefault('steps', existing.steps or 0)
+                defaults.setdefault('calories', existing.calories or 0)
+
+            # Make sure all fields are present
+            defaults['water_intake'] = defaults.get('water_intake', 0)
+            defaults['steps'] = defaults.get('steps', 0)
+            defaults['calories'] = defaults.get('calories', 0)
+
+            HealthMetric.objects.update_or_create(
+                user=request.user, date=today, defaults=defaults
+            )
+            return redirect('HealthManager')
+
+        elif 'save_reminder' in request.POST:
+            reminder_form = ReminderForm(request.POST)
+            if reminder_form.is_valid():
+                rem = reminder_form.save(commit=False)
+                rem.user = request.user
+                rem.save()
+                return redirect('HealthManager')
+
+    # BMI logic
+    bmi = profile.bmi()
+    bmi_cat = profile.bmi_category()
+    advice = _rule_based_advice(profile.age, bmi)
+
+    # Google Fit integration
+    google_fit_data = {"steps": None, "calories": None, "water_intake": None}
+    creds_data = request.session.get("credentials")
+    if creds_data:
+        creds = Credentials(**creds_data)
+        service = build("fitness", "v1", credentials=creds)
+
+        end_time = datetime.datetime.utcnow()
+        start_time = end_time - datetime.timedelta(days=1)
+
+        results = service.users().dataset().aggregate(
+            userId="me",
+            body={
+                "aggregateBy": [
+                    {"dataTypeName": "com.google.step_count.delta"},
+                    {"dataTypeName": "com.google.calories.expended"},
+                    {"dataTypeName": "com.google.hydration"},
+                ],
+                "bucketByTime": {"durationMillis": 86400000},
+                "startTimeMillis": int(start_time.timestamp() * 1000),
+                "endTimeMillis": int(end_time.timestamp() * 1000)
+            }
+        ).execute()
+
+        for bucket in results.get("bucket", []):
+            for dataset in bucket.get("dataset", []):
+                for point in dataset.get("point", []):
+                    dtype = point["dataTypeName"]
+                    for value in point["value"]:
+                        if dtype == "com.google.step_count.delta":
+                            google_fit_data["steps"] = (google_fit_data["steps"] or 0) + value.get("intVal", 0)
+                        elif dtype == "com.google.calories.expended":
+                            google_fit_data["calories"] = (google_fit_data["calories"] or 0) + value.get("fpVal", 0)
+                        elif dtype == "com.google.hydration":
+                            google_fit_data["water_intake"] = (google_fit_data["water_intake"] or 0) + value.get("fpVal", 0)
+
+        # Save to DB
+        if any(v is not None for v in google_fit_data.values()):
+            if today_metrics:
+                today_metrics.steps = google_fit_data["steps"] or today_metrics.steps
+                today_metrics.calories = google_fit_data["calories"] or today_metrics.calories
+                today_metrics.water_intake = google_fit_data["water_intake"] or today_metrics.water_intake
+                today_metrics.save()
+            else:
+                HealthMetric.objects.create(
+                    user=request.user,
+                    date=today,
+                    steps=google_fit_data["steps"] or 0,
+                    calories=google_fit_data["calories"] or 0,
+                    water_intake=google_fit_data["water_intake"] or 0,
+                )
+
+    context = {
+        "profile_form": profile_form,
+        "metric_form": metric_form,
+        "reminder_form": reminder_form,
+        "metrics": today_metrics,
+        "reminders": reminders,
+        "bmi": bmi,
+        "bmi_cat": bmi_cat,
+        "advice": advice,
+        "google_fit_data": google_fit_data,
+    }
+    return render(request, "HealthManager.html", context)
+
+@login_required
+def health_search(request):
+    """
+    Redirects to a trusted health site search in a new tab based on query.
+    You can change domains below to your preference.
+    """
+    q = request.GET.get('q', '').strip()
+    if not q:
+        return redirect('HealthManager')
+    
+    query = f"site:healthdirect.gov.au OR site:who.int OR site:cdc.gov {q}"
+    params = urlencode({'q': query})
+    return redirect(f"https://www.google.com/search?{params}")
+
+def google_fit_auth(request):
+    # return HttpResponse("Google Fit authentication will go here.")
+    flow = Flow.from_client_secrets_file(
+        GOOGLE_CLIENT_SECRETS_FILE,
+        scopes=SCOPES,
+        redirect_uri="http://localhost:8000/google-fit-callback/"
+    )
+
+    auth_url, state = flow.authorization_url(
+        access_type="offline",
+        include_granted_scopes="true"
+    )
+    request.session["state"] = state
+    return redirect(auth_url)
+
+@login_required
+def google_fit_callback(request):
+    """
+    Step 2: Handle Google's OAuth 2.0 redirect back
+    """
+    state = request.session.get("state")
+
+    flow = Flow.from_client_secrets_file(
+        GOOGLE_CLIENT_SECRETS_FILE,
+        scopes=SCOPES,
+        state=state,
+        redirect_uri="http://localhost:8000/google-fit-callback/"
+    )
+
+    flow.fetch_token(authorization_response=request.build_absolute_uri())
+    creds = flow.credentials
+
+    # Save credentials in session (or DB if you prefer)
+    request.session["credentials"] = {
+        "token": creds.token,
+        "refresh_token": creds.refresh_token,
+        "token_uri": creds.token_uri,
+        "client_id": creds.client_id,
+        "client_secret": creds.client_secret,
+        "scopes": creds.scopes
+    }
+
+    return redirect("HealthManager")

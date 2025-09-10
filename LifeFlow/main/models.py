@@ -104,3 +104,53 @@ class CalendarEvent(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.user})"
+    
+class HealthMetric(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="health_metrics")
+    water_intake = models.FloatField(help_text="Litres of water intake")
+    steps = models.PositiveIntegerField(help_text="Number of steps walked")
+    calories = models.PositiveIntegerField(help_text="Calories consumed")
+    date = models.DateField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-date']   # latest first
+        unique_together = ('user', 'date')  # prevent duplicates for same day
+
+    def __str__(self):
+        return f"{self.user.username} - {self.date}"
+    
+class Reminder(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reminders")
+    text = models.CharField(max_length=255)
+    date = models.DateField()
+
+    def __str__(self):
+        return f"{self.text} - {self.date}"
+    
+class UserHealthProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="health_profile")
+    age = models.PositiveIntegerField(null=True, blank=True)
+    height_cm = models.FloatField(null=True, blank=True)
+    weight_kg = models.FloatField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def bmi(self):
+        if not self.height_cm or not self.weight_kg or self.height_cm <= 0:
+            return None
+        h_m = self.height_cm / 100.0
+        return round(self.weight_kg / (h_m * h_m), 1)
+    
+    def bmi_category(self):
+        b = self.bmi()
+        if b is None:
+            return "N/A"
+        if b < 18.5:
+            return "Underweight"
+        if b < 25:
+            return "Normal weight"
+        if b < 30:
+            return "Overweight"
+        return "Obese"
+    
+    def __str__(self):
+        return f"{self.user.username} Profile"
