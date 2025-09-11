@@ -36,7 +36,7 @@ urlpatterns = [
     path('google-fit-auth/', main_views.google_fit_auth, name="google_fit_auth"),
     path('google-fit-login/', main_views.google_fit_login, name="google_fit_login"),
     path('oauth2callback', views.oauth2callback, name="oauth2callback"),
-    path('google-fit-callback', views.google_fit_callback, name="google_fit_callback"),
+    path('google-fit-callback/', views.google_fit_callback, name="google_fit_callback"),
     path('register/', main_views.register, name='register'),
     path('login/', main_views.login_view, name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),

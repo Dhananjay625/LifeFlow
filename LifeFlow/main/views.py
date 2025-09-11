@@ -22,7 +22,7 @@ from django.conf import settings
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 from google.oauth2 import id_token
-from google.oauth2.credentials import Credentials as GoogleCreds
+from google.oauth2.credentials import Credentials 
 from google.auth.transport import requests as google_requests  
 from .forms import TaskForm
 from .models import Bill, Document, Task
@@ -798,6 +798,12 @@ def oauth2callback(request):
 
 @login_required
 def health_manager(request):
+    creds_data = request.session.get("credentials")
+
+    if not creds_data:
+        return redirect("google_fit_auth")  # Or show an error
+
+    creds = Credentials(**creds_data)
     profile, _ = UserHealthProfile.objects.get_or_create(user=request.user)
     today = timezone.now().date()
     today_metrics = HealthMetric.objects.filter(user=request.user, date=today).first()
@@ -889,8 +895,8 @@ def health_manager(request):
         creds = Credentials(**creds_data)
         service = build("fitness", "v1", credentials=creds)
 
-        end_time = datetime.datetime.utcnow()
-        start_time = end_time - datetime.timedelta(days=1)
+        end_time = datetime.utcnow()
+        start_time = end_time - timedelta(days=1)
 
         results = service.users().dataset().aggregate(
             userId="me",
@@ -1003,4 +1009,4 @@ def google_fit_callback(request):
         "scopes": creds.scopes
     }
 
-    return redirect("HealthManager")
+    return redirect("https://www.google.com/fit/")
