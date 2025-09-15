@@ -120,6 +120,10 @@ GOOGLE_REDIRECT_URI = os.getenv(
     "GOOGLE_REDIRECT_URI",
     "http://localhost:8000/google/oauth2/callback/",
 )
+GOOGLE_FIT_REDIRECT_URI = os.getenv(
+    "GOOGLE_FIT_REDIRECT_URI",
+    "http://localhost:8000/google-fit-callback/",
+)
 
 if DEBUG and (not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET):
     print("[WARN] Missing GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET in .env (dev)")

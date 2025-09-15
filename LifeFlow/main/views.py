@@ -17,12 +17,13 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
+from urllib.parse import urlencode
 
 # google api
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 from google.oauth2 import id_token
-from google.oauth2.credentials import Credentials 
+from google.oauth2.credentials import Credentials as GoogleCreds
 from google.auth.transport import requests as google_requests  
 from .forms import TaskForm
 from .models import Bill, Document, Task
@@ -174,7 +175,7 @@ def login_view(request):
         if user is not None:
             login(request, user)
             next_url = request.POST.get('next') or request.GET.get('next')
-            return redirect(next_url or 'TaskManager')
+            return redirect(next_url or settings.LOGIN_REDIRECT_URL)
         return render(request, 'index.html', {'error': 'Invalid username or password.'})
     return render(request, 'index.html')
 
@@ -798,12 +799,6 @@ def oauth2callback(request):
 
 @login_required
 def health_manager(request):
-    creds_data = request.session.get("credentials")
-
-    if not creds_data:
-        return redirect("google_fit_auth")  # Or show an error
-
-    creds = Credentials(**creds_data)
     profile, _ = UserHealthProfile.objects.get_or_create(user=request.user)
     today = timezone.now().date()
     today_metrics = HealthMetric.objects.filter(user=request.user, date=today).first()
@@ -846,7 +841,8 @@ def health_manager(request):
             value = request.POST.get('metric_value')
 
             if metric_type not in ['water_intake', 'steps', 'calories']:
-                return HttpResponseBadRequest("Invalid metric type")
+                ## return HttpResponseBadRequest("Invalid metric type")
+                return JsonResponse({"ok": False, "error": "Invalid metric type"},status=200)
 
             defaults = {}
             try:
@@ -857,7 +853,8 @@ def health_manager(request):
                 else:
                     defaults['calories'] = int(value)
             except (TypeError, ValueError):
-                return HttpResponseBadRequest("Invalid value")
+                ## return HttpResponseBadRequest("Invalid value")
+                return JsonResponse({"ok": False, "error": "Invalid value"},status=200)
 
             existing = HealthMetric.objects.filter(user=request.user, date=today).first()
             if existing:
@@ -979,34 +976,97 @@ def google_fit_auth(request):
         access_type="offline",
         include_granted_scopes="true"
     )
-    request.session["state"] = state
+    request.session["oauth_state"] = state
     return redirect(auth_url)
 
 @login_required
-def google_fit_callback(request):
-    """
-    Step 2: Handle Google's OAuth 2.0 redirect back
-    """
-    state = request.session.get("state")
-
-    flow = Flow.from_client_secrets_file(
-        GOOGLE_CLIENT_SECRETS_FILE,
-        scopes=SCOPES,
-        state=state,
-        redirect_uri="http://localhost:8000/google-fit-callback/"
+def google_fit_connect(request):
+    flow = Flow.from_client_config(
+        _google_flow_config(settings.GOOGLE_FIT_REDIRECT_URI),
+        scopes=[
+            "https://www.googleapis.com/auth/fitness.activity.read",
+            "https://www.googleapis.com/auth/fitness.body.read",
+            "https://www.googleapis.com/auth/fitness.nutrition.read",
+        ],
     )
+    flow.redirect_uri = settings.GOOGLE_FIT_REDIRECT_URI
+
+    authorization_url, state = flow.authorization_url(
+        access_type="offline",
+        include_granted_scopes="true"
+    )
+    request.session["fit_oauth_state"] = state
+
+    return redirect(authorization_url)
+
+@login_required
+def google_fit_callback(request):
+    expected_state = request.session.get("fit_oauth_state")
+    returned_state = request.GET.get("state")
+
+    # Check CSRF state
+    if not expected_state or expected_state != returned_state:
+        request.session.pop("fit_oauth_state", None)
+        return redirect("google_fit_connect")
+
+    flow = Flow.from_client_config(
+        _google_flow_config(settings.GOOGLE_FIT_REDIRECT_URI),
+        scopes=[
+            "https://www.googleapis.com/auth/fitness.activity.read",
+            "https://www.googleapis.com/auth/fitness.body.read",
+            "https://www.googleapis.com/auth/fitness.nutrition.read",
+        ],
+        state=expected_state,
+    )
+    flow.redirect_uri = settings.GOOGLE_FIT_REDIRECT_URI
 
     flow.fetch_token(authorization_response=request.build_absolute_uri())
-    creds = flow.credentials
 
-    # Save credentials in session (or DB if you prefer)
-    request.session["credentials"] = {
-        "token": creds.token,
-        "refresh_token": creds.refresh_token,
-        "token_uri": creds.token_uri,
-        "client_id": creds.client_id,
-        "client_secret": creds.client_secret,
-        "scopes": creds.scopes
+    credentials = flow.credentials
+
+    # Save tokens in session (or database if needed)
+    request.session["google_fit_credentials"] = {
+        "token": credentials.token,
+        "refresh_token": credentials.refresh_token,
+        "token_uri": credentials.token_uri,
+        "client_id": credentials.client_id,
+        "client_secret": credentials.client_secret,
+        "scopes": credentials.scopes,
     }
 
-    return redirect("https://www.google.com/fit/")
+    return redirect("HealthManager")
+
+@login_required
+def edit_reminder(request, reminder_id):
+    reminder = get_object_or_404(Reminder, id=reminder_id, user=request.user)
+    if request.method == 'POST':
+        form = ReminderForm(request.POST, instance=reminder)
+        if form.is_valid():
+            form.save()
+            return redirect('HealthManager')
+    else:
+        form = ReminderForm(instance=reminder)
+    return render(request, "edit_reminder.html", {"form": form})
+
+@login_required
+def delete_reminder(request, reminder_id):
+    reminder = get_object_or_404(Reminder, id=reminder_id, user=request.user)
+    reminder.delete()
+    return redirect('HealthManager')
+
+@login_required
+def calendar_events(request):
+    events = []
+
+    # Add reminders
+    reminders = Reminder.objects.all()
+    for r in reminders:
+        events.append({
+            "id": f"reminder-{r.id}",
+            "title": r.text,
+            "start": r.date.isoformat(),
+            "allDay": True,
+            "type": "reminder",  # so you can style them in eventDidMount
+        })
+
+    return JsonResponse(events, safe=False)

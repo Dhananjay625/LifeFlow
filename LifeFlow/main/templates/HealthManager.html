@@ -11,7 +11,6 @@
 <body>
   <div class="container">
     <aside>
-      <!--  Sidebar Nav. -->
       <nav class="nav">
         <ul class="nav-links">
           <li>
@@ -20,8 +19,8 @@
             </a>
           </li>
           <li>
-            <a href="{% url 'TaskManager' %}" {% if request.resolver_match.url_name == 'TaskManager' %}class="active"{% endif %}>
-              <i class='bx bx-grid-alt'></i><span>Task Manager</span>
+            <a href="{% url 'kanban:kanbanTable' %}" class="{% if request.resolver_match.url_name == 'kanbanTable' %}active{% endif %}">
+              <i class='bx bx-columns'></i><span>Kanban</span>
             </a>
           </li>
           <li>
@@ -47,6 +46,16 @@
           <li>
             <a href="{% url 'HealthManager' %}" {% if request.resolver_match.url_name == 'HealthManager' %}class="active"{% endif %}>
               <i class='bx bx-dumbbell'></i><span>Health Manager</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'FamilyManager' %}" class="{% if request.resolver_match.url_name == 'FamilyManager' %}active{% endif %}">
+              <i class='bx bx-group'></i><span>Family</span>
+            </a>
+          </li>
+          <li>
+            <a href="http://127.0.0.1:8000" target="_blank">
+              <i class='bx bx-map'></i><span>GeoDesk</span>
             </a>
           </li>
         </ul>
@@ -131,19 +140,19 @@
               <button class="chip" onclick="prepQuick('water_intake','litres')">
                 <i class='bx bx-droplet'></i>
                 <span>Water</span>
-                <strong>{{ google_fit_data.water_intake|default:"—" }}</strong>
+                <strong>{{ metrics.water_intake|default:"—" }}</strong>
               </button>
 
               <button class="chip" onclick="prepQuick('steps','steps')">
                 <i class='bx bx-walk'></i>
                 <span>Steps</span>
-                <strong>{{ google_fit_data.steps|default:"—" }}</strong>
+                <strong>{{ metrics.steps|default:"—" }}</strong>
               </button>
 
               <button class="chip" onclick="prepQuick('calories','kcal')">
                 <i class='bx bx-receipt'></i>
                 <span>Calories</span>
-                <strong>{{ google_fit_data.calories|default:"—" }}</strong>
+                <strong>{{ metrics.calories|default:"—" }}</strong>
               </button>
             </div>
           </section>
@@ -157,7 +166,17 @@
           </div>
           <ul class="card-list">
             {% for reminder in reminders %}
-              <li>{{ reminder.text }} — {{ reminder.date }}</li>
+              <li>{{ reminder.text }} — {{ reminder.date }}
+                <a href="{% url 'edit_reminder' reminder.id %}" class="small-btn">
+                  <i class="bx bx-edit"></i> Edit
+                </a>
+                <a href="{% url 'delete_reminder' reminder.id %}" class="small-btn">
+                  <i class="bx bx-trash"></i> Delete
+                </a>
+                <a href="{% url 'calendar' %}?date={{ reminder.date }}" class="small-btn">
+                  <i class="bx bx-calendar"></i> Calendar
+                </a>
+              </li>
             {% empty %}
               <li>No reminders yet.</li>
             {% endfor %}
