@@ -1794,7 +1794,7 @@ h1{
   justify-content: space-between;
   margin-bottom:.4rem;
 }
-.card-header h2{font-size:1.9rem;margin:0;}
+.card-header h2{font-size:1.5rem;margin:0;}
 .plus-btn{background:var(--secondary-color);border:none;border-radius:50%;
   width:38px;height:38px;cursor:pointer;color:#000;
   font-size:1.2rem; margin-left: auto;text-align: center;
@@ -1804,6 +1804,14 @@ h1{
 .card-list{list-style:none;margin:.4rem 0 0;padding:0;}
 .card-list li{padding:.5rem 0;border-bottom:1px solid #333;font-size:.95rem;}
 .card-list li:last-child{border-bottom:none;}
+.card-list a {
+  color: var(--secondary-color);
+  text-decoration: none;
+}
+
+.card-list a:hover {
+  color: var(--primary-color);
+}
 
 .health-grid-compact{
   display:grid;
@@ -1818,13 +1826,12 @@ h1{
 /* Form mini grid */
 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:.4rem 0 .4rem;}
 @media (max-width:700px){.grid-3{grid-template-columns:1fr;}}
-.form-mini label{display:block;margin:0 0 .2rem;font-size:2rem;color:var(--text-muted);}
-.form-mini input{width:94%;padding:.5rem .6rem;background:#232323;border:1px solid #333;border-radius:8px;color:#fff;}
+.form-mini label{display:block;margin:0 0 .2rem;font-size:1.5rem;color:var(--text-muted);}
+.form-mini input{width:94%;padding:.5rem .6rem;background:#232323;border:1px solid #333;border-radius:8px;color:#fff;font-size: 1.5;}
 .actions-right{
   display: block;
   margin-top: 0.3rem;
   margin-left: 150%;
-  
 }
 .btn{border:none;border-radius:8px;padding: 0.6rem 1rem;cursor:pointer;}
 .actions-right .btn.primary{
@@ -1833,7 +1840,7 @@ h1{
   padding: 0.4rem 0.8rem;
   margin-left: 0;
   margin-bottom: 50%;
-  font-size: 1.8rem; 
+  font-size: 1.5rem; 
   margin-right: 0.5rem;
 }
 .btn.primary:hover{filter:brightness(.95);}
@@ -1841,18 +1848,18 @@ h1{
 
 /* BMI display */
 .bmi-row{display:flex;align-items:center;gap:10px;margin:.2rem 0 .6rem;}
-.bmi-pill{background:#232323;border:1px solid #333;padding:.35rem .6rem;border-radius:20px;font-size:2rem;}
-.bmi-tag{background:#2a2a2a;border:1px solid #3a3a3a;padding:.35rem .6rem;border-radius:20px;font-size:2rem;color:#fff;}
+.bmi-pill{background:#232323;border:1px solid #333;padding:.35rem .6rem;border-radius:20px;font-size:1.5rem;}
+.bmi-tag{background:#2a2a2a;border:1px solid #3a3a3a;padding:.35rem .6rem;border-radius:20px;font-size:1.5rem;color:#fff;}
 
 /* Advice list */
 .advice{margin-top:.6rem;}
-.advice h3{margin:.2rem 0 .4rem;font-size:2rem;color:var(--secondary-color);}
+.advice h3{margin:.2rem 0 .4rem;font-size:1.5rem;color:var(--secondary-color);}
 .advice-list{margin:.2rem 0 0; padding-left:1.1rem;}
 .advice-list li{margin:.2rem 0;color:#ddd;}
 
 /* Chips */
 .chips{
-  display:flex;gap: 16px;
+  display:flex;gap: 12px;
   flex-wrap:wrap;
   margin-top:.4rem;
 }
@@ -1860,17 +1867,17 @@ h1{
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 100px;
+  gap: 15px;
 
   background: #262626;
-  border: 20px solid #333;
+  border: 5px solid #333;
   border-radius: 20px;
 
   font-size: 2.5rem;
-  padding: 3rem 3rem;
+  padding: 0.8rem 1rem;
   cursor: pointer;
 
-  min-height: 250px;
+  min-height: 150px;
   min-width: 250px;
   flex: 1;
 }
@@ -1891,7 +1898,7 @@ h1{
   background:black;
   border:2px solid #333;
   border-radius:10px;
-  padding:0.6rem 1rem;
+  padding:0.3rem 0.6rem;
   font-size: 1.4rem;
   color: white;
 }
@@ -1902,6 +1909,10 @@ h1{
 .modal-content h2{margin-top:0;}
 .modal-content form{display:flex;flex-direction:column;gap:.5rem;}
 .modal-content input{padding:.55rem .6rem;background:#232323;border:1px solid #333;border-radius:8px;color:#fff;}
+.modal-content input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);     /* turn black to white */
+  cursor: pointer;
+}
 .modal-content button{
   background:var(--secondary-color);
   color:#111;border:none;
