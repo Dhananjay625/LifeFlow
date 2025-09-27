@@ -66,6 +66,9 @@ urlpatterns = [
     path('Subscription/', main_views.SubscriptionTracker, name='Subscription'),
     path('TaskManager/', main_views.TaskManager, name='TaskManager'),
     path('BillManager/', main_views.BillManager, name='BillManager'),
+    path('add/<str:item_type>/', main_views.add_item, name='add_item'),
+ 
+    
 
     # ---------- Documents ----------
     path('DocumentStorage/', main_views.DocumentStorage, name='DocumentStorage'),
@@ -81,8 +84,8 @@ urlpatterns = [
     # ---------- Health ----------
     path('HealthManager/', main_views.health_manager, name='HealthManager'),
     path('health/search/', main_views.health_search, name='health_search'),
-    #path('reminder/<int:reminder_id>/edit/', main_views.edit_reminder, name='edit_reminder'),
-    #path('reminder/<int:reminder_id>/delete/', main_views.delete_reminder, name='delete_reminder'),
+    path('reminder/<int:reminder_id>/edit/', main_views.edit_reminder, name='edit_reminder'),
+    path('reminder/<int:reminder_id>/delete/', main_views.delete_reminder, name='delete_reminder'),
 
     # ---------- Google Fit ----------
     path('google-fit-auth/', main_views.google_fit_auth, name="google_fit_auth"),
