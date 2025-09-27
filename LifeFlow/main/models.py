@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+import uuid
+
 
 class Task(models.Model):
     PRIORITY_CHOICES = [
@@ -154,3 +156,57 @@ class UserHealthProfile(models.Model):
     
     def __str__(self):
         return f"{self.user.username} Profile"
+    
+    # Family domain
+# ──────────────────────────────────────────────────────────────────────────────
+
+class Family(models.Model):
+    name = models.CharField(max_length=100)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="owned_families")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
+class FamilyMembership(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="family_memberships")
+    family = models.ForeignKey(Family, on_delete=models.CASCADE, related_name="memberships")
+    role = models.CharField(max_length=20, default="member")  # e.g., "parent" / "child"
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "family")
+
+    def __str__(self):
+        return f"{self.user} in {self.family} ({self.role})"
+
+
+def _default_expiry():
+    return timezone.now() + timedelta(days=7)
+
+
+class FamilyInvite(models.Model):
+    family = models.ForeignKey(Family, on_delete=models.CASCADE, related_name="invites")
+    inviter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_family_invites")
+    email = models.EmailField()
+    role = models.CharField(max_length=20, default="member")
+    code = models.CharField(max_length=36, default=uuid.uuid4, unique=True)
+    expires_at = models.DateTimeField(default=_default_expiry)
+
+    accepted_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="accepted_family_invites"
+    )
+    accepted_at = models.DateTimeField(null=True, blank=True)
+    used = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def is_active(self):
+        return (self.accepted_at is None) and (self.expires_at > timezone.now())
+
+    def __str__(self):
+        return f"Invite {self.email} to {self.family} (active={self.is_active})"
+

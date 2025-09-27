@@ -3,10 +3,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Family - LifeFlow</title>
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'index.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'index.css' %}?v=49">
 </head>
 
 <body>
@@ -15,58 +15,22 @@
     <aside>
       <nav class="nav">
         <ul class="nav-links">
-          <li>
-            <a href="{% url 'UserProfile' %}">
-              <i class='bx bx-user'></i><span><strong>{{ user.username }}</strong></span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'kanban:kanbanTable' %}" class="{% if request.resolver_match.url_name == 'kanbanTable' %}active{% endif %}">
-              <i class='bx bx-columns'></i><span>Kanban</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'calendar' %}" class="{% if request.resolver_match.url_name == 'calendar' %}active{% endif %}">
-              <i class='bx bx-calendar'></i><span>Calendar</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'confirm_password' %}" class="{% if request.resolver_match.url_name == 'DocumentStorage' %}active{% endif %}">
-              <i class='bx bx-folder'></i><span>Document Manager</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'Subscription' %}" class="{% if request.resolver_match.url_name == 'Subscription' %}active{% endif %}">
-              <i class='bx bx-cloud-download'></i><span>Subscription Tracker</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'BillManager' %}" class="{% if request.resolver_match.url_name == 'BillManager' %}active{% endif %}">
-              <i class='bx bx-receipt'></i><span>Bill Manager</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'HealthManager' %}" class="{% if request.resolver_match.url_name == 'HealthManager' %}active{% endif %}">
-              <i class='bx bx-dumbbell'></i><span>Health Manager</span>
-            </a>
-          </li>
-          <li><a href="#"><i class='bx bx-group'></i><span>Family</span></a></li>
-          <li>
-            <a href="http://127.0.0.1:8000" target="_blank">
-              <i class='bx bx-map'></i><span>GeoDesk</span>
-            </a>
-          </li>
+          <li><a href="{% url 'UserProfile' %}"><i class='bx bx-user'></i><span><strong>{{ user.username }}</strong></span></a></li>
+          <li><a href="{% url 'TaskManager' %}"><i class='bx bx-grid-alt'></i><span>Task Manager</span></a></li>
+          <li><a href="{% url 'calendar' %}"><i class='bx bx-calendar'></i><span>Calendar</span></a></li>
+          <li><a href="{% url 'confirm_password' %}"><i class='bx bx-folder'></i><span>Document Manager</span></a></li>
+          <li><a href="{% url 'Subscription' %}"><i class='bx bx-cloud-download'></i><span>Subscription Tracker</span></a></li>
+          <li><a href="{% url 'BillManager' %}"><i class='bx bx-receipt'></i><span>Bill Manager</span></a></li>
+          <li><a href="{% url 'HealthManager' %}"><i class='bx bx-dumbbell'></i><span>Health Manager</span></a></li>
+          <li><a href="#" class="active"><i class='bx bx-group'></i><span>Family</span></a></li>
         </ul>
 
         <div class="collapse-btn">
-          <a href="#" data-resize-btn>
-            <i class='bx bx-chevrons-right'></i><span>Collapse</span>
-          </a>
+          <a href="#" data-resize-btn><i class='bx bx-chevrons-right'></i><span>Collapse</span></a>
         </div>
+
         <div class="logout-btn">
-          <a href="{% url 'login' %}">
-            <i class='bx bx-log-out'></i><span>Logout</span>
-          </a>
+          <a href="{% url 'login' %}"><i class='bx bx-log-out'></i><span>Logout</span></a>
         </div>
       </nav>
     </aside>
@@ -74,16 +38,28 @@
     <!-- Main -->
     <main class="content">
       <header class="header">
-        <div class="date">{{ date|default:"Monday, December 14, 2025" }}</div>
+        <div class="date">{% now "l, F j, Y" %}</div>
         <h1>Family</h1>
       </header>
 
-      <!-- TOP ROW: Family Summary (Invite + Switch) | Create / Join -->
-      <section class="cards-grid">
+      <!-- Flash messages -->
+      {% if messages %}
+      <ul class="messages" style="margin:.5rem 0 1rem; padding:0; list-style:none;">
+        {% for message in messages %}
+          <li class="message {{ message.tags }}" style="padding:.6rem .8rem; border-radius:.5rem; background:rgba(255,255,255,.05); margin:.4rem 0;">
+            {{ message }}
+          </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <!-- Top row -->
+      {% if has_family %}
+      <section class="cards-grid family-grid">
         <!-- Family Summary -->
         <div class="card">
           <div class="card-header">
-            <h2>{{ family.name|default:"The Rai Family" }}</h2>
+            <h2>{{ family.name|default:"—" }}</h2>
             <p class="card-sub">Share tasks, bills, and calendar events together.</p>
           </div>
 
@@ -94,7 +70,7 @@
             </div>
             <div class="stat">
               <span class="stat-label">Members</span>
-              <span class="stat-value">{{ members|length|default:'0' }}</span>
+              <span class="stat-value">{{ members|length }}</span>
             </div>
             <div class="stat">
               <span class="stat-label">Active Since</span>
@@ -102,7 +78,7 @@
             </div>
           </div>
 
-          <!-- Primary action -->
+          <!-- Primary: Invite (visible to all, only owners can open) -->
           <div class="card-actions">
             <a class="btn btn-primary btn-lg" href="#" id="openInviteModal">
               <i class='bx bx-user-plus' style="font-size:1.2rem;vertical-align:-2px"></i>
@@ -110,52 +86,101 @@
             </a>
           </div>
 
-          <!-- Switch Family (no action for now) -->
-          <button class="option-btn" type="button" id="toggleSwitch">
-            <i class='bx bx-transfer-alt'></i>
-            Switch Family
-          </button>
+          {% if is_owner %}
+            <!-- Owners: no leave button here -->
+          {% else %}
+            <!-- Non-owners: Leave button (first card) -->
+            <form method="post" action="{% url 'family_leave' %}" style="margin:0;">
+              {% csrf_token %}
+              <input type="hidden" name="family_id" value="{{ family.id }}">
+              <button class="option-btn" type="submit" id="btnLeaveFamily">
+                <i class='bx bx-log-out-circle'></i>
+                Leave Family
+              </button>
+            </form>
+          {% endif %}
         </div>
 
-        <!-- Create / Join -->
+        <!-- Create / Delete -->
         <div class="card">
-          <div class="card-header"><h2>Create Family</h2></div>
+          <div class="card-header">
+            <h2>{% if is_owner %}Create Another Family{% else %}Create Family{% endif %}</h2>
+          </div>
 
-          <form method="post" action="#" onsubmit="toast('Create: hook backend next');return false;">
+          <form method="post" action="{% url 'family_create' %}">
             {% csrf_token %}
             <div class="form-group">
               <label for="fam_name">Family Name</label>
               <input id="fam_name" name="name" type="text" placeholder="e.g. The Rai Family">
             </div>
             <div class="form-actions">
-              <button class="btn btn-primary btn-lg" type="submit">Create</button>
+              <button class="btn btn-primary btn-lg btn-block" type="submit">Create</button>
             </div>
           </form>
 
-          <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);margin:1.1rem 0 .9rem;"></div>
-
-          <div class="card-header" style="margin-top:.2rem;"><h2 style="font-size:1.05rem;">Join with Invite Code</h2></div>
-          <form method="post" action="#" onsubmit="toast('Join: hook backend next');return false;">
+          <!-- Delete family (real POST form with hidden family_id) -->
+          <form id="deleteFamilyForm" method="post" action="{% url 'family_delete' %}" style="margin-top:0.8rem;">
             {% csrf_token %}
-            <div class="join-row">
-              <input type="text" name="invite_code" placeholder="Paste invite code">
-              <button class="btn btn-primary btn-pill" type="submit">Join</button>
+            <input type="hidden" name="family_id" value="{{ family.id }}">
+            <button class="option-btn" type="submit">
+              <i class='bx bx-trash'></i>
+              Delete Family
+            </button>
+          </form>
+        </div>
+      </section>
+      {% else %}
+      <!-- Empty state: single centered create card -->
+      <section class="empty-family">
+        <div class="card empty-card">
+          <div class="card-header">
+            <h2>Create Family</h2>
+            <p class="card-sub">Start a shared space for tasks, bills, and events.</p>
+          </div>
+
+          <form method="post" action="{% url 'family_create' %}">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="fam_name">Family Name</label>
+              <input id="fam_name" name="name" type="text" placeholder="e.g. The Rai Family">
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary btn-lg btn-block" type="submit">Create</button>
             </div>
           </form>
         </div>
       </section>
+      {% endif %}
 
+      {% if has_family %}
       <!-- Members -->
-      <section style="margin-top:1.2rem;">
+      <section class="members-section">
         <h2 class="title">Members</h2>
-        <ul class="task-list">
+        <ul class="task-list" id="membersList">
           {% for m in members %}
           <li class="task-item">
             <span class="status-dot" style="background:#4ECDC4"></span>
+
             <label style="flex:1;font-size:18px;">
               {{ m.user.get_full_name|default:m.user.username }}
               <span class="date"> • {{ m.role|title }}</span>
             </label>
+
+            <!-- Live location -->
+            <button class="icon-btn location-btn" title="Show live location"
+                    data-member-id="{{ m.id }}"
+                    data-member-name="{{ m.user.get_full_name|default:m.user.username }}">
+              <i class='bx bx-map-pin'></i>
+            </button>
+
+            <!-- Assign task -->
+            <button class="icon-btn assign-btn" title="Assign task"
+                    data-member-id="{{ m.id }}"
+                    data-member-name="{{ m.user.get_full_name|default:m.user.username }}">
+              <i class='bx bx-plus'></i>
+            </button>
+
+            <!-- Remove (placeholder) -->
             <button class="delete-btn" title="Remove" onclick="toast('Remove: hook backend next')">
               <i class='bx bx-user-x'></i>
             </button>
@@ -171,10 +196,10 @@
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <h2 class="title">Recent Tasks</h2>
         </div>
-        <ul class="task-list">
+        <ul class="task-list" id="recentTasks">
           {% for t in tasks %}
           <li class="task-item">
-            <input type="checkbox" {% if t.completed %}checked{% endif %} disabled />
+            <input type="checkbox" {% if t.status == 'completed' %}checked{% endif %} disabled />
             <label style="flex:1">
               {{ t.title }}
               {% if t.due_date %}<span class="date"> • Due: {{ t.due_date|date:"M j, g:i a" }}</span>{% endif %}
@@ -183,18 +208,20 @@
             </label>
           </li>
           {% empty %}
-          <li class="task-item"><label>No tasks yet.</label></li>
+          <li class="task-item" data-empty="1"><label>No tasks yet.</label></li>
           {% endfor %}
         </ul>
       </section>
+      {% endif %}
     </main>
   </div>
 
+  {% if has_family %}
   <!-- Invite Modal -->
   <div id="inviteModal" class="modal">
     <div class="modal-content">
       <h2 style="margin-top:0;color:var(--primary-color);">Invite Member</h2>
-      <form method="post" action="#" onsubmit="toast('Invite sent: hook backend next');event.preventDefault();">
+      <form method="post" action="{% url 'family_invite_create' %}">
         {% csrf_token %}
         <div class="form-group">
           <label for="invite_email">Email</label>
@@ -209,28 +236,142 @@
         </div>
         <div class="modal-buttons">
           <button type="button" id="cancelInvite" class="btn btn-ghost">Cancel</button>
-          <button type="submit" class="btn btn-primary">Send Invite</button>
+          <button type="submit" class="btn btn-primary btn-block">Send Invite</button>
         </div>
       </form>
     </div>
   </div>
+  {% endif %}
 
   <script>
     // sidebar collapse
     const resizeBtn = document.querySelector("[data-resize-btn]");
-    resizeBtn?.addEventListener("click", (e) => { e.preventDefault(); document.body.classList.toggle("sb-expanded"); });
+    resizeBtn?.addEventListener("click", (e) => {
+      e.preventDefault();
+      document.body.classList.toggle("sb-expanded");
+    });
 
     // toast
     window.toast = (msg) => alert(msg);
 
-    // invite modal
-    const modal = document.getElementById('inviteModal');
-    document.getElementById('openInviteModal')?.addEventListener('click', (e) => { e.preventDefault(); modal.style.display='block'; });
-    document.getElementById('cancelInvite')?.addEventListener('click', () => modal.style.display='none');
+    // CSRF helper
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+    const CSRF = getCookie('csrftoken');
+
+    // Server flags
+    const CAN_INVITE = {{ is_owner|yesno:"true,false" }};   // owner can invite
+    const HAS_FAMILY = {{ has_family|yesno:"true,false" }};
+    const IS_OWNER   = {{ is_owner|yesno:"true,false" }};
+
+    // Invite modal gating
+    const modal     = document.getElementById('inviteModal');
+    const openBtn   = document.getElementById('openInviteModal');
+    const cancelBtn = document.getElementById('cancelInvite');
+
+    openBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!HAS_FAMILY) { toast('Create or join a family first.'); return; }
+      if (!CAN_INVITE) { toast('Only the family owner can send invites.'); return; }
+      modal.style.display = 'block';
+    });
+    cancelBtn?.addEventListener('click', () => modal.style.display='none');
     window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display='none'; });
 
-    // Switch Family: intentionally no action for now
-    document.getElementById('toggleSwitch')?.addEventListener('click', (e)=>{ e.preventDefault(); /* no-op for now */ });
+    // Delete family (form submit; guard for non-owners)
+    const deleteForm = document.getElementById('deleteFamilyForm');
+    deleteForm?.addEventListener('submit', (e) => {
+      if (!HAS_FAMILY) { e.preventDefault(); toast('No family to delete.'); return; }
+      if (!IS_OWNER)   { e.preventDefault(); toast('Only the owner can delete this family.'); return; }
+      if (!confirm('Delete this family? This cannot be undone.')) e.preventDefault();
+    });
+
+    // Live location (Geolocation API)
+    const membersList = document.getElementById('membersList');
+    membersList?.addEventListener('click', async (e) => {
+      const locBtn = e.target.closest('.location-btn');
+      const assignBtn = e.target.closest('.assign-btn');
+      if (!locBtn && !assignBtn) return;
+
+      const item = (locBtn || assignBtn);
+      const memberId = item.getAttribute('data-member-id');
+      const name = item.getAttribute('data-member-name') || 'Member';
+
+      // Location
+      if (locBtn) {
+        if (!('geolocation' in navigator)) {
+          toast('Geolocation not supported in this browser.');
+          return;
+        }
+        locBtn.classList.add('loc-pulse');
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            locBtn.classList.remove('loc-pulse');
+            const { latitude, longitude, accuracy } = pos.coords;
+            toast(`${name}'s location (this device):\nLat ${latitude.toFixed(5)}, Lng ${longitude.toFixed(5)}\n±${Math.round(accuracy)}m`);
+          },
+          (err) => {
+            locBtn.classList.remove('loc-pulse');
+            const msg = err.code === 1 ? 'Location permission denied.' :
+                        err.code === 2 ? 'Position unavailable.' :
+                        'Location request timed out.';
+            toast(msg);
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+        return;
+      }
+
+      // Assign task
+      if (assignBtn) {
+        const title = prompt(`Assign a task to ${name}:`, '');
+        if (!title) return;
+
+        let due = prompt('Optional due date (YYYY-MM-DD or YYYY-MM-DDTHH:MM):', '');
+        due = (due || '').trim();
+
+        try {
+          const resp = await fetch("{% url 'family_task_assign' %}", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': CSRF
+            },
+            body: JSON.stringify({ member_id: memberId, title, due_date: due })
+          });
+          if (!resp.ok) {
+            const txt = await resp.text();
+            toast(txt || 'Failed to assign task.');
+            return;
+          }
+          const data = await resp.json();
+          // Update UI — prepend into Recent Tasks
+          const ul = document.getElementById('recentTasks');
+          if (!ul) return;
+
+          // Remove "No tasks yet." row if exists
+          const emptyRow = ul.querySelector('[data-empty="1"]');
+          if (emptyRow) emptyRow.remove();
+
+          const li = `
+            <li class="task-item">
+              <input type="checkbox" disabled />
+              <label style="flex:1">
+                ${data.title.replace(/</g,'&lt;')}
+                ${data.due_date_html || ''}
+                <span class="date"> • → ${data.assigned_to}</span>
+                ${data.priority_html || ''}
+              </label>
+            </li>`;
+          ul.insertAdjacentHTML('afterbegin', li);
+        } catch (err) {
+          toast('Network error.');
+        }
+      }
+    });
   </script>
 </body>
 </html>
