@@ -1947,3 +1947,30 @@ h1{
 .google-fit-btn:hover {
   background: #d93b2c;
 }
+
+/* --- Fix primary buttons being overridden --- */
+
+/* Keep primary color no matter what came before */
+a.btn.btn-primary,
+button.btn.btn-primary,
+.cards-grid .btn.btn-primary,
+#openInviteModal.btn.btn-primary,
+.modal-content button.btn.btn-primary {
+  background: var(--primary-color) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+}
+
+/* Make the generic .btn styling apply only to non-variant buttons */
+.btn:not(.btn-primary):not(.btn-secondary):not(.btn-ghost) {
+  background: #171717;
+  color: var(--text-light);
+  border: 1px solid var(--panel-brd);
+}
+
+/* In modals, allow primary to win over the broad `.modal-content button` rule */
+.modal-content button.btn-primary {
+  background: var(--primary-color) !important;
+  color: #fff !important;
+}
+

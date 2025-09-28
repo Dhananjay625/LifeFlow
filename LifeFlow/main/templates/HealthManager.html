@@ -2,20 +2,161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Health Manager - LifeFlow</title>
-  <link rel="stylesheet" href="{% static 'index.css' %}?v=4">
-  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="{% static 'index.css' %}?v=53">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+  <!-- Page-scoped fixes/overrides -->
+  <style>
+    /* --- Search bar (full width) --- */
+    .search-banner{
+      display:flex; align-items:center; gap:.75rem;
+      width:100%; padding:.8rem .9rem; border-radius:14px;
+      background:#1f1f1f; border:1px solid rgba(255,255,255,.06);
+      box-shadow:0 8px 20px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.03);
+      margin:.5rem 0 1.1rem;
+    }
+    .search-banner i{ font-size:1.4rem; color:var(--text-muted); }
+    .search-banner input{
+      flex:1; min-width:0; background:#222; border:1px solid rgba(255,255,255,.08);
+      color:var(--text-light); border-radius:10px; padding:.7rem .8rem; outline:none;
+    }
+    .search-banner input:focus{ border-color:var(--primary-color); box-shadow:0 0 0 3px rgba(255,107,107,.18); }
+
+    /* --- Thin Health Log strip (full width) --- */
+    .health-strip{
+      padding:12px 14px;
+      display:flex; flex-direction:column; gap:.6rem;
+    }
+    .health-strip .chips{
+      display:flex; gap:14px; flex-wrap:nowrap; overflow:auto; padding-bottom:4px;
+    }
+    .health-strip .chip{
+      min-width:220px; min-height:86px;  /* thinner */
+      border-width:3px; padding:.8rem 1rem;
+    }
+    .health-strip .strip-actions{ display:flex; justify-content:center; }
+
+    /* --- Equal two-column layout under the strip --- */
+    .equal-grid{
+      display:grid; grid-template-columns:1fr 1fr; gap:28px; align-items:stretch;
+      margin-top:18px;
+    }
+    @media(max-width:980px){ .equal-grid{ grid-template-columns:1fr; } }
+    .equal-grid .card{ height:100%; }
+
+    /* --- Your Details card polish --- */
+    .details-card .card-header h2{ margin:0; color:var(--primary-color); }
+    .details-card .subtext{ color:var(--text-muted); margin-top:.25rem; font-size:.95rem; }
+
+    /* Full-width stacked inputs */
+    .details-card .form-stack{ display:flex; flex-direction:column; gap:12px; margin:.9rem 0 .5rem; }
+    .details-card label{ display:block; margin:0 0 .35rem; color:var(--text-muted); }
+    .details-card input, .details-card select{
+      width:100%; background:#222; border:1px solid rgba(255,255,255,.08);
+      border-radius:12px; padding:.7rem .8rem; color:var(--text-light);
+      outline:none;
+    }
+    .details-card input:focus, .details-card select:focus{
+      border-color:var(--primary-color); box-shadow:0 0 0 3px rgba(255,107,107,.18);
+    }
+
+    .metrics-bar{ display:flex; align-items:center; gap:.6rem; margin:.35rem 0 .1rem; }
+    .metrics-bar .bmi-pill{ font-size:1rem; }
+    .metrics-bar .bmi-tag{ font-size:.95rem; }
+
+    /* Fix the global rule that shoved this out of the card */
+    .actions-right{ display:flex; justify-content:flex-start; margin:.7rem 0 0 !important; margin-left:0 !important; }
+    .actions-right .btn{ min-height:44px; }
+
+    /* --- Reminders --- */
+    .reminders-card .card-header h2{ margin:0; color:var(--primary-color); }
+    .reminders-card .card-list li{
+      display:flex; justify-content:space-between; align-items:center; gap:.6rem;
+    }
+    .reminders-card .actions{ display:flex; gap:.35rem; flex-shrink:0; }
+    .small-btn{
+      display:inline-flex; gap:.35rem; align-items:center;
+      padding:.35rem .55rem; border-radius:8px; font-size:.85rem;
+      border:1px solid rgba(255,255,255,.12); background:#1a1a1a; color:#eee; text-decoration:none;
+    }
+    .small-btn:hover{ background:#222; }
+    /* Health page: neutralize Family-page globals */
+.health-page .card{
+  min-height: auto !important;
+  height: auto !important;
+}
+
+/* Make the thin Health Log strip truly thin */
+.health-page .health-strip.card{
+  min-height: 0 !important;
+  padding: 12px 14px !important;
+}
+
+/* Prevent input spill — make everything border-box on this page */
+.health-page, .health-page *{
+  box-sizing: border-box;
+}
+
+/* Full-width inputs inside Your Details */
+.health-page .details-card .form-stack > div{ width:100%; }
+.health-page .details-card input,
+.health-page .details-card select{
+  display:block;
+  width:100% !important;
+  max-width:100%;
+  background:#222;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;
+  padding:.7rem .8rem;
+  color:var(--text-light);
+  outline:none;
+}
+.health-page .details-card input:focus,
+.health-page .details-card select:focus{
+  border-color:var(--primary-color);
+  box-shadow:0 0 0 3px rgba(255,107,107,.18);
+}
+
+/* Chips: slimmer */
+.health-page .health-strip .chip{
+  min-height: 86px !important;
+  border-width: 3px !important;
+  padding: .8rem 1rem !important;
+}
+.health-page .health-strip .chips{
+  display:flex; gap:14px; overflow:auto; flex-wrap:nowrap;
+}
+.health-page .actions-right{
+  margin: .8rem 0 0 !important;   /* reset the old large left margin */
+  display: block !important;
+}
+
+.health-page .btn-block{
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: .8rem 1rem;
+  border-radius: 12px;
+}
+  </style>
 </head>
 <body>
   <div class="container">
+    <!-- Sidebar -->
     <aside>
       <nav class="nav">
         <ul class="nav-links">
           <li>
-            <a href="{% url 'UserProfile' %}" {% if request.resolver_match.url_name == 'TaskManager' %}{% endif %}>
-              <i class='bx bx bx-user'></i><span><strong>{{ user.username }}</strong></span>
+            <a href="{% url 'UserProfile' %}">
+              <i class='bx bx-user'></i><span><strong>{{ user.username }}</strong></span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'appboard:home' %}" class="{% if request.resolver_match.namespace == 'appboard' %}active{% endif %}">
+              <i class='bx bx-grid-alt'></i><span>Dashboard</span>
             </a>
           </li>
           <li>
@@ -24,27 +165,27 @@
             </a>
           </li>
           <li>
-            <a href="{% url 'calendar' %}" {% if request.resolver_match.url_name == 'calendar' %}class="active"{% endif %}>
+            <a href="{% url 'calendar' %}" class="{% if request.resolver_match.url_name == 'calendar' %}active{% endif %}">
               <i class='bx bx-calendar'></i><span>Calendar</span>
             </a>
           </li>
           <li>
-            <a href="{% url 'confirm_password' %}" {% if request.resolver_match.url_name == 'DocumentStorage' %}class="active"{% endif %}>
+            <a href="{% url 'confirm_password' %}" class="{% if request.resolver_match.url_name == 'DocumentStorage' %}active{% endif %}">
               <i class='bx bx-folder'></i><span>Document Manager</span>
             </a>
           </li>
           <li>
-            <a href="{% url 'Subscription' %}" {% if request.resolver_match.url_name == 'Subscription' %}class="active"{% endif %}>
+            <a href="{% url 'Subscription' %}" class="{% if request.resolver_match.url_name == 'Subscription' %}active{% endif %}">
               <i class='bx bx-cloud-download'></i><span>Subscription Tracker</span>
             </a>
           </li>
           <li>
-            <a href="{% url 'BillManager' %}" {% if request.resolver_match.url_name == 'BillManager' %}class="active"{% endif %}>
+            <a href="{% url 'BillManager' %}" class="{% if request.resolver_match.url_name == 'BillManager' %}active{% endif %}">
               <i class='bx bx-receipt'></i><span>Bill Manager</span>
             </a>
           </li>
           <li>
-            <a href="{% url 'HealthManager' %}" {% if request.resolver_match.url_name == 'HealthManager' %}class="active"{% endif %}>
+            <a href="{% url 'HealthManager' %}" class="{% if request.resolver_match.url_name == 'HealthManager' %}active{% endif %}">
               <i class='bx bx-dumbbell'></i><span>Health Manager</span>
             </a>
           </li>
@@ -53,13 +194,7 @@
               <i class='bx bx-group'></i><span>Family</span>
             </a>
           </li>
-          <li>
-            <a href="http://127.0.0.1:8000" target="_blank">
-              <i class='bx bx-map'></i><span>GeoDesk</span>
-            </a>
-          </li>
         </ul>
-        
         <div class="collapse-btn">
           <a href="#" data-resize-btn>
             <i class='bx bx-chevrons-right'></i><span>Collapse</span>
@@ -73,122 +208,124 @@
       </nav>
     </aside>
 
-    <main class="content">
+    <!-- Main -->
+    <main class="content health-page">
+
       <header class="header tight-header">
-        <div>
-          <div class="date">{{ now|date:"l, F jS, Y" }}</div>
-          <h1>Health Manager</h1>
-        </div>
-        
-        <!-------- Top-right search icon ---------->
-        <div class="search-wrap">
-          <button id="openSearch" class="icon-btn" title="Search health topics">
-            <i class='bx bx-search'></i>
-          </button>
-        </div>
+        <div class="date">{% now "l, F j, Y" %}</div>
+        <h1>Health Manager</h1>
       </header>
 
-      <!-- Compact grid: left = user+metrics; right = reminders -->
-      <section class="health-grid-compact">
-        <div class="stack">
-          <section class="card compact">
-            <div class="card-header">
-              <h2>Your Details</h2>
-            </div>
-            <form method="POST" class="grid-3 tight" action="">
-              {% csrf_token %}
-              {{ profile_form.non_field_errors }}
-              <div class="form-mini">
+      <!-- Full-width search -->
+      <form class="search-banner" method="GET" action="{% url 'health_search' %}" target="_blank">
+        <i class="bx bx-search"></i>
+        <input type="text" name="q" placeholder="Search Health Topics" required>
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
+
+      <!-- THIN, FULL-WIDTH HEALTH LOG STRIP -->
+      <section class="card health-strip">
+        <div class="chips">
+          <button class="chip" type="button" onclick="prepQuick('water_intake','litres')">
+            <i class='bx bx-droplet'></i>
+            <span>Water</span>
+            <strong>{{ metrics.water_intake|default:"—" }}</strong>
+          </button>
+          <button class="chip" type="button" onclick="prepQuick('steps','steps')">
+            <i class='bx bx-walk'></i>
+            <span>Steps</span>
+            <strong>{{ metrics.steps|default:"—" }}</strong>
+          </button>
+          <button class="chip" type="button" onclick="prepQuick('calories','kcal')">
+            <i class='bx bx-receipt'></i>
+            <span>Calories</span>
+            <strong>{{ metrics.calories|default:"—" }}</strong>
+          </button>
+        </div>
+      </section>
+
+      <!-- TWO EQUAL CARDS BELOW -->
+      <section class="equal-grid">
+        <!-- Your Details -->
+        <div class="card details-card">
+          <div class="card-header">
+            <h2>Your Details</h2>
+            <p class="subtext">Keep these updated to improve advice and BMI.</p>
+          </div>
+
+          <form method="POST">
+            {% csrf_token %}
+            {{ profile_form.non_field_errors }}
+
+            <div class="form-stack">
+              <div>
                 <label>Age (years)</label>
                 {{ profile_form.age }}
               </div>
-              <div class="form-mini">
+              <div>
                 <label>Height (cm)</label>
                 {{ profile_form.height_cm }}
               </div>
-              <div class="form-mini">
+              <div>
                 <label>Weight (kg)</label>
                 {{ profile_form.weight_kg }}
               </div>
-              <div class="bmi-row">
-                <div class="bmi-pill">BMI: <strong>{% if bmi %}{{ bmi }}{% else %}N/A{% endif %}</strong></div>
-                <div class="bmi-tag">{{ bmi_cat }}</div>
-              </div>
-              <div class="actions-right">
-                <button type="submit" name="save_profile" class="btn primary">Save</button>
-              </div>
-            </form>
-            <div class="advice">
-              <h3>Health Advice</h3>
-              <ul class="advice-list">
-                {% for tip in advice %}
+            </div>
+
+            <div class="metrics-bar">
+              <div class="bmi-pill">BMI: <strong>{% if bmi %}{{ bmi }}{% else %}N/A{% endif %}</strong></div>
+              <div class="bmi-tag">{{ bmi_cat }}</div>
+            </div>
+
+            <div class="actions-right">
+              <button type="submit" name="save_profile" class="btn btn-primary btn-block">Save</button>
+            </div>
+            
+          </form>
+
+          <div class="advice" style="margin-top:1rem;">
+            <h3>Health Advice</h3>
+            <ul class="advice-list">
+              {% for tip in advice %}
                 <li>{{ tip }}</li>
               {% empty %}
                 <li>Enter your details to receive advice.</li>
               {% endfor %}
-              </ul>
-            </div>
-          </section>
-
-          <!------ Health Log with quick chips ------->
-          <section class="card compact">
-            <div class="card-header">
-              <h2>Health Log</h2>
-            </div>
-
-            <div class="chips">
-              <button class="chip" onclick="prepQuick('water_intake','litres')">
-                <i class='bx bx-droplet'></i>
-                <span>Water</span>
-                <strong>{{ metrics.water_intake|default:"—" }}</strong>
-              </button>
-
-              <button class="chip" onclick="prepQuick('steps','steps')">
-                <i class='bx bx-walk'></i>
-                <span>Steps</span>
-                <strong>{{ metrics.steps|default:"—" }}</strong>
-              </button>
-
-              <button class="chip" onclick="prepQuick('calories','kcal')">
-                <i class='bx bx-receipt'></i>
-                <span>Calories</span>
-                <strong>{{ metrics.calories|default:"—" }}</strong>
-              </button>
-            </div>
-          </section>
+            </ul>
+          </div>
         </div>
 
-        <!-- RIGHT COLUMN: Reminders -->
-        <section class="card compact">
+        <!-- Reminders -->
+        <div class="card reminders-card">
           <div class="card-header">
             <h2>Reminders</h2>
-            <button class="plus-btn" onclick="openModal('reminderModal')"><i class='bx bx-plus'></i></button>
+            <button class="plus-btn" type="button" onclick="openModal('reminderModal')"><i class='bx bx-plus'></i></button>
           </div>
+
           <ul class="card-list">
             {% for reminder in reminders %}
-              <li>{{ reminder.text }} — {{ reminder.date }}
-                <a href="{% url 'edit_reminder' reminder.id %}" class="small-btn">
-                  <i class="bx bx-edit"></i> Edit
-                </a>
-                <a href="{% url 'delete_reminder' reminder.id %}" class="small-btn">
-                  <i class="bx bx-trash"></i> Delete
-                </a>
-                <a href="{% url 'calendar' %}?date={{ reminder.date }}" class="small-btn">
-                  <i class="bx bx-calendar"></i> Calendar
-                </a>
+              <li>
+                <span>{{ reminder.text }} — {{ reminder.date }}</span>
+                <span class="actions">
+                  <a href="{% url 'edit_reminder' reminder.id %}" class="small-btn"><i class="bx bx-edit"></i> Edit</a>
+                  <a href="{% url 'delete_reminder' reminder.id %}" class="small-btn"><i class="bx bx-trash"></i> Delete</a>
+                  <a href="{% url 'calendar' %}?date={{ reminder.date }}" class="small-btn"><i class="bx bx-calendar"></i> Calendar</a>
+                </span>
               </li>
             {% empty %}
               <li>No reminders yet.</li>
             {% endfor %}
           </ul>
-          <a href="{% url 'google_fit_auth' %}" class="google-fit-btn">
-                <i class='bx bxs-heart'></i> Connect Google Fit
+
+          <a href="{% url 'google_fit_auth' %}" class="google-fit-btn" style="margin-top:.8rem;">
+            <i class='bx bxs-heart'></i> Connect Google Fit
           </a>
-        </section>
+        </div>
       </section>
     </main>
   </div>
-  <!-------- Metrics Modal (full form) ----------->
+
+  <!-- Metrics Modal -->
   <div class="modal" id="metricsModal">
     <div class="modal-content">
       <span class="close" onclick="closeModal('metricsModal')">&times;</span>
@@ -203,12 +340,16 @@
 
         <label>Calories</label>
         <input type="number" name="calories" min="0" value="{{ metrics.calories|default:'' }}" required>
-        
-        <button type="submit" name="save_metrics" class="btn primary">Save</button>
+
+        <div class="modal-buttons">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('metricsModal')">Cancel</button>
+          <button type="submit" name="save_metrics" class="btn btn-primary">Save</button>
+        </div>
       </form>
     </div>
   </div>
 
+  <!-- Quick Update Modal -->
   <div class="modal" id="quickModal">
     <div class="modal-content">
       <span class="close" onclick="closeModal('quickModal')">&times;</span>
@@ -218,7 +359,10 @@
         <input type="hidden" name="metric_type" id="metricType">
         <label id="metricLabel"></label>
         <input type="number" id="metricValue" name="metric_value" required step="0.1" min="0">
-        <button type="submit" name="quick_metric">Save</button>
+        <div class="modal-buttons">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('quickModal')">Cancel</button>
+          <button type="submit" name="quick_metric" class="btn btn-primary">Save</button>
+        </div>
       </form>
     </div>
   </div>
@@ -236,50 +380,34 @@
         <label>Date</label>
         <input type="date" name="date" required>
 
-        <button type="submit" name="save_reminder">Save</button>
+        <div class="modal-buttons">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('reminderModal')">Cancel</button>
+          <button type="submit" name="save_reminder" class="btn btn-primary">Save</button>
+        </div>
       </form>
     </div>
   </div>
 
-  <!-- Search Drawer -->
-  <div class="modal" id="searchModal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal('searchModal')">&times;</span>
-      <h2>Search Health Topics</h2>
-      <form method="GET" action="{% url 'health_search' %}" target="_blank">
-        <input type="text" name="q" placeholder="e.g. back pain, migraine, diabetes" required>
-        <button type="submit">Search</button>
-      </form>
-      <small>Searches trusted sources (HealthDirect, WHO, CDC).</small>
-    </div>
-  </div>
-<script>
-  function openModal(id){ document.getElementById(id).style.display='block'; }
-  function closeModal(id){ document.getElementById(id).style.display='none'; }
+  <script>
+    function openModal(id){ document.getElementById(id).style.display='block'; }
+    function closeModal(id){ document.getElementById(id).style.display='none'; }
 
-
-  const resizeBtn = document.querySelector("[data-resize-btn]");
-  if (resizeBtn) {
-    resizeBtn.addEventListener("click", function (e) {
+    const resizeBtn = document.querySelector("[data-resize-btn]");
+    resizeBtn?.addEventListener("click", e => {
       e.preventDefault();
       document.body.classList.toggle("sb-expanded");
     });
-  }
 
-  // Search icon
-  document.getElementById('openSearch').addEventListener('click', () => openModal('searchModal'));
-
-  // Quick metric prep
-  function prepQuick(type, unit){
-    document.getElementById('metricType').value = type;
-    const label = document.getElementById('metricLabel');
-    const title = document.getElementById('quickTitle');
-    if (type === 'water_intake'){ title.textContent = 'Update Water'; label.textContent = 'Water Intake ('+unit+')'; }
-    else if (type === 'steps'){ title.textContent = 'Update Steps'; label.textContent = 'Steps'; }
-    else { title.textContent = 'Update Calories'; label.textContent = 'Calories ('+unit+')'; }
-    document.getElementById('metricValue').value = '';
-    openModal('quickModal');
-  }
-</script>
+    function prepQuick(type, unit){
+      document.getElementById('metricType').value = type;
+      const label = document.getElementById('metricLabel');
+      const title = document.getElementById('quickTitle');
+      if (type === 'water_intake'){ title.textContent = 'Update Water'; label.textContent = 'Water Intake ('+unit+')'; }
+      else if (type === 'steps'){ title.textContent = 'Update Steps'; label.textContent = 'Steps'; }
+      else { title.textContent = 'Update Calories'; label.textContent = 'Calories ('+unit+')'; }
+      document.getElementById('metricValue').value = '';
+      openModal('quickModal');
+    }
+  </script>
 </body>
 </html>

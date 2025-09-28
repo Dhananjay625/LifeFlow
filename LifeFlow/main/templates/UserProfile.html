@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>User Profile - LifeFlow</title>
-  <link rel="stylesheet" href="{% static 'index.css' %}?v=3">
+  <link rel="stylesheet" href="{% static 'index.css' %}?v=50">
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 </head>
 
@@ -24,6 +24,12 @@
                   {% endwith %}
                 </strong>
               </span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'appboard:home' %}"
+               class="{% if request.resolver_match.namespace == 'appboard' %}active{% endif %}">
+              <i class='bx bx-grid-alt'></i><span>Dashboard</span>
             </a>
           </li>
           <li>
@@ -57,11 +63,6 @@
             </a>
           </li>
           <li><a href="#"><i class='bx bx-group'></i><span>Family</span></a></li>
-          <li>
-            <a href="http://127.0.0.1:8000" target="_blank">
-              <i class='bx bx-map'></i><span>GeoDesk</span>
-            </a>
-          </li>
         </ul>
         <div class="collapse-btn">
           <a href="#" data-resize-btn>

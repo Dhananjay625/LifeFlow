@@ -172,17 +172,16 @@ def _sync_gcal_events_to_tasks(request, max_results=50, creds=None):
 
 # ---------- auth (username/password) ----------
 def login_view(request):
-    if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            next_url = request.POST.get("next") or request.GET.get("next")
-            return redirect(next_url or "TaskManager")
-        return render(request, "index.html", {"error": "Invalid username or password."})
-    return render(request, "index.html")
-
+            next_url = request.POST.get('next') or request.GET.get('next')
+            # Old: return redirect(next_url or "TaskManager")
+            return redirect(next_url or 'appboard:home')  # robust named redirect
+    return render(request, 'index.html')
 def register(request):
     if request.method == "POST":
         username = request.POST.get("username")

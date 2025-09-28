@@ -64,7 +64,6 @@ urlpatterns = [
 
     # ---------- App sections ----------
     path('Subscription/', main_views.SubscriptionTracker, name='Subscription'),
-    path('TaskManager/', main_views.TaskManager, name='TaskManager'),
     path('BillManager/', main_views.BillManager, name='BillManager'),
     path('add/<str:item_type>/', main_views.add_item, name='add_item'),
  

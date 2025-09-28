@@ -57,12 +57,6 @@
 
         <ul class="side-menu-sub-item" id="lifeflow_menu">
           <li>
-            <a href="{% url 'TaskManager' %}"
-               class="{% if request.resolver_match.url_name == 'TaskManager' %}active{% endif %}">
-              Task Manager
-            </a>
-          </li>
-          <li>
             <a href="{% url 'calendar' %}"
                class="{% if request.resolver_match.url_name == 'calendar' %}active{% endif %}">
               Calendar
