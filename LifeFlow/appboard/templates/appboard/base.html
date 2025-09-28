@@ -1,118 +1,257 @@
 {% load static %} {% load modal_tags %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-    <meta name="description" content=""/>
-    <meta name="author" content=""/>
-    <link rel="shortcut icon" href="{% static 'appboard/images/favicon.ico' %}">
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <link rel="shortcut icon" href="{% static 'appboard/images/favicon.ico' %}">
 
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <!-- Core vendors -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"/>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+  <!-- Optional: Leaflet (if widgets use it) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
-            crossorigin="anonymous"></script>
+  <!-- Your bundle -->
+  <link rel="stylesheet" href="{% static 'appboard/css/widget_library.css' %}">
+  <link rel="stylesheet" href="{% static 'appboard/css/appboard.css' %}">
+  <link rel="stylesheet" href="{% static 'appboard/css/notification.css' %}">
+  <link rel="stylesheet" href="{% static 'appboard/css/orefox.css' %}?v=14">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-          rel="stylesheet"/>
-    {# CSS and JavaScript for Leaflet Draw #}  
+  <title>{% block head_title %}{% endblock %} - LifeFlow</title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.css" />
-    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+  <style>
+    :root{
+      --primary-color:#FF6B6B;
+      --secondary-color:#4ECDC4;
+      --accent-color:#FFE66D;
+      --bg-darker:#141414;
+      --bg-dark:#181818;
+      --bg-panel:#1f1f1f;
+      --brd:#2a2a2a;
+      --text:#eee;
+      --muted:#bbb;
 
-    {# CSS and JavaScript for Fullscreen #}
-    <link href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css" rel="stylesheet" />
-    <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"></script>
+      /* wider collapsed width so it doesn’t feel cramped */
+      --sb-collapsed:6.5rem;
+      --sb-expanded:20rem;
+    }
 
-     {# CSS and JavaScript for Layers Tree #}
-    <link rel="stylesheet" href="{% static 'appboard/css/L.Control.Layers.Tree.css' %}" />
-    <script src="{% static 'appboard/js/L.Control.Layers.Tree.js' %}"></script>
-    
-    <link rel="stylesheet" href="{% static 'appboard/css/widget_library.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'appboard/css/appboard.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'appboard/css/notification.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'appboard/css/orefox.css' %}?v=12"> 
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:var(--bg-dark);
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans";
+    }
 
-    <title>{% block head_title %}{% endblock %} - GeoDesk Ai</title>
+    /* ===== Sidebar ===== */
+    aside{
+      position:fixed; inset:0 auto 0 0; height:100vh;
+      width:var(--sb-collapsed);
+      background:var(--bg-panel);
+      border-right:1px solid var(--brd);
+      display:flex; flex-direction:column;
+      padding:.75rem .6rem;
+      overflow-y:auto;
+      z-index:100;
+      transition: width .25s ease-in-out;
+    }
+    body.sb-expanded aside{ width:var(--sb-expanded); }
 
-    {% block extra_head %} {% endblock %}
+    nav.nav{ display:flex; flex-direction:column; height:100%; gap:.25rem; }
+    .nav-links{ list-style:none; margin:0; padding:0; }
+
+    nav.nav a{
+      display:flex; align-items:center; gap:1rem;
+      color:var(--text); text-decoration:none;
+      padding:.9rem .9rem; border-radius:12px;
+      white-space:nowrap; transition: background .15s;
+      justify-content:center;                 /* center when collapsed */
+    }
+    nav.nav a i{
+      font-size:2rem;                          /* bigger icon */
+      width:2.8rem; min-width:2.8rem;
+      text-align:center; color:#eee; opacity:1 !important;
+    }
+    nav.nav a span{ display:none; }
+    nav.nav a:hover{ background:#232323; }
+    nav.nav a.active{ background:var(--primary-color); color:#fff; }
+    nav.nav a.active i{ color:#fff; }
+
+    body.sb-expanded nav.nav a{ justify-content:flex-start; }
+    body.sb-expanded nav.nav a span{ display:inline; }
+
+    .collapse-btn, .logout-btn{ margin-top:.35rem; }
+    .collapse-btn a, .logout-btn a{
+      display:flex; align-items:center; gap:1rem;
+      padding:.9rem .9rem; border-radius:12px; color:var(--text); text-decoration:none;
+      justify-content:center;
+    }
+    .collapse-btn a:hover, .logout-btn a:hover{ background:#232323; }
+    body.sb-expanded .collapse-btn a, body.sb-expanded .logout-btn a{ justify-content:flex-start; }
+
+    nav.nav a[data-resize-btn] i{ transition: transform .25s ease; }
+    body.sb-expanded nav.nav a[data-resize-btn] i{ transform: rotate(180deg); }
+
+    /* ===== Content ===== */
+    .lf-container{
+      min-height:100vh;
+      margin-left:calc(var(--sb-collapsed) + 1rem);
+      padding:1.25rem 1.25rem 2rem;
+      transition: margin-left .25s ease-in-out;
+    }
+    body.sb-expanded .lf-container{
+      margin-left:calc(var(--sb-expanded) + 1rem);
+    }
+
+    /* Cards/Buttons baseline */
+    .card{
+      background:var(--bg-panel);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      box-shadow:0 10px 24px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    .card .card-header{ border-bottom:1px solid rgba(255,255,255,.06); background:transparent; color:var(--text); }
+
+    .btn{ border:none; border-radius:12px; font-weight:700; min-height:44px; padding:.6rem 1rem; box-shadow:0 6px 16px rgba(0,0,0,.25); }
+    .btn-primary{ background:var(--primary-color); color:#fff; }
+    .btn-secondary{ background:var(--secondary-color); color:#111; }
+    .btn-ghost{ background:transparent; color:var(--text); border:1px solid var(--brd); box-shadow:none; }
+
+    /* Header bar for pages */
+    .lf-header{
+      display:grid;
+      grid-template-columns: 1fr auto;  /* date left, title + tools right */
+      align-items:center; gap:1rem; margin-bottom:.75rem;
+    }
+    .lf-date{ color:var(--muted); font-size:.95rem; }
+    .lf-title{
+      display:flex; align-items:center; gap:.6rem;
+    }
+    .lf-title h1{
+      font-size:2rem;                      /* bigger title */
+      font-weight:800; margin:0; color:#fff;
+    }
+    .btn-icon{
+      display:inline-flex; align-items:center; justify-content:center;
+      width:44px; height:44px; border-radius:12px; border:1px solid rgba(255,255,255,.12);
+      background:var(--primary-color); color:#fff; cursor:pointer;
+    }
+    .btn-icon i{ font-size:1.3rem; }
+    html, body {
+  height: 100%;
+  background: var(--bg-dark); /* enforce dark base */
+}
+
+.lf-container {
+  min-height: 100vh;      /* stretch full screen */
+  background: var(--bg-dark); /* match sidebar background */
+  display: flex;
+  flex-direction: column;
+}
+
+  </style>
+
+  {% block extra_head %}{% endblock %}
 </head>
 
-<body class="m-0 p-0 ">
+<body>
+  <!-- Sidebar -->
+  <aside>
+    <nav class="nav">
+      <ul class="nav-links">
+        <li>
+          <a href="{% url 'UserProfile' %}">
+            <i class='bx bx-user'></i><span><strong>{{ user.username }}</strong></span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'appboard:home' %}"
+             class="{% if request.resolver_match.namespace == 'appboard' %}active{% endif %}">
+            <i class='bx bx-grid-alt'></i><span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'kanban:kanbanTable' %}" class="{% if request.resolver_match.url_name == 'kanbanTable' %}active{% endif %}">
+            <i class='bx bx-columns'></i><span>Kanban</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'calendar' %}" {% if request.resolver_match.url_name == 'calendar' %}class="active"{% endif %}>
+            <i class='bx bx-calendar'></i><span>Calendar</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'confirm_password' %}" {% if request.resolver_match.url_name == 'DocumentStorage' %}class="active"{% endif %}>
+            <i class='bx bx-folder'></i><span>Document Manager</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'Subscription' %}" {% if request.resolver_match.url_name == 'Subscription' %}class="active"{% endif %}>
+            <i class='bx bx-cloud-download'></i><span>Subscription Tracker</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'BillManager' %}" {% if request.resolver_match.url_name == 'BillManager' %}class="active"{% endif %}>
+            <i class='bx bx-receipt'></i><span>Bill Manager</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'HealthManager' %}" {% if request.resolver_match.url_name == 'HealthManager' %}class="active"{% endif %}>
+            <i class='bx bx-dumbbell'></i><span>Health Manager</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'FamilyManager' %}" {% if request.resolver_match.url_name == 'FamilyManager' %}class="active"{% endif %}>
+            <i class='bx bx-group'></i><span>Family</span>
+          </a>
+        </li>
+      </ul>
 
-<div id="main-content" class="d-flex">
-    <div class="container-fluid m-0 p-0 ">
-        <div class = "sticky-top position-sticky">
-            {% include "appboard/sidebar.html" %}
+      <div class="collapse-btn">
+        <a href="#" data-resize-btn aria-label="Toggle sidebar">
+          <i class='bx bx-chevrons-right'></i><span>Expand</span>
+        </a>
+      </div>
 
-            {% include "appboard/topbar.html" with breadcrumb=breadcrumb %}
-        </div>
+      <div class="logout-btn">
+        <a href="{% url 'login' %}">
+          <i class='bx bx-log-out'></i><span>Logout</span>
+        </a>
+      </div>
+    </nav>
+  </aside>
 
-        <div id="dashboard-main-content" class="p-4  h-100" style="margin-left: 15rem; z-index: 0;">
-            {% block content %}
-            {% endblock %}
-        </div>
-    </div>
-</div>
+  <!-- Content -->
+  <div class="lf-container">
+    {% block content %}{% endblock %}
+  </div>
 
-<footer class="fixed-bottom-new">
-    <div class="container">
-        <div class="copyright text-center py-2">
-            <span class="fs-6">Powered by OreFox AI &copy;</span>
-        </div>
-    </div>
-</footer>
+  <!-- Vendor JS last -->
+  <script src="https://cdn.datatables.net/v/bs5/jq-3.6.0/jszip-2.5.0/dt-1.13.1/b-2.3.3/b-colvis-2.3.3/b-html5-2.3.3/b-print-2.3.3/date-1.2.0/fc-4.2.1/fh-3.3.1/r-2.4.0/sl-1.5.0/datatables.min.js"></script>
+  <script src="{% static 'appboard/js/notification.js' %}"></script>
 
-
-{#<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>#}
-{#<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js" ></script>#}
-<script type="text/javascript"
-        src="https://cdn.datatables.net/v/bs5/jq-3.6.0/jszip-2.5.0/dt-1.13.1/b-2.3.3/b-colvis-2.3.3/b-html5-2.3.3/b-print-2.3.3/date-1.2.0/fc-4.2.1/fh-3.3.1/r-2.4.0/sl-1.5.0/datatables.min.js"></script>
-<script defer type="text/javascript" src="{% static 'appboard/js/appboard.js' %}"></script>
-
-<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"
-        integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
-
-        
-<!-- Include Leaflet Draw JavaScript -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.js"></script>
-
-<script src="{% static 'appboard/js/notification.js' %}"></script>
-
-{% block extra_body %} {% endblock %}
-<button onclick="topFunction()" id="scrollUp"></button>
-
-<script>
-    var popoverTriggerList = [].slice.call(
-        document.querySelectorAll('[data-bs-toggle="popover"]')
-    );
-    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-        return new bootstrap.Popover(popoverTriggerEl);
+  <script>
+    // Sidebar toggle (starts collapsed)
+    document.querySelectorAll('[data-resize-btn]').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        e.preventDefault();
+        document.body.classList.toggle('sb-expanded');
+        const span = btn.querySelector('span');
+        if(span){ span.textContent = document.body.classList.contains('sb-expanded') ? 'Collapse' : 'Expand'; }
+      });
     });
-</script>
-<script>
-    $(document).ready(function () {
-        // Check for the modal parameter in the URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const modalParam = urlParams.get('modal');
+  </script>
 
-        if (modalParam === 'True') {
-            // Show the modal if the parameter is present
-            $('#myModal').modal('show');
-        }
-    });
-</script>
+  {% block extra_body %}{% endblock %}
 </body>
 </html>

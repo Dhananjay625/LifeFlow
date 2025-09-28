@@ -1,1067 +1,201 @@
 {% extends 'appboard/base.html' %}
 {% load static %}
 
-{% block head_title %}
-    Dashboard
+{% block head_title %}Dashboard{% endblock %}
+
+{% block extra_head %}
+  <!-- Boxicons (for sidebar + dashboard icons) -->
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <!-- SortableJS -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <style>
+    /* ===== Dashboard Header ===== */
+    .lf-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: .5rem 0 1rem;
+    }
+    .lf-header .date { font-size: .95rem; color: var(--text-muted); }
+    .lf-header-right { display: flex; align-items: center; gap: .8rem; }
+    #edit-dashboard-btn { min-height: 36px; padding: .5rem .9rem; }
+
+    /* ===== Widget Library ===== */
+    #widgetLibraryPanel {
+      display: none;
+      position: fixed;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+      width: 240px;
+      background: var(--background-light);
+      padding: 1rem;
+      border-radius: 1rem;
+      border: 1px solid var(--panel-brd);
+      box-shadow: 0 8px 16px rgba(0,0,0,.3);
+      color: var(--text-light);
+      z-index: 1000;
+    }
+    #widgetLibraryPanel h6 {
+      margin: 0 0 .8rem;
+      font-weight: 700;
+      text-align: center;
+      border-bottom: 1px solid var(--panel-brd);
+      padding-bottom: .4rem;
+    }
+    .library-widget {
+      background: #171717;
+      border-left: 5px solid var(--accent-color);
+      border-radius: 12px;
+      padding: .8rem;
+      margin-bottom: .8rem;
+      cursor: grab;
+      color: var(--text-light);
+      font-weight: 600;
+      transition: transform .12s, background .2s;
+    }
+    .library-widget:hover { transform: translateY(-2px); background: #1f1f1f; }
+
+    /* ===== Dashboard grid ===== */
+    #dashboard.row { min-height: 240px; }
+    .sortable-ghost { opacity: .6; }
+
+    /* ===== Cards ===== */
+    .card {
+      background: #1b1b1b;
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 14px;
+    }
+    .card-header {
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .delete-widget-btn { border: 1px solid var(--panel-brd); box-shadow: none; display: none; }
+
+    @media (max-width: 720px) {
+      .lf-header { flex-direction: column; gap: .5rem; align-items: flex-start; }
+      .lf-header-right { width: 100%; justify-content: space-between; }
+    }
+  </style>
 {% endblock %}
 
 {% block content %}
 
-{% if messages %}
-<div id="flash-message" class="alert alert-success text-md p-3 ms-4">
-    {% for message in messages %}
-        {{ message }}
-    {% endfor %}
-</div>
-{% endif %}
-
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-<div class="container position-relative">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="mb-0 text-text-light">My Dashboard<i class="ms-2 fas fa-fw fa-tachometer-alt"></i></h4>
-        <button id="edit-dashboard-btn" class="btn text-white" style="background-color: #112D63;">Edit Dashboard</button>
+<main class="content lf-wrap">
+  <!-- Header row -->
+  <div class="lf-header">
+    <div class="date" id="today-date">—</div>
+    <div class="lf-header-right">
+      <h4>Dashboard</h4>
+      <button id="edit-dashboard-btn" class="btn btn-primary btn-sm">Edit Dashboard</button>
     </div>
-    <div id="title-divider" class="mb-4"></div>
+  </div>
 
-    <!-- Widget Library Panel -->
-    <div id="widgetLibraryPanel">
-        <h6>
-            📦 Widget Library
-            <span 
-              class="ms-2" 
-              data-bs-toggle="tooltip" 
-              title="Tip: Drag widgets onto the same row or next to existing widgets to place them." 
-              style="cursor: help; font-size: 0.9rem; color: #ccc;"
-            >
-              <i class="fas fa-info-circle"></i>
-            </span>
-          </h6>
-        <!-- News Widget -->
-        <div class="library-widget" id="newsWidgetBtn" draggable="true" data-widget-type="news" style="display: none;">
-            🗞️ <strong>Mining News</strong><br><small>Drag to dashboard</small>
-        </div>
-        <!-- GIS Plotter -->
-        <div class="library-widget" id="gisWidgetBtn" draggable="true" data-widget-type="gis" style="display: none;">
-            🗺️ <strong>GIS Plotter</strong><br><small>Drag to dashboard</small>
-        </div>
-        <!-- My Apps -->
-        <div class="library-widget" id="appsWidgetBtn" draggable="true" data-widget-type="apps" style="display: none;">
-            🖥️ <strong>My Apps</strong><br><small>Drag to dashboard</small>
-        </div>
-        <!-- GeoDesk Data -->
-        <div class="library-widget" id="geodeskWidgetBtn" draggable="true" data-widget-type="geodesk" style="display: none;">
-            🧭 <strong>GeoDesk Data</strong><br><small>Drag to dashboard</small>
-        </div>
-        <!-- AgDesk Data -->
-        <div class="library-widget" id="agdeskWidgetBtn" draggable="true" data-widget-type="agdesk" style="display: none;">
-            🌾 <strong>AgDesk Data</strong><br><small>Drag to dashboard</small>
-        </div>
-        <!-- Project Index -->
-        <div class="library-widget" id="projectIndexWidgetBtn" draggable="true" data-widget-type="projectindex" style="display: none;">
-            📚 <strong>Project Index</strong><br><small>Drag to dashboard</small>
-        </div>
-        <!-- Calendar Widget -->
-        <div class="library-widget" data-widget-type="calendar" draggable="true" id="calendarWidgetBtn" style="display: none;">
-            📅 <strong>Calendar</strong><br><small>Drag to dashboard</small>
-        </div>
+  <!-- Widget library -->
+  <div id="widgetLibraryPanel">
+    <h6>📦 Widget Library</h6>
+    <div class="library-widget" draggable="true" data-widget-type="news">🗞️ Mining News</div>
+    <div class="library-widget" draggable="true" data-widget-type="gis">🗺️ GIS Plotter</div>
+    <div class="library-widget" draggable="true" data-widget-type="apps">📱 My Apps</div>
+    <div class="library-widget" draggable="true" data-widget-type="calendar">📅 Calendar</div>
+    <div class="library-widget" draggable="true" data-widget-type="todo">📋 To-Do List</div>
+    <div class="library-widget" draggable="true" data-widget-type="disaster-alerts">⚠️ Disaster Alerts</div>
+    <div class="library-widget" draggable="true" data-widget-type="reminder">⏰ Reminder</div>
+  </div>
 
-        <!-- To-Do List Widget -->
-        <div class="library-widget" data-widget-type="todo" draggable="true" id="todoWidgetBtn" style="display: none;">
-            📋 <strong>To-Do List</strong><br><small>Drag to dashboard</small>
-        </div>
-        <!-- Disaster Widget -->
-        <div class="library-widget" data-widget-type="disaster-alerts" draggable="true">
-            ⚠️ Disaster Alerts
-        </div>
-        <!-- Reminder Widget -->
-        <div class="library-widget" data-widget-type="reminder" draggable="true" id="reminderWidgetBtn" style="display: none;">
-            ⏰ <strong>Reminder</strong><br><small>Drag to dashboard</small>
-        </div>
-    </div>
-    <div id="dashboard" class="row sortable-container" style="min-height: 200px;">
-        <div class="drop-catch w-100" style="min-height: 200px;"></div>
-        <!-- Mining News Widget -->
-        <div class="col-lg-8 col-md-10 col-sm-12 my-3 sortable-item mx-auto" data-id="news">
-            <div class="card shadow" draggable="true" style="height: auto;">
-                <div class="card-header bg-ofx-blue text-white d-flex justify-content-between align-items-center">
-                  <h5 class="mb-0">🗞️ Latest Mining News</h5>
-                  <button class="delete-widget-btn btn btn-sm text-white position-absolute fw-bold" style="top: 5px; right: 5px; display: none; font-size: 1.1rem; background: transparent; border: none;">X</button>
-                </div>
-                
-                <div class="card-body" style="max-height: 400px; overflow-y: auto;">
-                  {% for entry in rss_feed %}
-                    <div class="mb-3">
-                      <a href="{{ entry.link }}" target="_blank" class="fw-bold text-decoration-none d-block text-primary">
-                        {{ entry.title }}
-                      </a>
-                      <p class="mb-0 text-muted small">
-                        {{ entry.description|striptags|truncatewords:20 }}
-                      </p>
-                    </div>
-                    {% if not forloop.last %}<hr>{% endif %}
-                  {% empty %}
-                    <p class="text-muted">No news available at the moment.</p>
-                  {% endfor %}
-                </div>
-              
-                <div class="card-footer bg-transparent text-end">
-                  <a href="{{ news_url }}" target="_blank" class="btn btn-sm btn-outline-primary">Read More</a>
-                </div>
-            </div>
-        </div>
-        <!-- Widget: GIS Plotter (Upload csv file) -->
-        <div class="col-lg-4 col-md-6 col-sm-12 my-3 sortable-item" data-id="gis">
-            <div class="card shadow h-100">
-                <div class="card-header bg-ofx-blue text-white">
-                    <h5>🗺️ GIS Plotter</h5>
-                    <button class="delete-widget-btn btn btn-sm text-white position-absolute fw-bold" style="top: 5px; right: 5px; display: none; font-size: 1.1rem; background: transparent; border: none;">X</button>
-                </div>
+  <!-- Dashboard grid -->
+  <div id="dashboard" class="row g-3 sortable-container"></div>
+</main>
 
-                <div class="mb-0 col-lg-12 col-md-2 col-sm-12 my-2">
-                    <h6 style="color: black; max-width: 40vw;">GIS Plotter provides a visualisation of uploaded csv files with latitude and longitude. It also allows for filtering of these plots with given columns once you upload the data.</h6>
-                </div>
-
-                <div class="map-container" style="height: 100%; width: 100%; min-height: 300px;">
-                    <div id="leaflet-map" class="leaflet-map" style="height: 100%; width: 100%;"></div>
-                </div>
-
-                <!-- Upload Button -->
-                <button id="upload_button" class="btn btn-ofx-blue mb-2 text-center col-lg-12 my-3">Upload data <i class="fas fa-upload"></i></button>
-
-                <!-- Upload Modal -->
-                <div class="modal fade" id="file_uploader_modal" data-keyboard="false" data-backdrop="static">
-                    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
-                        <div class="modal-content" id="file_uploader_modal_content">
-                            <div class="modal-header">Upload New Data</div>
-                            <div class="modal-body" id="file_uploader_body">
-                                <span class="btn options-desc-btn" title="Function Description"
-                                    data-bs-content="Plots given latitude-longitude coordinates. Compatible with .csv files with defined latitude and longitude columns.">
-                                    <i class="fa fa-question-circle"></i>
-                                </span>
-                                <div class="tab-content" id="myTabContent">
-                                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                                        <div class="file_upload_area d-flex bg-grey-3 my-4" id="file_upload_area">
-                                            <div class="inner-content m-auto text-center">
-                                                <div class="icon"><i class="fas fa-upload"></i></div>
-                                                <div class="text">Click Here To Select File</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <form id="file_uploader_form" action="{% url 'appboard:file_uploader' %}" method="POST" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                <div class="form-group d-none">
-                                    <input type="file" name="uploaded_file" id="uploaded_file" class="form-control-file max-w-200" accept=".csv">
-                                </div>
-                                <input type="hidden" name="existing_process_file_id" id="existing_process_file_id">
-                                <div class="form-group d-flex p-2 mb-4">
-                                    <input type="number" class="form-control" min="0" name="header_row" id="header_row" placeholder="Header Row (Start from 0)">
-                                    <span class="btn options-desc-btn" title="Header Row"
-                                        data-bs-content="A row of your csv/excel, which contains the column names/headings. If your headings are in the first row, then enter 0. If your headings are in a different row, then enter (row_number - 1). For example, if your headings are in the fifth row, then you have to enter 4.">
-                                        <i class="fa fa-question-circle"></i>
-                                    </span>
-                                </div>
-                                <div class="modal-footer">
-
-
-                                    <button type="button" id="btnCancel" class="btn btn-sm btn-ofx-blue" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" id="btnSubmit" class="btn btn-sm btn-ofx-green">Load Data</button>
-
-
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-        <!-- My Apps Widget -->
-        <div class="col-lg-4 col-md-6 col-sm-12 my-3 sortable-item" data-id="apps">
-            <div class="card shadow h-100" draggable="true">
-                <div class="card-header bg-ofx-blue text-white">
-                    <h5>📱My Apps</h5>
-                    <button class="delete-widget-btn btn btn-sm text-white position-absolute fw-bold" style="top: 5px; right: 5px; display: none; font-size: 1.1rem; background: transparent; border: none;">X</button>
-                </div>
-                <div class="card-body">
-                    {% if subscriptions and subscriptions|length > 0 %}
-                        <ul>
-                            {% for subscription in subscriptions %}
-                                {% if subscription.status == "PAUSED" %}
-                                    <li>
-                                        <div class="pause-sub cursor-pointer btn text-ofx-red" data-toggle="modal" data-target="#subPauseModal" style="cursor:pointer">
-                                            {{ subscription.application.name }}
-                                        </div>
-                                    </li>
-                                {% else %}
-                                    <li><a href="{{ subscription.application.app_url }}" class="btn">{{ subscription.application.name }}</a></li>
-                                {% endif %}
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <div>You have not subscribed to any app yet.</div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>      
-
-        <!-- GeoDesk Data Widget -->
-        <div class="col-lg-4 col-md-6 col-sm-12 my-3 sortable-item" data-id="geodesk">
-            <div class="card shadow h-100" draggable="true">
-                <div class="card-header bg-ofx-blue text-white">
-                    <h5>🌐 GeoDesk Data</h5>
-                    <button class="delete-widget-btn btn btn-sm text-white position-absolute fw-bold" style="top: 5px; right: 5px; display: none; font-size: 1.1rem; background: transparent; border: none;">X</button>
-                </div>
-                <div class="card-body">
-                    <h6>GeoDesk Widget Content</h6>
-                </div>
-            </div>
-        </div>
-
-        <!-- AgDesk Data Widget -->
-        <div class="col-lg-4 col-md-6 col-sm-12 my-3 sortable-item" data-id="agdesk">
-            <div class="card shadow h-100" draggable="true">
-                <div class="card-header bg-ofx-blue text-white">
-                    <h5>🌾 AgDesk Data</h5>
-                    <button class="delete-widget-btn btn btn-sm text-white position-absolute fw-bold" style="top: 5px; right: 5px; display: none; font-size: 1.1rem; background: transparent; border: none;">X</button>
-                </div>
-                <div class="card-body">
-                    <h6>AgDesk Widget Content</h6>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Project Index Widget -->
-        <div class="col-lg-4 col-md-6 col-sm-12 my-3 sortable-item" data-id="projectindex">
-            <div class="card shadow h-100" draggable="true">
-                <div class="card-header bg-ofx-blue text-white">
-                    <h5>📂 Project Index</h5>
-                    <button class="delete-widget-btn btn btn-sm text-white position-absolute fw-bold" style="top: 5px; right: 5px; display: none; font-size: 1.1rem; background: transparent; border: none;">X</button>
-                </div>
-                <div class="card-body">
-                    <ul>
-                        <a href="{% url 'dashboard' %}?tab=nav-projects-tab&tabContent=nav-projects" class="btn btn-outline-primary">My Projects</a>
-                        <a href="{% url 'dashboard' %}?tab=nav-tenements-tab&tabContent=nav-tenements" class="btn btn-outline-primary">My Tenements</a>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div> <!-- End of Sortable Container -->
-</div>
-
-<!-- Modals -->
-<div class="modal modal-md fade" id="petrosea_app_modal">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header card-header">
-                <ul class="nav nav-tabs card-header-tabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link active" id="home-tab" data-toggle="tab" href=".home" role="tab" aria-controls="home" aria-selected="true">Create New Project</a>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <a class="nav-link" id="profile-tab" data-toggle="tab" href=".profile" role="tab" aria-controls="profile" aria-selected="false">Use Existing Project</a>
-                    </li>
-                </ul>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="card-body">
-                <div class="tab-content">
-                    <div class="tab-pane fade show home active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                        <div class="card shadow-sm container py-2 max-w-700 my-2">
-                            <form action="{% url 'dashboard' %}" method="POST">
-                                {% csrf_token %}
-                                {{ form.as_p }}
-                                <div class="form-group">
-                                    <button class="form-control btn btn-primary mt-3 spin-on-click" spinner-class="spinner-border spinner-border-sm text-light" spinner-text="Loading...">
-                                        Create
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade profile" role="tabpanel" aria-labelledby="profile-tab">
-                        <div class="card shadow-sm container py-2 max-w-700 my-2">
-                            <div class="form-group">
-                                <label for="select_existing_project">Select a Project to start processing...</label>
-                                <select class="form-control custom-select" id="select_existing_project">
-                                    <option selected disabled value="">-- Select --</option>
-                                    {% for member in members %}
-                                        {% if member.is_write %}
-                                            <option value="{% url 'data_processor' project_url=member.project.slug %}">
-                                                {{ member.project.name }}
-                                            </option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="subPauseModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content py-2 bg-ofx-green px-1 text-white">
-            This subscription is Paused.
-        </div>
-    </div>
-</div>
-<!-- Widget Templates -->
-
-<!-- Calendar Widget Template -->
-<template id="template-calendar">
-    <div class="sortable-item col-lg-4 col-md-6 col-sm-12 my-3" data-id="calendar">
-        <div class="card shadow h-100" draggable="true">
-            <div class="card-header bg-ofx-blue text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">📅 Calendar</h5>
-                <button class="delete-widget-btn btn btn-sm text-white position-absolute fw-bold" style="top: 5px; right: 5px; display: none; font-size: 1.1rem; background: transparent; border: none;">X</button>
-            </div>
-            <div class="card-body text-center">
-                <!-- Date -->
-                <h3 id="calendar-date" class="fw-bold mb-3" style="color: #1d2a58;">Loading Date...</h3>
-
-                <!-- Weather + Location Row -->
-                <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
-                    <!-- Brisbane Tag -->
-                    <span class="badge rounded-pill" style="background-color: #e3e7ff; color: #1d2a58; font-size: 0.85rem; padding: 0.4em 0.8em;">
-                        📍 Brisbane
-                    </span>
-
-                    <!-- Weather Info -->
-                    <div id="calendar-weather" class="text-muted d-flex align-items-center" style="font-size: 1rem;">
-                        <span>Loading weather...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</template>
-
-<!-- To-Do List Widget Template -->
-<template id="template-todo">
-    <div class="col-lg-4 col-md-6 col-sm-12 my-3 sortable-item" data-id="todo">
-        <div class="card shadow h-100">
-            <div class="card-header bg-ofx-blue text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">📋 To-Do List</h5>
-                <button class="delete-widget-btn btn btn-sm text-white position-absolute fw-bold" style="top: 5px; right: 5px; display: none; font-size: 1.1rem; background: transparent; border: none;">X</button>
-            </button>
-            </div>
-            <div class="card-body">
-                <ul style="list-style: none; padding: 0;">
-                    <li><input type="checkbox"> Task 1</li>
-                    <li><input type="checkbox"> Task 2</li>
-                    <li><input type="checkbox"> Task 3</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</template>
-
-<!-- Reminder Widget Template -->
-<template id="template-reminder">
-    <div class="col-lg-4 col-md-6 col-sm-12 my-3 sortable-item" data-id="reminder">
-        <div class="card shadow h-100">
-            <div class="card-header bg-ofx-blue text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">⏰ Reminder</h5>
-                <button class="delete-widget-btn btn btn-sm text-white position-absolute fw-bold" style="top: 5px; right: 5px; display: none; font-size: 1.1rem; background: transparent; border: none;">X</button>
-            </div>
-            <div class="card-body text-center">
-                <p>Don't forget to drink water! 🚰</p>
-            </div>
-        </div>
-    </div>
-</template>
-
-<!-- Mini Chart Widget Template -->
-<template id="template-chart">
-    <div class="col-lg-4 col-md-6 col-sm-12 my-3 sortable-item" data-id="chart">
-        <div class="card shadow h-100">
-            <div class="card-header bg-ofx-blue text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">📈 Mini Chart</h5>
-                <button class="delete-widget-btn btn btn-sm text-white fw-bold" style="top:5px; right:5px; background:transparent; border:none;">X</button>
-            </div>
-            <div class="card-body text-center">
-                <p>[Chart Placeholder]</p>
-                <small>Coming soon...</small>
-            </div>
-        </div>
-    </div>
-</template>
-<!-- News Widget Template -->
+<!-- Example template: News -->
 <template id="template-news">
-    <div class="col-lg-8 col-md-10 col-sm-12 my-3 sortable-item mx-auto" data-id="news">
-        <div class="card shadow" draggable="true" style="height: auto;">
-            <div class="card-header bg-ofx-blue text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">🗞️ Latest Mining News</h5>
-                <button class="delete-widget-btn btn btn-sm text-white position-absolute fw-bold" 
-                    style="top: 5px; right: 5px; font-size: 1.1rem; background: transparent; border: none;">X
-                </button>
-            </div>
-            <div class="card-body" style="max-height: 400px; overflow-y: auto;">
-                {% for entry in rss_feed %}
-                    <div class="mb-3">
-                        <a href="{{ entry.link }}" target="_blank" class="fw-bold text-decoration-none d-block text-primary">
-                            {{ entry.title }}
-                        </a>
-                        <p class="mb-0 text-muted small">
-                            {{ entry.description|striptags|truncatewords:20 }}
-                        </p>
-                    </div>
-                    {% if not forloop.last %}<hr>{% endif %}
-                {% empty %}
-                    <p class="text-muted">No news available at the moment.</p>
-                {% endfor %}
-            </div>
-            <div class="card-footer bg-transparent text-end">
-                <a href="{{ news_url }}" target="_blank" class="btn btn-sm btn-outline-primary">Read More</a>
-            </div>
-        </div>
+  <div class="col-lg-6 col-md-8 col-sm-12 sortable-item my-3" data-id="news">
+    <div class="card shadow h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">🗞️ Latest Mining News</h5>
+        <button class="delete-widget-btn btn btn-ghost btn-sm">X</button>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">News goes here…</p>
+      </div>
     </div>
+  </div>
 </template>
-<!-- Apps Widget Template -->
-<template id="template-apps">
-    <div class="col-lg-4 col-md-6 col-sm-12 my-3 sortable-item" data-id="apps">
-        <div class="card shadow h-100">
-            <div class="card-header bg-ofx-blue text-white">
-                <h5>📱 My Apps</h5>
-                <button class="delete-widget-btn btn btn-sm text-white position-absolute fw-bold" 
-                style="top: 5px; right: 5px; font-size: 1.1rem; background: transparent; border: none;">X
-            </button>
-            </div>
-            <div class="card-body">
-                <ul><li>Your subscribed apps will appear here.</li></ul>
-            </div>
-        </div>
-    </div>
-</template>
-<!-- Notes Widget Template -->
-<template id="template-note">
-    <div class="sortable-item col-lg-4 col-md-6 col-sm-12 my-3" data-id="note">
-        <div class="card shadow h-100" draggable="true">
-            <div class="card-header bg-ofx-blue text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">📝 Notes</h5>
-                <button class="delete-widget-btn btn btn-sm text-white position-absolute fw-bold" 
-                style="top: 5px; right: 5px; font-size: 1.1rem; background: transparent; border: none;">X
-            </button>
-            </div>
-            <div class="card-body">
-                <textarea placeholder="Write your notes here..." class="note-textarea" rows="6"></textarea>
-            </div>
-        </div>
-    </div>
-</template>
-<!-- GeoDesk Widget Template -->
-<template id="template-geodesk">
-    <div class="col-lg-4 col-md-6 col-sm-12 my-3 sortable-item" data-id="geodesk">
-        <div class="card shadow h-100">
-            <div class="card-header bg-ofx-blue text-white">
-                <h5>🌐 GeoDesk Data</h5>
-                <button class="delete-widget-btn btn btn-sm text-white position-absolute fw-bold" 
-                style="top: 5px; right: 5px; font-size: 1.1rem; background: transparent; border: none;">X
-            </button>
-            </div>
-            <div class="card-body">
-                <h6>GeoDesk Widget Content</h6>
-            </div>
-        </div>
-    </div>
-</template>
-<!-- AgDesk Widget Template -->
-<template id="template-agdesk">
-    <div class="col-lg-4 col-md-6 col-sm-12 my-3 sortable-item" data-id="agdesk">
-        <div class="card shadow h-100">
-            <div class="card-header bg-ofx-blue text-white">
-                <h5>🌾 AgDesk Data</h5>
-                <button class="delete-widget-btn btn btn-sm text-white position-absolute fw-bold" 
-                style="top: 5px; right: 5px; font-size: 1.1rem; background: transparent; border: none;">X
-            </button>
-            </div>
-            <div class="card-body">
-                <h6>AgDesk Widget Content</h6>
-            </div>
-        </div>
-    </div>
-</template>
-<!-- Project Index Template -->
-<template id="template-projectindex">
-    <div class="col-lg-4 col-md-6 col-sm-12 my-3 sortable-item" data-id="projectindex">
-        <div class="card shadow h-100">
-            <div class="card-header bg-ofx-blue text-white">
-                <h5>📂 Project Index</h5>
-                <button class="delete-widget-btn btn btn-sm text-white position-absolute fw-bold" 
-                style="top: 5px; right: 5px; font-size: 1.1rem; background: transparent; border: none;">X
-            </button>
-            </div>
-            <div class="card-body">
-                <ul>
-                    <a href="{% url 'dashboard' %}?tab=nav-projects-tab&tabContent=nav-projects" class="btn btn-outline-primary">My Projects</a>
-                    <a href="{% url 'dashboard' %}?tab=nav-tenements-tab&tabContent=nav-tenements" class="btn btn-outline-primary">My Tenements</a>
-                </ul>
-            </div>
-        </div>
-    </div>
-</template>
-<!-- Disaster Alerts Widget Template -->
-<template id="template-disaster-alerts">
-    <div class="sortable-item col-lg-4 col-md-6 col-sm-12 my-3" data-id="disaster-alerts">
-        <div class="card shadow h-100" draggable="true">
-            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">⚠️ Disaster Alerts</h5>
-                <button class="delete-widget-btn btn btn-sm text-white position-absolute fw-bold" style="top: 5px; right: 5px; display: none; font-size: 1.1rem; background: transparent; border: none;">X</button>
-            </div>
-            <div class="card-body">
-                <ul id="disaster-alerts-list" class="list-unstyled mb-0">
-                    <li>Loading alerts...</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</template>
-<!-- Gis widget Template -->
-<template id="template-gis">
-    <div class="col-lg-4 col-md-6 col-sm-12 my-3 sortable-item" data-id="gis">
-        <div class="card shadow h-100">
-            <div class="card-header bg-ofx-blue text-white">
-                <h5>🗺️ GIS Plotter, 'refresh to use'</h5>
-                <button class="delete-widget-btn btn btn-sm text-white position-absolute fw-bold" 
-                    style="top: 5px; right: 5px; font-size: 1.1rem; background: transparent; border: none;">X
-                </button>
-            </div>
-            
-            <div class="card-body d-flex flex-column">
-                <h6 class="mb-2" style="color: black;">GIS Plotter provides a visualisation of uploaded CSV files with latitude and longitude.</h6>
-                <div class="map-container flex-grow-1 mb-3" style="height: 300px; width: 100%;">
-                    <div class="leaflet-map" style="height: 100%; width: 100%;"></div> <!-- no id -->
-                </div>
-            </div>
 
-            <div class="card-footer bg-transparent">
-                <button class="upload-button btn btn-ofx-blue w-100">Upload data <i class="fas fa-upload"></i></button> <!-- no id, only class -->
-            </div>
-        </div>
-    </div>
-</template>
+<!-- Add more widget templates as needed -->
+
 <script>
-    $(document).ready(function() {
-        // When the card is clicked, open the modal
-        $('.pause-sub').click(function() {
-            $('#subPauseModal').modal('show');
-        });
+  document.addEventListener('DOMContentLoaded', function(){
+    // Date
+    const d = new Date();
+    document.getElementById('today-date').textContent = d.toLocaleDateString(
+      undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' }
+    );
+
+    // Dashboard state
+    const dashboard = document.getElementById('dashboard');
+    const editBtn   = document.getElementById('edit-dashboard-btn');
+    const library   = document.getElementById('widgetLibraryPanel');
+
+    let sortable = new Sortable(dashboard, {
+      animation: 150, handle: '.card-header', filter: '.delete-widget-btn',
+      preventOnFilter: false, disabled: true, onEnd: saveState
     });
 
-    setTimeout(function () {
-        if (document.getElementById("flash-message") !== null)
-            document.getElementById("flash-message").style.display = "none";
-    }, 3000);
+    function createWidget(type){
+      const tpl = document.getElementById(`template-${type}`);
+      if (!tpl) return;
+      const frag = tpl.content.cloneNode(true);
+      dashboard.appendChild(frag);
+      bindDelete();
+      saveState();
+    }
+
+    function bindDelete(){
+      dashboard.querySelectorAll('.delete-widget-btn').forEach(btn=>{
+        btn.onclick = e=>{
+          const item = e.target.closest('.sortable-item');
+          if (item) item.remove();
+          saveState();
+        };
+      });
+    }
+
+    function saveState(){
+      const ids = Array.from(dashboard.querySelectorAll('.sortable-item')).map(i=>i.dataset.id);
+      localStorage.setItem('dashboardOrder', JSON.stringify(ids));
+    }
+
+    function loadState(){
+      const ids = JSON.parse(localStorage.getItem('dashboardOrder')||'[]');
+      dashboard.innerHTML = '';
+      ids.forEach(id=> createWidget(id));
+    }
+
+    editBtn.addEventListener('click', ()=>{
+      const editing = sortable.option('disabled');
+      sortable.option('disabled', !editing);
+      library.style.display = editing ? 'block' : 'none';
+      dashboard.querySelectorAll('.delete-widget-btn').forEach(btn=>{
+        btn.style.display = editing ? 'block' : 'none';
+      });
+      editBtn.textContent = editing ? 'Save Layout' : 'Edit Dashboard';
+    });
+
+    // Drag from library
+    document.querySelectorAll('.library-widget').forEach(w=>{
+      w.addEventListener('dragstart', e=>{
+        e.dataTransfer.setData('widget-type', w.dataset.widgetType);
+      });
+    });
+    dashboard.addEventListener('dragover', e=> e.preventDefault());
+    dashboard.addEventListener('drop', e=>{
+      e.preventDefault();
+      const type = e.dataTransfer.getData('widget-type');
+      if (type) createWidget(type);
+    });
+
+    loadState();
+  });
 </script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const editBtn = document.getElementById("edit-dashboard-btn");
-        const dashboard = document.querySelector('.sortable-container');
-        const widgetPanel = document.getElementById("widgetLibraryPanel");
-
-        // --- 📅 Calendar helper function 
-        function updateCalendarDates(container) {
-            // Update Date
-            const dateElement = container.querySelector("#calendar-date");
-            if (dateElement) {
-                const today = new Date();
-                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                dateElement.textContent = today.toLocaleDateString(undefined, options);
-            }
-
-            // Fetch real weather
-            const weatherElement = container.querySelector("#calendar-weather");
-            if (weatherElement) {
-                // 🌐 Call the real weather API
-                fetch('https://api.openweathermap.org/data/2.5/weather?q=Brisbane&appid=7d4cdfa178abbaa71fd283cfe69e9ce4&units=metric')
-                    .then(response => response.json())
-                    .then(data => {
-                        const temp = Math.round(data.main.temp);
-                        const description = data.weather[0].description;
-                        const iconCode = data.weather[0].icon; // e.g., "01d" for clear sky
-
-                        weatherElement.innerHTML = `
-                            <img src="https://openweathermap.org/img/wn/${iconCode}@2x.png" alt="${description}" style="height: 40px; vertical-align: middle;">
-                            <span style="font-size: 1.1rem;">${temp}°C, ${description}</span>
-                        `;
-                    })
-                    .catch(error => {
-                        console.error("Error fetching weather:", error);
-                        weatherElement.innerHTML = "Weather unavailable.";
-                    });
-            }
-        }
-    
-        function saveDashboardState() {
-            const widgetOrder = [];
-            dashboard.querySelectorAll('.sortable-item').forEach(widget => {
-                widgetOrder.push(widget.getAttribute('data-id'));
-            });
-    
-            const availableWidgets = [];
-            document.querySelectorAll('.library-widget').forEach(widget => {
-                if (widget.style.display !== "none") {
-                    availableWidgets.push(widget.getAttribute('data-widget-type'));
-                }
-            });
-    
-            localStorage.setItem('dashboardOrder', JSON.stringify(widgetOrder));
-            localStorage.setItem('availableWidgets', JSON.stringify(availableWidgets));
-        }
-    
-        function loadDashboardState() {
-            const savedOrder = JSON.parse(localStorage.getItem('dashboardOrder') || '[]');
-            const availableWidgets = JSON.parse(localStorage.getItem('availableWidgets') || '[]');
-    
-            // Restore widget order
-            if (savedOrder.length > 0) {
-                const widgetsMap = {};
-                dashboard.querySelectorAll('.sortable-item').forEach(widget => {
-                    const id = widget.getAttribute('data-id');
-                    widgetsMap[id] = widget;
-                });
-
-                dashboard.innerHTML = ""; // Clear dashboard
-                savedOrder.forEach(id => {
-                    if (widgetsMap[id]) {
-                        dashboard.appendChild(widgetsMap[id]);
-                    } else {
-                        // If widget not found in current HTML, recreate it from template
-                        createWidget(id);
-                    }
-                });
-            } else {
-                // ✨ New case: nothing in dashboardOrder → clear dashboard
-                dashboard.innerHTML = "";
-            }
-    
-            // Restore available widgets (widget library)
-            if (availableWidgets.length > 0) {
-                document.querySelectorAll('.library-widget').forEach(widget => {
-                    const id = widget.getAttribute('data-widget-type');
-                    widget.style.display = availableWidgets.includes(id) ? "block" : "none";
-                });
-            }
-        }
-        function fetchDisasterAlerts(container) {
-            const alertsList = container.querySelector("#disaster-alerts-list");
-            if (!alertsList) return;
-
-            // Sample data; replace with actual API call
-            const sampleAlerts = [
-                {
-                    title: "Severe Thunderstorm Warning",
-                    description: "Damaging winds expected in the Brisbane area.",
-                    issued: "2025-05-02T08:00:00Z"
-                },
-                {
-                    title: "Flood Watch",
-                    description: "Minor flooding expected in the Logan River.",
-                    issued: "2025-05-01T22:00:00Z"
-                }
-            ];
-
-            // Clear existing alerts
-            alertsList.innerHTML = "";
-
-            if (sampleAlerts.length === 0) {
-                alertsList.innerHTML = "<li>No current alerts.</li>";
-                return;
-            }
-
-            sampleAlerts.forEach(alert => {
-                const listItem = document.createElement("li");
-                listItem.classList.add("mb-2");
-
-                const title = document.createElement("strong");
-                title.textContent = alert.title;
-
-                const description = document.createElement("p");
-                description.classList.add("mb-0");
-                description.textContent = alert.description;
-
-                const issued = document.createElement("small");
-                issued.classList.add("text-muted");
-                issued.textContent = `Issued: ${new Date(alert.issued).toLocaleString()}`;
-
-                listItem.appendChild(title);
-                listItem.appendChild(description);
-                listItem.appendChild(issued);
-
-                alertsList.appendChild(listItem);
-            });
-        }
-        function bindDeleteButtons() {
-            document.querySelectorAll(".delete-widget-btn").forEach(button => {
-                button.onclick = function (event) {
-                    event.stopPropagation();
-                    const widget = event.target.closest('.sortable-item');
-                    if (widget) {
-                        const id = widget.getAttribute('data-id');
-                        const libraryWidget = document.querySelector(`.library-widget[data-widget-type="${id}"]`);
-                        if (libraryWidget) {
-                            libraryWidget.style.display = "block"; // Return to library
-                        }
-                        widget.remove();
-                        saveDashboardState();
-                    }
-                };
-            });
-        }
-    
-        function createWidget(widgetType) {
-            const template = document.getElementById(`template-${widgetType}`);
-            if (!template) {
-                console.warn(`No template found for widget type: ${widgetType}`);
-                return;
-            }
-
-            const clone = template.content.cloneNode(true);
-            const newWidget = clone.querySelector('.sortable-item');
-            if (!newWidget) return;
-
-            newWidget.setAttribute('data-id', widgetType);
-            dashboard.appendChild(newWidget);
-
-            bindDeleteButtons(); // 
-
-            //  in edit mode, show the X button immediately
-            if (!sortableInstance.option('disabled')) {
-                const deleteBtn = newWidget.querySelector('.delete-widget-btn');
-                if (deleteBtn) {
-                    deleteBtn.style.display = 'block';
-                }
-            }
-            
-            // Special handling for disaster alerts widget
-            if (widgetType === "disaster-alerts") {
-                fetchDisasterAlerts(newWidget);
-                setInterval(() => fetchDisasterAlerts(newWidget), 300000); 
-            }
-
-
-            // Special GIS map logic
-            if (widgetType === "gis") {
-                setTimeout(() => {
-                    const mapContainer = newWidget.querySelector(".leaflet-map");
-                    if (mapContainer) {
-                        const newMap = L.map(mapContainer).setView([-27.4698, 153.0251], 10);
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            attribution: '© OpenStreetMap contributors'
-                        }).addTo(newMap);
-                    }
-                    const uploadButton = newWidget.querySelector(".upload-button");
-                    if (uploadButton) {
-                        uploadButton.addEventListener("click", function () {
-                            $('#file_uploader_modal').modal('show');
-                            const fileUploadArea = document.getElementById('file_upload_area');
-                            if (fileUploadArea) {
-                                fileUploadArea.addEventListener('click', function () {
-                                    document.getElementById('uploaded_file').click();
-                                });
-                            }
-                            const uploadedFileInput = document.getElementById('uploaded_file');
-                            if (uploadedFileInput) {
-                                uploadedFileInput.addEventListener('change', function (e) {
-                                    const fileName = e.target.files[0].name;
-                                    const uploadArea = document.getElementById('file_upload_area');
-                                    if (uploadArea) {
-                                        uploadArea.innerHTML = `
-                                            <div class="icon"><i class="fas fa-file-csv"></i></div>
-                                            <div class="text">${fileName}</div>
-                                        `;
-                                    }
-                                });
-                            }
-                        });
-                    }
-                }, 100);
-            }
-
-            // Special Calendar logic
-            if (widgetType === "calendar") {
-                updateCalendarDates(newWidget);
-            }
-        }
-    
-        // Main Sortable instance
-        let sortableInstance = new Sortable(dashboard, {
-            animation: 150,
-            ghostClass: 'sortable-ghost',
-            handle: '.card-header',
-            filter: '.delete-widget-btn',
-            preventOnFilter: false,
-            disabled: true,
-            onEnd: saveDashboardState
-        });
-    
-        // Setup dragging from widget library
-        document.querySelectorAll(".library-widget").forEach(item => {
-            item.addEventListener("dragstart", function (e) {
-                e.dataTransfer.setData("widget-type", item.getAttribute("data-widget-type"));
-            });
-        });
-    
-        dashboard.addEventListener("dragover", function (e) {
-            e.preventDefault(); // Allow drop
-            dashboard.classList.add("drag-over"); // Optional: style during drag
-        });
-
-        dashboard.addEventListener("dragleave", function () {
-            dashboard.classList.remove("drag-over");
-        });
-
-        dashboard.addEventListener("drop", function (e) {
-            e.preventDefault();
-            dashboard.classList.remove("drag-over");
-
-            const widgetType = e.dataTransfer.getData("widget-type");
-            if (!widgetType) return;
-
-            // Hide the widget in the library
-            const libraryBtn = document.querySelector(`[data-widget-type="${widgetType}"]`);
-            if (libraryBtn) {
-                libraryBtn.style.display = "none";
-            }
-
-            // Create and add new widget
-            createWidget(widgetType);
-
-            // Save after dropping the widget
-            saveDashboardState();
-        });
-            
-        editBtn.addEventListener("click", function () {
-            const isEditing = sortableInstance.option('disabled');
-            sortableInstance.option('disabled', !isEditing);
-    
-            document.querySelectorAll(".delete-widget-btn").forEach(btn => {
-                btn.style.display = isEditing ? "block" : "none";
-            });
-    
-            editBtn.textContent = isEditing ? "Save Layout" : "Edit Dashboard";
-            widgetPanel.style.display = isEditing ? "block" : "none";
-            if (isEditing) {
-                // When entering edit mode, refresh the widget library visibility
-                document.querySelectorAll('.library-widget').forEach(widget => {
-                    const type = widget.getAttribute('data-widget-type');
-                    const dashboardWidget = dashboard.querySelector(`[data-id="${type}"]`);
-                    if (!dashboardWidget) {
-                        widget.style.display = "block"; // Show in library if not already placed
-                    } else {
-                        widget.style.display = "none";  // Hide in library if already on dashboard
-                    }
-                });
-            }
-            // When exiting edit mode, save layout
-            if (!isEditing) {
-                saveDashboardState();
-            }
-        });
-    
-        loadDashboardState();
-        bindDeleteButtons();
-        
-    });
-</script>
-<!-- Initialize the Leaflet map -->
-<script>
-    // Initialize the Leaflet map
-    const map = L.map('leaflet-map').setView([-27.4698, 153.0251], 10); // Set initial view to Brisbane
-
-    // Add a base tile layer (e.g., OpenStreetMap)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: 'Â© OpenStreetMap contributors'
-    }).addTo(map);
-
-    // Example data (replace with data from your CSV file)
-    const exampleData = [
-        { latitude: -27.4698, longitude: 153.0251, element: 'Brisbane' },
-        { latitude: -28.0167, longitude: 153.4000, element: 'Gold Coast' },
-    ];
-
-    // Plot example data
-    exampleData.forEach(point => {
-        const { latitude, longitude, element } = point;
-        L.marker([latitude, longitude])
-            .addTo(map)
-            .bindPopup(`<b>${element}</b><br>Lat: ${latitude}, Lon: ${longitude}`);
-    });
-
-    // Trigger map resize after the container is visible
-    setTimeout(() => {
-        map.invalidateSize();
-    }, 100);
-
-</script>
-<script>
-    // Trigger file input when the upload area is clicked
-    document.getElementById('file_upload_area').addEventListener('click', function () {
-        document.getElementById('uploaded_file').click();
-    });
-
-    // Display the selected file name
-    document.getElementById('uploaded_file').addEventListener('change', function (e) {
-        const fileName = e.target.files[0].name;
-        const uploadArea = document.getElementById('file_upload_area');
-        uploadArea.innerHTML = `
-            <div class="icon"><i class="fas fa-file-csv"></i></div>
-            <div class="text">${fileName}</div>
-        `;
-    });
-
-    // Handle form submission
-    document.getElementById('file_uploader_form').addEventListener('submit', function (e) {
-        e.preventDefault(); // Prevent the default form submission
-
-        const formData = new FormData(this);
-
-        // Step 1: Upload the file
-        fetch("{% url 'appboard:file_uploader' %}", {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.file_uploaded) {
-                alert('File uploaded successfully!');
-                $('#file_uploader_modal').modal('hide'); // Close the modal
-
-                // Step 2: Call the mapplotter view to process the file
-                fetch("{% url 'appboard:mapplotter' %}", {
-                    method: 'POST',
-                    body: JSON.stringify({ filepath: data.filepath }),
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}',
-                    },
-                })
-                .then(response => response.json())
-                .then(plotData => {
-                    // Step 3: Plot the data on the map
-                    if (plotData.elements && plotData.latitude && plotData.longitude) {
-                        const points = plotData.elements.map((element, index) => ({
-                            latitude: plotData.latitude[index],
-                            longitude: plotData.longitude[index],
-                            element: element,
-                        }));
-                        plotDataOnMap(points); // Call the function to plot data
-                    }
-                })
-                .catch(error => {
-                    console.error('Error processing file:', error);
-                    alert('An error occurred while processing the file.');
-                });
-            } else {
-                alert('Error uploading file.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while uploading the file.');
-        });
-    });
-
-    // Open the modal when the upload button is clicked
-    document.getElementById('upload_button').addEventListener('click', function () {
-        $('#file_uploader_modal').modal('show');
-    });
-
-    // Function to plot data on the map
-    function plotDataOnMap(points) {
-        // Clear existing markers
-        map.eachLayer(layer => {
-            if (layer instanceof L.Marker) {
-                map.removeLayer(layer);
-            }
-        });
-
-        // Plot new markers
-        points.forEach(point => {
-            const { latitude, longitude, element } = point;
-            L.marker([latitude, longitude])
-                .addTo(map)
-                .bindPopup(`<b>${element}</b><br>Lat: ${latitude}, Lon: ${longitude}`);
-        });
-    }
-</script>
-<style>
-    #widgetLibraryPanel {
-        display: none;
-        position: fixed;
-        top: 50%;
-        right: 25px;
-        transform: translateY(-50%);
-        width: 240px;
-        background: #1d2a58;
-        padding: 1.2rem;
-        border-radius: 1rem;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-        z-index: 1000;
-        color: #ffffff;
-    }
-
-    #widgetLibraryPanel h6 {
-        font-weight: 700;
-        margin-bottom: 1.5rem;
-        font-size: 1.15rem;
-        text-align: center;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-        padding-bottom: 0.5rem;
-    }
-
-    .library-widget {
-        background: #ffffff;
-        border-left: 5px solid #ffc107;
-        border-radius: 12px;
-        padding: 1rem;
-        text-align: left;
-        margin-bottom: 1rem;
-        color: #1d2a58;
-        font-weight: 600;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        cursor: grab;
-        transition: all 0.2s ease;
-    }
-
-    .library-widget:hover {
-        background: #f1f3f5;
-        transform: scale(1.02);
-    }
-
-    .library-widget small {
-        display: block;
-        margin-top: 4px;
-        font-size: 0.8rem;
-        color: #666;
-    }
-    .note-textarea {
-        border: none;
-        outline: none;
-        width: 100%;
-        resize: vertical;
-        padding: 0.5rem;
-        font-size: 1rem;
-        background-color: #fefefe;
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-        border-radius: 0.25rem;
-    }
-
-    .note-textarea:focus {
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
-    }
-</style>
-
-
 
 {% endblock %}
