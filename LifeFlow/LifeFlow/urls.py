@@ -43,6 +43,16 @@ urlpatterns = [
     # ---------- Profile / Auth ----------
     path('profile/', main_views.user_profile, name='user_profile'),
     path('UserProfile/', main_views.user_profile, name='UserProfile'),
+    path('calendar/', main_views.calendar_view, name='calendar'),
+    path('calendar/events/', main_views.calendar_events, name='calendar_events'),
+    path('calendar/events/create/', main_views.calendar_events_create, name='calendar_events_create'),
+    path('calendar/events/update/', main_views.calendar_events_update, name='calendar_events_update'),
+    path('calendar/events/delete/', main_views.calendar_events_delete, name='calendar_events_delete'),
+    path('Subscription/', main_views.SubscriptionTracker, name='Subscription'),
+    path('TaskManager/', main_views.TaskManager, name='TaskManager'),
+    path('BillManager/', main_views.BillManager, name='BillManager'),
+    path("health-manager/", main_views.health_manager, name="HealthManager"),
+    path('health/search/', main_views.health_search, name='health_search'), 
     path('register/', main_views.register, name='register'),
     path('login/', main_views.login_view, name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
@@ -96,6 +106,7 @@ urlpatterns = [
     # ---------- Deletes (from first file) ----------
     path('delete-bill/<int:bill_id>/', main_views.delete_bill, name='delete_bill'),
     path('delete-sub/<int:sub_id>/', main_views.delete_sub, name='delete_sub'),
+    path('add/<str:item_type>/', main_views.add_item, name='add_item'),
 ]
 
 # Static/media (single append)

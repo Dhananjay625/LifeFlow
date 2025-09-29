@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ project.name }} - Tasks</title>
+
+  <link rel="stylesheet" href="{% static 'index.css' %}?v=14">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <aside>
+        <nav class="nav">
+          <ul class="nav-links">
+            <li>
+              <a href="{% url 'UserProfile' %}">
+                <i class='bx bx-user'></i><span><strong>{{ user.username }}</strong></span>
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'kanban:kanbanTable' %}" class="{% if request.resolver_match.url_name == 'kanbanTable' %}active{% endif %}">
+                <i class='bx bx-columns'></i><span>Kanban</span>
+              </a>
+            </li>
+  
+            <li>
+              <a href="{% url 'calendar' %}" class="{% if request.resolver_match.url_name == 'calendar' %}active{% endif %}">
+                <i class='bx bx-calendar'></i><span>Calendar</span>
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'confirm_password' %}" class="{% if request.resolver_match.url_name == 'DocumentStorage' %}active{% endif %}">
+                <i class='bx bx-folder'></i><span>Document Manager</span>
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'Subscription' %}" class="{% if request.resolver_match.url_name == 'Subscription' %}active{% endif %}">
+                <i class='bx bx-cloud-download'></i><span>Subscription Tracker</span>
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'BillManager' %}" class="{% if request.resolver_match.url_name == 'BillManager' %}active{% endif %}">
+                <i class='bx bx-receipt'></i><span>Bill Manager</span>
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'HealthManager' %}" class="{% if request.resolver_match.url_name == 'HealthManager' %}active{% endif %}">
+                <i class='bx bx-dumbbell'></i><span>Health Manager</span>
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'FamilyManager' %}" class="{% if request.resolver_match.url_name == 'FamilyManager' %}active{% endif %}">
+                <i class='bx bx-group'></i><span>Family</span>
+              </a>
+            </li>
+            <li>
+              <a href="http://127.0.0.1:8000" target="_blank">
+                <i class='bx bx-map'></i><span>GeoDesk</span>
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'kanban:projectsKanban' %}"
+                 class="{% if request.resolver_match.url_name == 'projectsKanban' %}active{% endif %}">
+                 <i class='bx bx-briefcase'></i><span>Projects</span>
+              </a>
+            </li>
+          </ul>
+  
+          <div class="collapse-btn">
+            <a href="#" data-resize-btn>
+              <i class='bx bx-chevrons-right'></i><span>Collapse</span>
+            </a>
+          </div>
+          <div class="logout-btn">
+            <a href="{% url 'login' %}">
+              <i class='bx bx-log-out'></i><span>Logout</span>
+            </a>
+          </div>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <header class="header">
+          <div class="date">{% now "l, F j, Y" %}</div>
+          <h1>{{ project.name }}</h1>
+          <div class="page-bar">
+            <a class="btn btn-accent" href="{% url 'kanban:projectsKanban' %}">
+              <i class='bx bx-arrow-back'></i> Back to Projects
+            </a>
+          </div>
+        </header>
+  
+        <section>
+          <div class="kanban-grid">
+            {% for col in columns_ctx %}
+              <div class="kanban-col">
+                <div class="kanban-col-header">{{ col.label }}</div>
+  
+                <div class="kanban-column" data-status="{{ col.status }}">
+                  {% for task in col.items %}
+                    <div class="kanban-item task-with-actions">
+                      <div class="task-row">
+                        <span class="task-title">{{ task.title }}</span>
+                        <div class="task-actions">
+                          <!-- Edit -->
+                          <form method="post" action="{% url 'kanban:taskEdit' project.id task.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="icon-btn edit" title="Edit">
+                              <i class='bx bx-edit'></i>
+                            </button>
+                          </form>
+                          <!-- Delete -->
+                          <form method="post" action="{% url 'kanban:taskDelete' project.id task.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="icon-btn delete" title="Delete">
+                              <i class='bx bx-trash'></i>
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  {% empty %}
+                    <div class="kanban-empty">Empty</div>
+                  {% endfor %}
+  
+                  <div class="add-card">
+                    <form method="post" action="{% url 'kanban:taskAdd' project.id %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="status" value="{{ col.status }}">
+                      <div class="row">
+                        <input type="text" name="title" class="input" placeholder="Task title" required>
+                        <button type="submit" class="btn btn-accent btn-sm">
+                          <i class='bx bx-plus'></i> Add
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+  </html>

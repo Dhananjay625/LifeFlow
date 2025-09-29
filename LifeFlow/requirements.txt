@@ -1,6 +1,8 @@
 # --- Core ---
 Django>=4.2,<5.0
 python-dotenv>=1.0
+django-autocomplete-light==3.11.0  
+
 
 # --- Google OAuth & Calendar ---
 google-api-python-client>=2.0
@@ -14,3 +16,4 @@ requests>=2.31
 Pillow>=9.5
 
 
+django-autocomplete-light==3.9.4
