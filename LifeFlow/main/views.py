@@ -1302,11 +1302,9 @@ def family_task_assign(request):
     }, status=201)
 
 @csrf_exempt
+@login_required
 def upload_health_data(request):
-    """
-    Demo: Inject mock health data for Health Connect / HealthKit.
-    Later, real mobile apps will POST here.
-    """
+    """Demo: Inject mock health data for Health Connect / HealthKit."""
     if request.method != "POST":
         return HttpResponseBadRequest("POST required")
 
@@ -1325,7 +1323,6 @@ def upload_health_data(request):
         for m in metrics:
             mtype = m.get("type")
             value = m.get("value")
-
             if mtype == "steps":
                 today_metric.steps = (today_metric.steps or 0) + int(value)
             elif mtype == "calories":
@@ -1335,7 +1332,13 @@ def upload_health_data(request):
 
         today_metric.save()
 
-        return JsonResponse({"status": "ok", "date": str(today)})
+        return JsonResponse({
+            "status": "ok",
+            "date": str(today),
+            "steps": today_metric.steps,
+            "calories": today_metric.calories,
+            "water_intake": today_metric.water_intake,
+        })
     except Exception as e:
         return HttpResponseBadRequest(str(e))
 @login_required

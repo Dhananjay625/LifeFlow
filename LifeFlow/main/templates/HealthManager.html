@@ -140,49 +140,49 @@
   min-height: 48px;
   padding: .8rem 1rem;
   border-radius: 12px;
-
-  .health-btn {
-  display: inline-block;
-  padding: 10px 15px;
-  margin: 5px 0;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: bold;
-  transition: background 0.2s;
-  background-color:var(--primary-color);
+}
+/* Shared look for Health Sync buttons */
+.health-sync {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0;
 }
 
-.android-btn {
-  background: var(--primary-color) !important; 
-  color: white;
-}
-
-.health-sync button{
-  background-color: var(--secondary-color);
-}
-
-.android-btn:hover {
-  background: #d93b2c;
-}
-
-.ios-btn {
-  background: var(--primary-color) !important; 
-  color: white;
-}
-
-.ios-btn:hover {
-  background:#d93b2c;
-}
-
-.health-btn i {
-  font-size: 2em;
+.health-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  padding: .9rem 1.2rem;
+  border-radius: 14px;
+  background: #1f1f1f;
+  border: 1px solid rgba(255,255,255,.06);
+  box-shadow: 0 8px 20px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.03);
+  color: var(--text-light);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease;
 }
 
 .health-btn img {
-  height: 50px;
+  height: 28px;
   width: auto;
-  image-rendering: -webkit-optimize-contrast;
 }
+
+.health-btn:hover {
+  transform: translateY(-3px); /* lift effect */
+  box-shadow: 0 12px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.ios-btn {
+  background: #1f1f1f;
+  background-color: var(--primary-color);
+}
+
+.android-btn {
+  background: #1f1f1f;
+  background-color: var(--primary-color);
 }
   </style>
 </head>
@@ -272,17 +272,17 @@
           <button class="chip" type="button" onclick="prepQuick('water_intake','litres')">
             <i class='bx bx-droplet'></i>
             <span>Water</span>
-            <strong>{{ metrics.water_intake|default:"—" }}</strong>
+            <strong id="water-value">{{ metrics.water_intake|default:"—" }}</strong>
           </button>
           <button class="chip" type="button" onclick="prepQuick('steps','steps')">
             <i class='bx bx-walk'></i>
             <span>Steps</span>
-            <strong>{{ metrics.steps|default:"—" }}</strong>
+            <strong id="steps-value">{{ metrics.steps|default:"—" }}</strong>
           </button>
           <button class="chip" type="button" onclick="prepQuick('calories','kcal')">
             <i class='bx bx-receipt'></i>
             <span>Calories</span>
-            <strong>{{ metrics.calories|default:"—" }}</strong>
+            <strong id="calories-value">{{ metrics.calories|default:"—" }}</strong>
           </button>
         </div>
       </section>
@@ -364,14 +364,12 @@
             <i class='bx bxs-heart'></i> Connect Google Fit
           </a> -->
           <div class="health-sync">
-            <button type="button" class="health-btn ios-btn" onclick="uploadDemoData('ios')" style="background-color: var(--primary-color);">
-              <img src="/media/documents/healthkit.png" 
-                   style="height:30px; vertical-align:middle; margin-right:8px;">
+            <button type="button" class="health-btn ios-btn" onclick="uploadDemoData('ios')">
+              <img src="/media/documents/healthkit.png"  alt="HealthKit">
               Health Kit
             </button>
-            <button type="button" class="health-btn android-btn" onclick="uploadDemoData('android')" style="background-color: var(--primary-color);">
-              <img src="/media/documents/healthconnect.png" 
-                   style="height: 30px; vertical-align:middle; margin-right:8px;">
+            <button type="button" class="health-btn android-btn" onclick="uploadDemoData('android')">
+              <img src="/media/documents/healthconnect.png" alt="HealthConnect">
               Health Connect
             </button>
           </div>
@@ -465,30 +463,53 @@
     }
 
     function uploadDemoData(platform) {
-      const demoMetrics = [
-        { type: "steps", value: 1234 },
-        { type: "calories", value: 250 },
-        { type: "water_intake", value: 0.7 }
-      ];
+    const demoMetrics = [
+      { type: "steps", value: 1234 },
+      { type: "calories", value: 250 },
+      { type: "water_intake", value: 0.7 }
+    ];
 
-      fetch("{% url 'upload_health_data' %}", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": "{{ csrf_token }}"
-        },
-        body: JSON.stringify({ metrics: demoMetrics })
-      })
-        .then(res => res.json())
-        .then(data => {
-          console.log("Response:", data);
-          alert(platform.toUpperCase() + " data uploaded: " + JSON.stringify(data));
-        })
-        .catch(err => {
-          console.error("Error uploading:", err);
-          alert("Upload failed: " + err);
-        });
-    }
+    fetch("{% url 'upload_health_data' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}"
+      },
+      body: JSON.stringify({ metrics: demoMetrics })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "ok") {
+        alert(platform.toUpperCase() + " synced ✔\nSteps: " + data.steps + 
+              "\nCalories: " + data.calories + 
+              "\nWater: " + data.water_intake + "L");
+      // ✅ auto-refresh metrics section without full page reload
+        updateMetric("steps", data.steps);
+        updateMetric("calories", data.calories);
+        updateMetric("water", data.water_intake);
+      } else {
+        alert("Upload failed: " + JSON.stringify(data));
+      }
+    })
+    .catch(err => {
+      console.error("Error uploading:", err);
+      alert("Upload failed: " + err);
+    });
+  }
+  function updateMetric(metric, value) {
+  let displayValue = value;
+
+  if (metric === "water") {
+    // value is in liters → convert to milliliters
+    displayValue = Math.round(value * 1000) + " mL";
+  } else if (metric === "steps") {
+    displayValue = Math.round(value); // steps should be whole numbers
+  } else if (metric === "calories") {
+    displayValue = Math.round(value) + " kcal";
+  }
+
+  document.getElementById(metric + "-value").innerText = displayValue;
+  }
   </script>
 </body>
 </html>
