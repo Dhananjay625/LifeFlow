@@ -39,6 +39,7 @@ from django.core.mail import EmailMultiAlternatives
 # Health manager bits
 from .models import HealthMetric, Reminder, UserHealthProfile
 from .forms import HealthMetricForm, HealthProfileForm, ReminderForm
+from django.views.decorators.csrf import csrf_exempt
 
 # Support either Subscription or sub model names
 try:
@@ -1299,3 +1300,48 @@ def family_task_assign(request):
             if _model_has_field(Task, "priority") else ""
         ),
     }, status=201)
+
+@csrf_exempt
+def upload_health_data(request):
+    """
+    Demo: Inject mock health data for Health Connect / HealthKit.
+    Later, real mobile apps will POST here.
+    """
+    if request.method != "POST":
+        return HttpResponseBadRequest("POST required")
+
+    try:
+        data = json.loads(request.body)
+        metrics = data.get("metrics", [])
+        today = timezone.now().date()
+
+        # Get or create today's record
+        today_metric, _ = HealthMetric.objects.get_or_create(
+            user=request.user,
+            date=today,
+            defaults={"steps": 0, "calories": 0, "water_intake": 0},
+        )
+
+        for m in metrics:
+            mtype = m.get("type")
+            value = m.get("value")
+
+            if mtype == "steps":
+                today_metric.steps = (today_metric.steps or 0) + int(value)
+            elif mtype == "calories":
+                today_metric.calories = (today_metric.calories or 0) + int(value)
+            elif mtype == "water_intake":
+                today_metric.water_intake = (today_metric.water_intake or 0) + float(value)
+
+        today_metric.save()
+
+        return JsonResponse({"status": "ok", "date": str(today)})
+    except Exception as e:
+        return HttpResponseBadRequest(str(e))
+@login_required
+def ingest_health_data(request):
+    """
+    Placeholder view for ingesting Health Connect / HealthKit data.
+    Later you’ll connect APIs here.
+    """
+    return JsonResponse({"status": "success", "message": "Health data ingestion not yet implemented"})

@@ -85,6 +85,8 @@ urlpatterns = [
     path('health/search/', main_views.health_search, name='health_search'),
     path('reminder/<int:reminder_id>/edit/', main_views.edit_reminder, name='edit_reminder'),
     path('reminder/<int:reminder_id>/delete/', main_views.delete_reminder, name='delete_reminder'),
+    path("ingest-health-data/", main_views.ingest_health_data, name="ingest_health_data"),
+    path("upload-health-data/", main_views.upload_health_data, name="upload_health_data"),
 
     # ---------- Google Fit ----------
     path('google-fit-auth/', main_views.google_fit_auth, name="google_fit_auth"),

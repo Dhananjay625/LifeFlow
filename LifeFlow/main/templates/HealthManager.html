@@ -140,6 +140,49 @@
   min-height: 48px;
   padding: .8rem 1rem;
   border-radius: 12px;
+
+  .health-btn {
+  display: inline-block;
+  padding: 10px 15px;
+  margin: 5px 0;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background 0.2s;
+  background-color:var(--primary-color);
+}
+
+.android-btn {
+  background: var(--primary-color) !important; 
+  color: white;
+}
+
+.health-sync button{
+  background-color: var(--secondary-color);
+}
+
+.android-btn:hover {
+  background: #d93b2c;
+}
+
+.ios-btn {
+  background: var(--primary-color) !important; 
+  color: white;
+}
+
+.ios-btn:hover {
+  background:#d93b2c;
+}
+
+.health-btn i {
+  font-size: 2em;
+}
+
+.health-btn img {
+  height: 50px;
+  width: auto;
+  image-rendering: -webkit-optimize-contrast;
+}
 }
   </style>
 </head>
@@ -317,9 +360,21 @@
             {% endfor %}
           </ul>
 
-          <a href="{% url 'google_fit_auth' %}" class="google-fit-btn" style="margin-top:.8rem;">
+          <!-- <a href="{% url 'google_fit_auth' %}" class="google-fit-btn" style="margin-top:.8rem;">
             <i class='bx bxs-heart'></i> Connect Google Fit
-          </a>
+          </a> -->
+          <div class="health-sync">
+            <button type="button" class="health-btn ios-btn" onclick="uploadDemoData('ios')" style="background-color: var(--primary-color);">
+              <img src="/media/documents/healthkit.png" 
+                   style="height:30px; vertical-align:middle; margin-right:8px;">
+              Health Kit
+            </button>
+            <button type="button" class="health-btn android-btn" onclick="uploadDemoData('android')" style="background-color: var(--primary-color);">
+              <img src="/media/documents/healthconnect.png" 
+                   style="height: 30px; vertical-align:middle; margin-right:8px;">
+              Health Connect
+            </button>
+          </div>
         </div>
       </section>
     </main>
@@ -407,6 +462,32 @@
       else { title.textContent = 'Update Calories'; label.textContent = 'Calories ('+unit+')'; }
       document.getElementById('metricValue').value = '';
       openModal('quickModal');
+    }
+
+    function uploadDemoData(platform) {
+      const demoMetrics = [
+        { type: "steps", value: 1234 },
+        { type: "calories", value: 250 },
+        { type: "water_intake", value: 0.7 }
+      ];
+
+      fetch("{% url 'upload_health_data' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({ metrics: demoMetrics })
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log("Response:", data);
+          alert(platform.toUpperCase() + " data uploaded: " + JSON.stringify(data));
+        })
+        .catch(err => {
+          console.error("Error uploading:", err);
+          alert("Upload failed: " + err);
+        });
     }
   </script>
 </body>
