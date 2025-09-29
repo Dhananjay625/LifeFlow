@@ -7,6 +7,23 @@
   <title>Family - LifeFlow</title>
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'index.css' %}?v=51">
+
+  <!-- Leaflet CSS (for map) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <style>
+    /* Map modal styles */
+    .map-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999}
+    .map-wrap{position:absolute;inset:5%;background:#111;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.4);display:flex;flex-direction:column}
+    .map-head{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border-bottom:1px solid rgba(255,255,255,.08)}
+    .map-head h3{margin:0;font-size:1rem}
+    .map-close{background:transparent;border:0;color:#fff;font-size:1.1rem;cursor:pointer}
+    #mapContainer{flex:1;min-height:320px}
+  </style>
 </head>
 
 <body>
@@ -168,7 +185,7 @@
             </div>
           </form>
 
-          <!-- Delete family (real POST form with hidden family_id) -->
+          <!-- Delete family -->
           <form id="deleteFamilyForm" method="post" action="{% url 'family_delete' %}" style="margin-top:0.8rem;">
             {% csrf_token %}
             <input type="hidden" name="family_id" value="{{ family.id }}">
@@ -180,7 +197,7 @@
         </div>
       </section>
       {% else %}
-      <!-- Empty state: single centered create card -->
+      <!-- Empty state -->
       <section class="empty-family">
         <div class="card empty-card">
           <div class="card-header">
@@ -293,6 +310,7 @@
   </div>
   {% endif %}
 
+  <!-- existing scripts -->
   <script>
     // sidebar collapse
     const resizeBtn = document.querySelector("[data-resize-btn]");
@@ -339,88 +357,127 @@
       if (!confirm('Delete this family? This cannot be undone.')) e.preventDefault();
     });
 
-    // Live location (Geolocation API)
+    // Assign task (existing)
     const membersList = document.getElementById('membersList');
     membersList?.addEventListener('click', async (e) => {
-      const locBtn = e.target.closest('.location-btn');
       const assignBtn = e.target.closest('.assign-btn');
-      if (!locBtn && !assignBtn) return;
+      if (!assignBtn) return;
 
-      const item = (locBtn || assignBtn);
-      const memberId = item.getAttribute('data-member-id');
-      const name = item.getAttribute('data-member-name') || 'Member';
+      const memberId = assignBtn.getAttribute('data-member-id');
+      const name = assignBtn.getAttribute('data-member-name') || 'Member';
 
-      // Location
-      if (locBtn) {
-        if (!('geolocation' in navigator)) {
-          toast('Geolocation not supported in this browser.');
+      const title = prompt(`Assign a task to ${name}:`, '');
+      if (!title) return;
+
+      let due = prompt('Optional due date (YYYY-MM-DD or YYYY-MM-DDTHH:MM):', '');
+      due = (due || '').trim();
+
+      try {
+        const resp = await fetch("{% url 'family_task_assign' %}", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+          body: JSON.stringify({ member_id: memberId, title, due_date: due })
+        });
+        if (!resp.ok) {
+          const txt = await resp.text();
+          toast(txt || 'Failed to assign task.');
           return;
         }
-        locBtn.classList.add('loc-pulse');
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            locBtn.classList.remove('loc-pulse');
-            const { latitude, longitude, accuracy } = pos.coords;
-            toast(`${name}'s location (this device):\nLat ${latitude.toFixed(5)}, Lng ${longitude.toFixed(5)}\n±${Math.round(accuracy)}m`);
-          },
-          (err) => {
-            locBtn.classList.remove('loc-pulse');
-            const msg = err.code === 1 ? 'Location permission denied.' :
-                        err.code === 2 ? 'Position unavailable.' :
-                        'Location request timed out.';
-            toast(msg);
-          },
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
+        const data = await resp.json();
+        // Update Recent Tasks
+        const ul = document.getElementById('recentTasks');
+        if (!ul) return;
+        const emptyRow = ul.querySelector('[data-empty="1"]'); if (emptyRow) emptyRow.remove();
+        const li = `
+          <li class="task-item">
+            <input type="checkbox" disabled />
+            <label style="flex:1">
+              ${data.title.replace(/</g,'&lt;')}
+              ${data.due_date_html || ''}
+              <span class="date"> • → ${data.assigned_to || ''}</span>
+              ${data.priority_html || ''}
+            </label>
+          </li>`;
+        ul.insertAdjacentHTML('afterbegin', li);
+      } catch (err) {
+        toast('Network error.');
+      }
+    });
+  </script>
+
+  <!-- Leaflet JS (for map) -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+
+  <!-- Map modal markup -->
+  <div id="mapModal" class="map-modal" aria-modal="true" role="dialog">
+    <div class="map-wrap">
+      <div class="map-head">
+        <h3 id="mapTitle">Location</h3>
+        <button class="map-close" id="mapClose" title="Close">✕</button>
+      </div>
+      <div id="mapContainer"></div>
+    </div>
+  </div>
+
+  <!-- Map logic + hook into location button -->
+  <script>
+    const mapModal = document.getElementById('mapModal');
+    const mapClose = document.getElementById('mapClose');
+    const mapTitle = document.getElementById('mapTitle');
+    let MAP = null, MARKER = null, ACCURACY = null;
+
+    function openMapModal(){ mapModal.style.display='block'; setTimeout(()=> MAP && MAP.invalidateSize(), 50); }
+    function closeMapModal(){ mapModal.style.display='none'; }
+    mapClose?.addEventListener('click', closeMapModal);
+    mapModal?.addEventListener('click', (e)=>{ if(e.target === mapModal) closeMapModal(); });
+
+    function showMap(lat, lng, accMeters, name){
+      mapTitle.textContent = `${name} — ${lat.toFixed(5)}, ${lng.toFixed(5)} (±${Math.round(accMeters||0)}m)`;
+      if(!MAP){
+        MAP = L.map('mapContainer');
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; OpenStreetMap'
+        }).addTo(MAP);
+      }
+      MAP.setView([lat, lng], 15);
+      if(!MARKER){ MARKER = L.marker([lat,lng]).addTo(MAP); } else { MARKER.setLatLng([lat,lng]); }
+      if(ACCURACY){ MAP.removeLayer(ACCURACY); }
+      if(accMeters){ ACCURACY = L.circle([lat,lng], { radius: accMeters }).addTo(MAP); }
+      openMapModal();
+    }
+
+    // hook: location buttons -> geolocation -> map
+    membersList?.addEventListener('click', (e) => {
+      const locBtn = e.target.closest('.location-btn');
+      if(!locBtn) return;
+
+      const name = locBtn.getAttribute('data-member-name') || 'Member';
+
+      if (!('geolocation' in navigator)) {
+        toast('Geolocation not supported in this browser.');
         return;
       }
-
-      // Assign task
-      if (assignBtn) {
-        const title = prompt(`Assign a task to ${name}:`, '');
-        if (!title) return;
-
-        let due = prompt('Optional due date (YYYY-MM-DD or YYYY-MM-DDTHH:MM):', '');
-        due = (due || '').trim();
-
-        try {
-          const resp = await fetch("{% url 'family_task_assign' %}", {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': CSRF
-            },
-            body: JSON.stringify({ member_id: memberId, title, due_date: due })
-          });
-          if (!resp.ok) {
-            const txt = await resp.text();
-            toast(txt || 'Failed to assign task.');
-            return;
-          }
-          const data = await resp.json();
-          // Update UI — prepend into Recent Tasks
-          const ul = document.getElementById('recentTasks');
-          if (!ul) return;
-
-          // Remove "No tasks yet." row if exists
-          const emptyRow = ul.querySelector('[data-empty="1"]');
-          if (emptyRow) emptyRow.remove();
-
-          const li = `
-            <li class="task-item">
-              <input type="checkbox" disabled />
-              <label style="flex:1">
-                ${data.title.replace(/</g,'&lt;')}
-                ${data.due_date_html || ''}
-                <span class="date"> • → ${data.assigned_to}</span>
-                ${data.priority_html || ''}
-              </label>
-            </li>`;
-          ul.insertAdjacentHTML('afterbegin', li);
-        } catch (err) {
-          toast('Network error.');
-        }
-      }
+      locBtn.classList.add('loc-pulse');
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          locBtn.classList.remove('loc-pulse');
+          const { latitude, longitude, accuracy } = pos.coords;
+          showMap(latitude, longitude, accuracy || 0, name);
+        },
+        (err) => {
+          locBtn.classList.remove('loc-pulse');
+          const msg = err.code === 1 ? 'Location permission denied.' :
+                      err.code === 2 ? 'Position unavailable.' :
+                      'Location request timed out.';
+          toast(msg);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
     });
   </script>
 </body>

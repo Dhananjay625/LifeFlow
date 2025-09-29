@@ -7,9 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let draggedItem = null;
 
-  // --------------------------
-  // Helper: send JSON POST
-  // --------------------------
+ 
   async function postJSON(url, data = {}) {
     try {
       const res = await fetch(url, {
@@ -28,9 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --------------------------
-  // Drag & Drop
-  // --------------------------
   function makeDraggable(item) {
     item.setAttribute("draggable", "true");
     item.addEventListener("dragstart", e => {
@@ -59,9 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // --------------------------
-  // Event delegation (edit / delete)
-  // --------------------------
+
   kanban.addEventListener("click", async e => {
     const btn = e.target.closest("button");
     if (!btn) return;
