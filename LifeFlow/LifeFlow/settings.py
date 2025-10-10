@@ -14,14 +14,8 @@ from pathlib import Path
 import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-try:
-    from dotenv import load_dotenv
-    load_dotenv(BASE_DIR / ".env")
-except Exception:
-    pass
-
 DEBUG = os.getenv("DJANGO_DEBUG", "1") == "1"
+
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 if not SECRET_KEY:
     if DEBUG:
@@ -46,17 +40,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'main.apps.MainConfig',
     'dal',
     'dal_select2',
     'appboard',
     'kanban.apps.KanbanConfig',
-
 ]
-
-STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -106,8 +96,9 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "main/static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -128,7 +119,6 @@ GOOGLE_FIT_REDIRECT_URI = os.getenv(
 
 if DEBUG and (not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET):
     print("[WARN] Missing GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET in .env (dev)")
-
 
 GDAL_LIBRARY_PATH = '/opt/homebrew/Cellar/gdal/3.11.3/lib/libgdal.31.dylib'
 GEOS_LIBRARY_PATH = '/opt/homebrew/Cellar/geos/3.14.0/lib/libgeos_c.1.dylib'

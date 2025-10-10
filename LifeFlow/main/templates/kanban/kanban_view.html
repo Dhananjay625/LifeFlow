@@ -4,50 +4,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{ board.name }} - LifeFlow</title>
+  <title>Kanban - LifeFlow</title>
 
   <link rel="stylesheet" href="{% static 'index.css' %}?v=14">
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   <meta name="csrf-token" content="{{ csrf_token }}">
-
-  <style>
-    .page-bar{display:flex;align-items:center;gap:.75rem;margin:.25rem 0 1rem}
-    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1rem;border-radius:12px;border:1px solid var(--panel-brd);background:var(--primary-color);color:#0b0b0b;font-weight:700;text-decoration:none}
-    .btn:hover{filter:brightness(1.05)}
-    .btn-accent{background:var(--primary-color);border-color:transparent}
-    .btn-ghost{background:#171717;color:var(--text-light)}
-
-    .kanban-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:clamp(12px,2vw,18px)}
-    .kanban-col{background:var(--background-light);border:1px solid var(--panel-brd);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 24px rgba(0,0,0,.25)}
-    .kanban-col-header{background:var(--primary-color);color:#0b0b0b;font-weight:800;text-align:center;padding:12px;border-bottom:1px solid var(--panel-brd)}
-    .kanban-column{display:flex;flex-direction:column;gap:10px;flex:1;min-height:320px;padding:12px;background:var(--background-dark)}
-    .kanban-column.drag-over{outline:2px dashed var(--primary-color);outline-offset:3px;background:rgba(255,107,107,.06)}
-
-    .kanban-item{background:#141414;color:var(--text-light);border:1px solid var(--panel-brd);border-left:4px solid var(--primary-color);border-radius:14px;padding:12px 14px;position:relative;box-shadow:0 8px 18px rgba(0,0,0,.22);cursor:grab;transition:transform .08s ease}
-    .kanban-item:active{transform:scale(.985)}
-    .task-row{display:flex;align-items:center;gap:.5rem}
-    .task-title{display:inline-block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-    .task-actions{margin-left:auto;display:flex;gap:.35rem;opacity:0;transition:opacity .12s ease}
-    .kanban-item:hover .task-actions,.kanban-item:focus-within .task-actions{opacity:1}
-    .icon-btn{width:28px;height:28px;border-radius:9px;background:#101010;border:1px solid var(--panel-brd);display:flex;align-items:center;justify-content:center;cursor:pointer}
-    .icon-btn:hover{background:#151515}
-    .icon-btn i{font-size:1rem;color:var(--text-muted)}
-    .icon-btn.delete i{color:#ff7a7a}
-
-    .edit-group{display:flex;flex-direction:column;gap:.7rem;width:100%}
-    .title-input{width:100%;background:#0f0f0f;color:var(--text-light);border:1px solid var(--panel-brd);border-radius:10px;padding:.7rem .9rem;font-size:1rem;font-weight:500;line-height:1.4;outline:none}
-    .title-input:focus{border-color:var(--primary-color);box-shadow:0 0 0 2px rgba(255,107,107,.18)}
-    .edit-actions{display:flex;gap:.6rem;flex-wrap:wrap}
-    .btn-sm{padding:.55rem 1rem;border-radius:10px;font-size:.95rem;font-weight:700}
-
-    .add-card{display:flex;flex-direction:column;gap:.6rem;background:#141414;border:1px dashed var(--panel-brd);border-radius:12px;padding:.85rem;order:2147483647}
-    .add-card .row{display:flex;gap:.6rem;flex-wrap:wrap}
-    .add-card .input{background:#111;color:var(--text-light);border:1px solid var(--panel-brd);border-radius:10px;padding:.6rem .75rem}
-    .add-card.is-open [data-add-toggle]{display:none !important;}  /* ensure toggle hides when open */
-
-    .kanban-empty{color:var(--text-muted);text-align:center;padding:18px 0;border:1px dashed var(--panel-brd);border-radius:12px}
-    .kanban-column:has(.kanban-item) .kanban-empty{display:none}
-  </style>
 </head>
 <body>
   <div class="container">
@@ -55,7 +16,11 @@
       <nav class="nav">
         <ul class="nav-links">
           <li><a href="{% url 'UserProfile' %}"><i class='bx bx-user'></i><span><strong>{{ user.username }}</strong></span></a></li>
-          <li><a href="{% url 'kanban:kanbanTable' %}" class="{% if request.resolver_match.url_name == 'kanbanTable' %}active{% endif %}"><i class='bx bx-columns'></i><span>Kanban</span></a></li>
+          <li>
+            <a href="{% url 'kanban:kanban' %}" class="{% if request.resolver_match.url_name == 'kanban' %}active{% endif %}">
+              <i class='bx bx-columns'></i><span>Kanban</span>
+            </a>
+          </li>
           <li><a href="{% url 'calendar' %}" class="{% if request.resolver_match.url_name == 'calendar' %}active{% endif %}"><i class='bx bx-calendar'></i><span>Calendar</span></a></li>
           <li><a href="{% url 'confirm_password' %}" class="{% if request.resolver_match.url_name == 'DocumentStorage' %}active{% endif %}"><i class='bx bx-folder'></i><span>Document Manager</span></a></li>
           <li><a href="{% url 'Subscription' %}" class="{% if request.resolver_match.url_name == 'Subscription' %}active{% endif %}"><i class='bx bx-cloud-download'></i><span>Subscription Tracker</span></a></li>
@@ -64,30 +29,25 @@
           <li><a href="#"><i class='bx bx-group'></i><span>Family</span></a></li>
           <li><a href="http://127.0.0.1:8000" target="_blank"><i class='bx bx-map'></i><span>GeoDesk</span></a></li>
           <li>
-            <a href="{% url 'kanban:projectsKanban' %}"
-               class="{% if request.resolver_match.url_name == 'projectsKanban' %}active{% endif %}">
-               <i class='bx bx-briefcase'></i><span>Projects</span>
+            <a href="{% url 'kanban:projectsKanban' %}" class="{% if request.resolver_match.url_name == 'projectsKanban' %}active{% endif %}">
+              <i class='bx bx-briefcase'></i><span>Projects</span>
             </a>
           </li>
-          
         </ul>
         <div class="collapse-btn"><a href="#" data-resize-btn><i class='bx bx-chevrons-right'></i><span>Collapse</span></a></div>
         <div class="logout-btn"><a href="{% url 'login' %}"><i class='bx bx-log-out'></i><span>Logout</span></a></div>
       </nav>
     </aside>
 
-    <!-- Main content -->
     <main class="content">
       <header class="header">
         <div class="date">{% now "l, F j, Y" %}</div>
-        <h1>{{ board.name }}</h1>
-        <div class="page-bar">
-          <a class="btn btn-accent" href="{% url 'kanban:kanbanTable' %}"><i class='bx bx-arrow-back'></i> Back to boards</a>
-        </div>
+        <h1>Kanban</h1>
       </header>
 
       <section>
-        <div id="kanban" data-update-url="{% url 'kanban:kanbanUpdate' board.id %}">
+        <!-- ✅ No board.id required -->
+        <div id="kanban" data-update-url="{% url 'kanban:kanbanUpdate' 'item' %}">
           <div class="kanban-grid">
             {% for col in columns_ctx %}
               <div class="kanban-col">
@@ -98,8 +58,8 @@
                     <div class="kanban-item task-with-actions"
                          draggable="true"
                          data-id="{{ it.id }}"
-                         data-edit-url="{% url 'kanban:kanbanEditItem' board.id it.id %}"
-                         data-delete-url="{% url 'kanban:kanbanDeleteItem' board.id it.id %}">
+                         data-edit-url="{{ it.edit_url }}"
+                         data-delete-url="{{ it.delete_url }}">
                       <div class="task-row">
                         <span class="task-title">{{ it.title }}</span>
                         <div class="task-actions">
@@ -112,28 +72,26 @@
                     <div class="kanban-empty">Empty</div>
                   {% endfor %}
 
-                  <!-- + Add (collapsed by default) -->
                   <div class="add-card" data-add-card data-col="{{ col.status }}">
                     <button type="button" class="btn btn-ghost btn-sm" data-add-toggle>
                       <i class='bx bx-plus'></i> Add
                     </button>
 
-                    <!-- keep names stable for backend; avoid autofill mirroring with autocomplete off -->
-                    <form class="mini-form" method="post" action="{% url 'kanban:kanbanAddItem' board.id %}" hidden autocomplete="off">
+                    <!-- ✅ No board.id required -->
+                    <form class="mini-form" method="post"
+                          action="{% url 'kanban:kanbanAdd' 'item' %}"
+                          hidden autocomplete="off">
                       {% csrf_token %}
                       <input type="hidden" name="status" value="{{ col.status }}">
-                      <input type="text" name="title" class="input" placeholder="Task title" required
-                             autocomplete="off" autocapitalize="off" spellcheck="false">
+                      <input type="text" name="title" class="input" placeholder="Task title" required autocomplete="off">
                       <div class="row">
-                        <input type="text" name="description" class="input" placeholder="Optional description" style="flex:1"
-                               autocomplete="off" autocapitalize="off" spellcheck="false">
+                        <input type="text" name="description" class="input" placeholder="Optional description" style="flex:1" autocomplete="off">
                         <button type="submit" class="btn btn-accent btn-sm"><i class='bx bx-plus'></i> Add</button>
                         <button type="button" class="btn btn-ghost btn-sm" data-add-cancel>Cancel</button>
                       </div>
                     </form>
                   </div>
                 </div>
-
               </div>
             {% endfor %}
           </div>
@@ -142,191 +100,6 @@
     </main>
   </div>
 
-  <script src="{% static 'kanban.js' %}?v=6"></script>
-  <script>
-    const $ = (s, p=document)=>p.querySelector(s);
-    const $$ = (s, p=document)=>Array.from(p.querySelectorAll(s));
-    const csrf = () => $('meta[name="csrf-token"]')?.getAttribute('content');
-
-    // sidebar collapse
-    $("[data-resize-btn]")?.addEventListener("click", e => { e.preventDefault(); document.body.classList.toggle("sb-expanded"); });
-
-    // ---------- Add card (strict single-open, value isolation) ----------
-    const AUTO_CLOSE_MS = 10000;
-
-    function closeAllAdd() {
-      $$('.add-card').forEach(box => {
-        box.classList.remove('is-open');
-        const form = $('.mini-form', box);
-        const toggle = $('[data-add-toggle]', box);
-        if (form) {
-          form.hidden = true;
-          // hard clear to avoid “hi” echoing
-          form.querySelectorAll('input[type="text"]').forEach(i => i.value = '');
-          if (form.dataset.tid) { clearTimeout(+form.dataset.tid); form.dataset.tid=''; }
-        }
-        if (toggle) toggle.hidden = false;
-      });
-    }
-
-    $$('.add-card').forEach(box => {
-      const toggle = $('[data-add-toggle]', box);
-      const cancel = $('[data-add-cancel]', box);
-      const form   = $('.mini-form', box);
-
-      const open = () => {
-        closeAllAdd();                     
-        box.classList.add('is-open');
-        if (form) {
-          form.hidden = false;             
-          const title = form.querySelector('input[name="title"]');
-          title?.focus();
-
-          // auto-close after inactivity
-          const bump = () => {
-            clearTimeout(+form.dataset.tid);
-            form.dataset.tid = setTimeout(() => { close(); }, AUTO_CLOSE_MS);
-          };
-          form.oninput = form.onfocusin = bump;
-          bump();
-        }
-        if (toggle) toggle.hidden = true;  // hide toggle button
-      };
-
-      const close = () => {
-        box.classList.remove('is-open');
-        if (form) {
-          form.hidden = true;
-          form.reset?.();
-          if (form.dataset.tid) { clearTimeout(+form.dataset.tid); form.dataset.tid=''; }
-        }
-        if (toggle) toggle.hidden = false;
-      };
-
-      toggle?.addEventListener('click', open);
-      cancel?.addEventListener('click', close);
-      form?.addEventListener('submit', close);
-    });
-
-    // ---------- Keep Add pinned last ----------
-    function ensureAddLast(){
-      $$('.kanban-column').forEach(col=>{
-        const add = $('.add-card', col);
-        if (add && add !== col.lastElementChild) col.appendChild(add);
-      });
-    }
-    ensureAddLast();
-    const mo = new MutationObserver(ensureAddLast);
-    $$('.kanban-column').forEach(col=>mo.observe(col,{childList:true}));
-    ['dragover','drop','dragend'].forEach(ev=>document.addEventListener(ev,ensureAddLast,true));
-    document.addEventListener('kanban:updated',ensureAddLast);
-
-    // ---------- Always have an Empty placeholder, and toggle it ----------
-    function injectMissingEmpty(){
-      $$('.kanban-column').forEach(col=>{
-        if (!$('.kanban-empty', col)) {
-          const el = document.createElement('div');
-          el.className = 'kanban-empty';
-          el.textContent = 'Empty';
-          col.insertBefore(el, col.firstElementChild);
-        }
-      });
-    }
-    function refreshEmpty(){
-      injectMissingEmpty();
-      $$('.kanban-column').forEach(col=>{
-        const hasItems = !!$('.kanban-item', col);
-        $$('.kanban-empty', col).forEach(el => el.style.display = hasItems ? 'none' : '');
-      });
-    }
-    refreshEmpty();
-    document.addEventListener('dragend',refreshEmpty);
-    document.addEventListener('kanban:updated',refreshEmpty);
-
-    // ---------- Inline editing (unchanged) ----------
-    function startEdit(card){
-      if (card.classList.contains('is-editing')) return;
-      const titleEl = $('.task-title', card);
-      const old = titleEl.textContent.trim();
-
-      const wrap = document.createElement('div');
-      wrap.className = 'edit-group';
-
-      const input = document.createElement('input');
-      input.className = 'title-input';
-      input.value = old;
-      wrap.appendChild(input);
-
-      const actions = document.createElement('div');
-      actions.className = 'edit-actions';
-      wrap.appendChild(actions);
-
-      const save = document.createElement('button');
-      save.type='button'; save.className='btn btn-accent btn-sm';
-      save.innerHTML = "<i class='bx bx-check'></i> Save";
-      actions.appendChild(save);
-
-      const cancel = document.createElement('button');
-      cancel.type='button'; cancel.className='btn btn-ghost btn-sm';
-      cancel.innerHTML = "<i class='bx bx-x'></i> Cancel";
-      actions.appendChild(cancel);
-
-      // swap
-      titleEl.replaceWith(wrap);
-      $('.task-actions', card).style.display='none';
-      card.classList.add('is-editing');
-      input.focus(); input.select();
-
-      const restore = (txt) => {
-        const span = document.createElement('span');
-        span.className='task-title';
-        span.textContent = txt;
-        wrap.replaceWith(span);
-        $('.task-actions', card).style.display='flex';
-        card.classList.remove('is-editing');
-      };
-
-      async function saveNow(){
-        const url = card.getAttribute('data-edit-url');
-        const title = input.value.trim();
-        if (!title){ input.focus(); return; }
-        const res = await fetch(url, {
-          method:'POST',
-          headers:{'X-CSRFToken':$('meta[name="csrf-token"]').content,'X-Requested-With':'XMLHttpRequest','Content-Type':'application/x-www-form-urlencoded'},
-          body:new URLSearchParams({title,description:''})
-        });
-        if(!res.ok){ alert('Edit failed: '+(await res.text())); return; }
-        const data = await res.json();
-        restore(data.title);
-        document.dispatchEvent(new CustomEvent('kanban:updated'));
-      }
-      function cancelNow(){ restore(old); }
-
-      save.addEventListener('click', e=>{e.preventDefault(); saveNow();});
-      cancel.addEventListener('click', e=>{e.preventDefault(); cancelNow();});
-      input.addEventListener('keydown', e=>{
-        if(e.key==='Enter'){ e.preventDefault(); saveNow(); }
-        else if(e.key==='Escape'){ e.preventDefault(); cancelNow(); }
-      });
-      input.addEventListener('blur', ()=>{ if(card.classList.contains('is-editing')) saveNow(); });
-
-      // disable drag while editing
-      card.setAttribute('draggable','false');
-      const restoreDrag = () => card.setAttribute('draggable','true');
-      save.addEventListener('click', restoreDrag, {once:true});
-      cancel.addEventListener('click', restoreDrag, {once:true});
-    }
-
-    $$('.task-with-actions .edit').forEach(b=>b.addEventListener('click',e=>startEdit(e.currentTarget.closest('.task-with-actions'))));
-    $$('.task-with-actions .delete').forEach(b=>b.addEventListener('click',async e=>{
-      const card = e.currentTarget.closest('.task-with-actions');
-      const url  = card.getAttribute('data-delete-url');
-      if(!confirm('Delete this task?')) return;
-      const res = await fetch(url, {method:'POST', headers:{'X-CSRFToken':$('meta[name="csrf-token"]').content,'X-Requested-With':'XMLHttpRequest'}});
-      if(!res.ok){ alert('Delete failed: '+(await res.text())); return; }
-      card.remove();
-      document.dispatchEvent(new CustomEvent('kanban:updated'));
-    }));
-  </script>
+  <script src="{% static 'kanban.js' %}?v=1"></script>
 </body>
 </html>

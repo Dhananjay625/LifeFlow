@@ -1,23 +1,48 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Projects - LifeFlow</title>
 
-  <link rel="stylesheet" href="{% static 'index.css' %}?v=17">
+  <link rel="stylesheet" href="{% static 'index.css' %}?v=20">
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   <meta name="csrf-token" content="{{ csrf_token }}">
+
+  <style>
+    .kanban-column {
+      display: flex;
+      flex-direction: column;
+      min-height: 300px;
+    }
+
+    .kanban-items {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .add-card {
+      margin-top: auto;
+    }
+  </style>
 </head>
+
 <body>
   <div class="container">
-    <!-- Sidebar -->
     <aside>
       <nav class="nav">
         <ul class="nav-links">
           <li><a href="{% url 'UserProfile' %}"><i class='bx bx-user'></i></a></li>
-          <li><a href="{% url 'kanban:kanbanTable' %}"><i class='bx bx-columns'></i></a></li>
+          <li>
+            <a href="{% url 'kanban:kanban' %}"
+               class="{% if request.resolver_match.url_name == 'kanban' %}active{% endif %}">
+               <i class='bx bx-columns'></i><span>Kanban</span>
+            </a>
+          </li> 
           <li><a href="{% url 'calendar' %}"><i class='bx bx-calendar'></i></a></li>
           <li><a href="{% url 'confirm_password' %}"><i class='bx bx-folder'></i></a></li>
           <li><a href="{% url 'Subscription' %}"><i class='bx bx-cloud-download'></i></a></li>
@@ -31,7 +56,6 @@
       </nav>
     </aside>
 
-    <!-- Main content -->
     <main class="content">
       <header class="header">
         <div class="date">{% now "l, F j, Y" %}</div>
@@ -39,49 +63,59 @@
       </header>
 
       <section>
-        <div id="kanban" data-update-url="{% url 'kanban:projectsUpdate' %}">
+        <div id="kanban" data-update-url="{% url 'kanban:kanbanUpdate' 'project' %}">
           <div class="kanban-grid">
             {% for col in columns_ctx %}
-              <div class="kanban-col">
-                <div class="kanban-col-header">{{ col.label }}</div>
-
-                <div class="kanban-column" data-status="{{ col.status }}">
+            <div class="kanban-col">
+              <div class="kanban-col-header">{{ col.label }}</div>
+              <div class="kanban-column" data-status="{{ col.status }}">
+                <div class="kanban-items">
+                  {% if col.items %}
                   {% for project in col.items %}
-                    <div class="kanban-item task-with-actions"
-                         draggable="true"
-                         data-id="{{ project.id }}"
-                         data-edit-url="{% url 'kanban:projectsEdit' project.id %}"
-                         data-delete-url="{% url 'kanban:projectsDelete' project.id %}">
-                      <div class="task-row" style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;">
-                        <span class="task-title">{{ project.name }}</span>
-                        <div class="task-actions" style="display:flex;gap:.4rem;">
-                          <!-- ✅ FIXED: redirect to project’s kanban -->
-                          <a href="{% url 'kanban:projectTasksKanban' project.id %}" class="icon-btn" title="Open Project">
-                            <i class='bx bx-columns'></i>
-                          </a>
-                          <!-- edit + delete -->
-                          <button type="button" class="icon-btn edit" title="Edit"><i class='bx bx-edit'></i></button>
-                          <button type="button" class="icon-btn delete" title="Delete"><i class='bx bx-trash'></i></button>
-                        </div>
+                  <div class="kanban-item task-with-actions" draggable="true" data-id="{{ project.id }}"
+                    data-edit-url="{{ project.edit_url }}" data-delete-url="{{ project.delete_url }}">
+                    <div class="task-row">
+                      <span class="task-title">{{ project.name }}</span>
+                      <div class="task-actions">
+                        <a href="{% url 'kanban:projectTasksKanban' project.id %}" class="icon-btn"
+                          title="Open Project">
+                          <i class='bx bx-columns'></i>
+                        </a>
+                        <button type="button" class="icon-btn edit" title="Edit"><i class='bx bx-edit'></i></button>
+                        <button type="button" class="icon-btn delete" title="Delete"><i
+                            class='bx bx-trash'></i></button>
                       </div>
                     </div>
-                  {% empty %}
-                    <div class="kanban-empty">Empty</div>
-                  {% endfor %}
-
-                  <!-- Add Project -->
-                  <div class="add-card" data-add-card data-col="{{ col.status }}">
-                    <form class="mini-form" data-add-form action="{% url 'kanban:projectsAdd' %}" method="post">
-                      {% csrf_token %}
-                      <input type="hidden" name="status" value="{{ col.status }}">
-                      <div class="row">
-                        <input type="text" name="name" class="input" placeholder="Project name" required>
-                        <button type="submit" class="btn btn-accent btn-sm"><i class='bx bx-plus'></i> Add</button>
-                      </div>
-                    </form>
                   </div>
+
+                  {% endfor %}
+                  {% else %}
+                  <div class="kanban-empty">Empty</div>
+                  {% endif %}
                 </div>
+
+                <div class="add-card" data-add-card data-col="{{ col.status }}">
+                  <button type="button" class="btn btn-accent btn-sm" data-add-toggle>
+                    <i class='bx bx-plus'></i> Add
+                  </button>
+                  <form class="mini-form" data-add-form action="{% url 'kanban:kanbanAdd' 'project' %}" method="post"
+                    hidden>
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="{{ col.status }}">
+                    <div class="row">
+                      <input type="text" name="name" class="input" placeholder="Project name" required>
+                    </div>
+                    <div class="row" style="margin-top:.5rem;display:flex;gap:.5rem;">
+                      <button type="submit" class="btn btn-accent btn-sm">Save</button>
+                      <button type="button" class="btn btn-sm" data-add-cancel>Cancel</button>
+                    </div>
+                  </form>
+                </div>
+
+                <!-- End Add Project Form -->
+
               </div>
+            </div>
             {% endfor %}
           </div>
         </div>
@@ -89,107 +123,7 @@
     </main>
   </div>
 
-  <script>
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-
-    // Add project via AJAX
-    document.querySelectorAll("[data-add-form]").forEach(form => {
-      form.addEventListener("submit", async e => {
-        e.preventDefault();
-        const formData = new FormData(form);
-        const url = form.getAttribute("action");
-
-        const res = await fetch(url, {
-          method: "POST",
-          headers: { "X-CSRFToken": csrfToken },
-          body: formData
-        });
-
-        const data = await res.json();
-        if (data.ok) window.location.reload();
-        else alert(data.error || "Error adding project");
-      });
-    });
-
-    // Edit project
-    document.querySelectorAll(".task-with-actions .edit").forEach(btn => {
-      btn.addEventListener("click", async e => {
-        const card = e.currentTarget.closest(".kanban-item");
-        const newName = prompt("Edit project name:", card.querySelector(".task-title").textContent);
-        if (!newName) return;
-
-        const url = card.dataset.editUrl;
-        const res = await fetch(url, {
-          method: "POST",
-          headers: {
-            "X-CSRFToken": csrfToken,
-            "Content-Type": "application/x-www-form-urlencoded"
-          },
-          body: new URLSearchParams({ name: newName })
-        });
-
-        const data = await res.json();
-        if (data.ok) window.location.reload();
-        else alert(data.error || "Error editing project");
-      });
-    });
-
-    // Delete project
-    document.querySelectorAll(".task-with-actions .delete").forEach(btn => {
-      btn.addEventListener("click", async e => {
-        if (!confirm("Delete this project?")) return;
-        const card = e.currentTarget.closest(".kanban-item");
-
-        const url = card.dataset.deleteUrl;
-        const res = await fetch(url, {
-          method: "POST",
-          headers: { "X-CSRFToken": csrfToken }
-        });
-
-        const data = await res.json();
-        if (data.ok) card.remove();
-        else alert(data.error || "Error deleting project");
-      });
-    });
-
-    // Drag and Drop
-    const cols = document.querySelectorAll(".kanban-column");
-    let dragged = null;
-
-    document.querySelectorAll(".kanban-item").forEach(item => {
-      item.addEventListener("dragstart", e => {
-        dragged = item;
-        setTimeout(() => item.style.display = "none", 0);
-      });
-      item.addEventListener("dragend", e => {
-        dragged.style.display = "block";
-        dragged = null;
-      });
-    });
-
-    cols.forEach(col => {
-      col.addEventListener("dragover", e => e.preventDefault());
-      col.addEventListener("drop", async e => {
-        e.preventDefault();
-        if (!dragged) return;
-        col.appendChild(dragged);
-
-        const projectId = dragged.dataset.id;
-        const newStatus = col.dataset.status;
-
-        const res = await fetch(document.getElementById("kanban").dataset.updateUrl, {
-          method: "POST",
-          headers: {
-            "X-CSRFToken": csrfToken,
-            "Content-Type": "application/x-www-form-urlencoded"
-          },
-          body: new URLSearchParams({ id: projectId, status: newStatus })
-        });
-
-        const data = await res.json();
-        if (!data.ok) alert(data.error || "Error updating project status");
-      });
-    });
-  </script>
+  <script src="{% static 'kanban.js' %}?v=1"></script>
 </body>
+
 </html>

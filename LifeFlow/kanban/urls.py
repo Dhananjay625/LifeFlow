@@ -4,25 +4,25 @@ from . import views
 app_name = "kanban"
 
 urlpatterns = [
-    # General Kanban Boards
-    path("", views.kanban_table, name="kanbanTable"),
-    path("<int:board_id>/", views.kanban_view, name="kanbanView"),
-    path("<int:board_id>/update/", views.kanban_update, name="kanbanUpdate"),
-    path("<int:board_id>/add/", views.kanban_add_item, name="kanbanAddItem"),
-    path("<int:board_id>/item/<int:item_id>/edit/", views.kanban_edit_item, name="kanbanEditItem"),
-    path("<int:board_id>/item/<int:item_id>/delete/", views.kanban_delete_item, name="kanbanDeleteItem"),
+    # Single unified Kanban
+    path("", views.kanban_view, name="kanban"),
 
-    # Project Kanban
+    # Generic Add
+    path("add/<str:obj_type>/", views.kanban_add, name="kanbanAdd"),
+    path("add/<str:obj_type>/<int:parent_id>/", views.kanban_add, name="kanbanAddWithParent"),
+
+    # Generic Edit
+    path("edit/<str:obj_type>/<int:obj_id>/", views.kanban_edit, name="kanbanEdit"),
+    path("edit/<str:obj_type>/<int:parent_id>/<int:obj_id>/", views.kanban_edit, name="kanbanEditWithParent"),
+
+    # Generic Delete
+    path("delete/<str:obj_type>/<int:obj_id>/", views.kanban_delete, name="kanbanDelete"),
+    path("delete/<str:obj_type>/<int:parent_id>/<int:obj_id>/", views.kanban_delete, name="kanbanDeleteWithParent"),
+
+    # Projects
     path("projects/", views.projects_kanban, name="projectsKanban"),
-    path("projects/add/", views.project_add, name="projectsAdd"),
-    path("projects/<int:pk>/edit/", views.project_edit, name="projectsEdit"),
-    path("projects/<int:pk>/delete/", views.project_delete, name="projectsDelete"),
-    path("projects/update/", views.projects_update, name="projectsUpdate"),
+    path("projects/<int:pk>/tasks/", views.project_tasks_kanban, name="projectTasksKanban"),
 
-    # Project Tasks Kanban
-    path("projects/<int:pk>/", views.project_tasks_kanban, name="projectTasksKanban"),
-    path("projects/<int:pk>/tasks/add/", views.task_add, name="taskAdd"),
-    path("projects/<int:pk>/tasks/<int:task_id>/edit/", views.task_edit, name="taskEdit"),
-    path("projects/<int:pk>/tasks/<int:task_id>/delete/", views.task_delete, name="taskDelete"),
-    path("projects/<int:pk>/tasks/update/", views.task_update_status, name="taskUpdateStatus"),
+    path("update/<str:obj_type>/", views.kanban_update, name="kanbanUpdate"),
+    path("update/<str:obj_type>/<int:parent_id>/", views.kanban_update, name="kanbanUpdateWithParent"),
 ]

@@ -1965,7 +1965,6 @@ button.btn.btn-primary,
 .btn:not(.btn-primary):not(.btn-secondary):not(.btn-ghost) {
   background: #171717;
   color: var(--text-light);
-  border: 1px solid var(--panel-brd);
 }
 
 /* In modals, allow primary to win over the broad `.modal-content button` rule */

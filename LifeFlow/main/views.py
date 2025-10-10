@@ -1368,7 +1368,6 @@ def family_task_assign(request):
             if _model_has_field(Task, "priority") else ""
         ),
     }, status=201)
-<<<<<<< HEAD
     # ---- Task ----
     if full_id.startswith("task-"):
         task_id = full_id.split("task-")[-1]
@@ -1771,7 +1770,6 @@ def health_search(request):
     query = f"site:healthdirect.gov.au OR site:who.int OR site:cdc.gov {q}"
     params = urlencode({'q': query})
     return redirect(f"https://www.google.com/search?{params}")
-=======
 
 @csrf_exempt
 @login_required
@@ -1820,4 +1818,3 @@ def ingest_health_data(request):
     Later you’ll connect APIs here.
     """
     return JsonResponse({"status": "success", "message": "Health data ingestion not yet implemented"})
->>>>>>> 70b094c7e6213d4daa9b033025e14342fede1591

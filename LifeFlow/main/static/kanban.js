@@ -1,115 +1,228 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const kanban = document.getElementById("kanban");
-  if (!kanban) return;
+const $ = (s, p=document)=>p.querySelector(s);
+const $$ = (s, p=document)=>Array.from(p.querySelectorAll(s));
+const csrf = () => $('meta[name="csrf-token"]')?.getAttribute('content');
 
-  const updateUrl = kanban.dataset.updateUrl;
-  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+// --- Sidebar collapse ---
+$("[data-resize-btn]")?.addEventListener("click", e => {
+  e.preventDefault();
+  document.body.classList.toggle("sb-expanded");
+});
 
-  let draggedItem = null;
-
- 
-  async function postJSON(url, data = {}) {
-    try {
-      const res = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrfToken,
-        },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-      return await res.json();
-    } catch (err) {
-      console.error("Fetch error:", err);
-      return null;
+// ---------------- Add Cards (Items/Projects/Tasks) ----------------
+function closeAllAdd() {
+  $$('.add-card').forEach(box => {
+    box.classList.remove('is-open');
+    const form = $('.mini-form', box);
+    const toggle = $('[data-add-toggle]', box);
+    if (form) {
+      form.hidden = true;
+      form.reset();
+      if (form.dataset.tid) clearTimeout(+form.dataset.tid);
     }
-  }
-
-  function makeDraggable(item) {
-    item.setAttribute("draggable", "true");
-    item.addEventListener("dragstart", e => {
-      draggedItem = item;
-      e.dataTransfer.effectAllowed = "move";
-    });
-  }
-
-  document.querySelectorAll(".kanban-item").forEach(makeDraggable);
-
-  document.querySelectorAll(".kanban-column").forEach(column => {
-    column.addEventListener("dragover", e => e.preventDefault());
-
-    column.addEventListener("drop", async e => {
-      e.preventDefault();
-      if (!draggedItem) return;
-
-      const taskId = draggedItem.dataset.id;
-      const newStatus = column.dataset.status;
-
-      const data = await postJSON(updateUrl, { id: taskId, status: newStatus });
-      if (data) {
-        column.appendChild(draggedItem);
-        console.log("Task updated:", data);
-      }
-    });
+    if (toggle) toggle.hidden = false;
   });
+}
 
+$$('.add-card').forEach(box => {
+  const toggle = $('[data-add-toggle]', box);
+  const cancel = $('[data-add-cancel]', box);
+  const form   = $('.mini-form', box);
 
-  kanban.addEventListener("click", async e => {
-    const btn = e.target.closest("button");
-    if (!btn) return;
+  const open = () => {
+    closeAllAdd();
+    box.classList.add('is-open');
+    form.hidden=false;
+    form.querySelector('[name="title"], [name="name"]')?.focus();
+    if (toggle) toggle.hidden=true;
+  };
+  const close = () => {
+    box.classList.remove('is-open');
+    form.hidden=true;
+    form.reset();
+    if (toggle) toggle.hidden=false;
+  };
 
-    const card = btn.closest(".kanban-item");
-    const url = btn.dataset.url;
+  toggle?.addEventListener('click', open);
+  cancel?.addEventListener('click', close);
 
-    // Delete
-    if (btn.classList.contains("delete")) {
-      if (!confirm("Delete this task?")) return;
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "X-CSRFToken": csrfToken }
-      });
-      if (res.ok && card) {
-        card.remove();
-      }
-    }
-
-    // Edit
-    if (btn.classList.contains("edit")) {
-      const titleEl = card.querySelector(".task-title");
-      const currentTitle = titleEl?.textContent.trim();
-      const newTitle = prompt("Edit task title:", currentTitle);
-      if (!newTitle) return;
-
-      const data = await postJSON(url, { title: newTitle });
-      if (data && data.title && titleEl) {
-        titleEl.textContent = data.title;
-      }
-    }
-  });
-
- 
-  document.querySelectorAll(".add-card form").forEach(form => {
-    form.addEventListener("submit", async e => {
+  // unified add handling
+  if (form && form.dataset.bound !== "true") {
+    form.dataset.bound = "true"; 
+    form.addEventListener('submit', async e=>{
       e.preventDefault();
-
-      const formData = new FormData(form);
       const url = form.action;
-      const payload = {};
-      formData.forEach((val, key) => payload[key] = val);
+      const data = new FormData(form);
+      try {
+        const res = await fetch(url, {
+          method:'POST',
+          headers:{
+            'X-CSRFToken':csrf(),
+            'X-Requested-With':'XMLHttpRequest'
+          },
+          body:data
+        });
+        if(!res.ok) throw new Error(await res.text());
+        const item = await res.json();
 
-      const data = await postJSON(url, payload);
-      if (data && data.html) {
-        // server should return rendered HTML for the new task
-        const column = form.closest(".kanban-column");
-        column.insertAdjacentHTML("beforeend", data.html);
+        if (!item || !item.id) return;
 
-        // re-bind draggable
-        const newItem = column.querySelector(`.kanban-item[data-id="${data.id}"]`);
-        if (newItem) makeDraggable(newItem);
+        const card = buildKanbanCard(
+          item.id,
+          item.title || item.name,
+          item.edit_url,
+          item.delete_url
+        );
+
+        const itemsContainer = form.closest('.kanban-column');
+        itemsContainer.insertBefore(card, form.closest('.add-card'));
+
+        attachItemEvents(card);
+        bindDragEvents(card);
 
         form.reset();
+        form.hidden=true;
+        box.classList.remove('is-open');
+        if (toggle) toggle.hidden=false;
+        document.dispatchEvent(new CustomEvent('kanban:updated'));
+      } catch(err) {
+        alert('Add failed: '+err.message);
       }
     });
-  });
+  }
 });
+
+function buildKanbanCard(id, title, editUrl, deleteUrl) {
+  const card = document.createElement('div');
+  card.className = 'kanban-item task-with-actions';
+  card.setAttribute('draggable','true');
+  card.setAttribute('data-id', id);
+  if (editUrl) card.setAttribute('data-edit-url', editUrl);
+  if (deleteUrl) card.setAttribute('data-delete-url', deleteUrl);
+  card.innerHTML = `<div class="task-row">
+    <span class="task-title">${title}</span>
+    <div class="task-actions">
+      <button type="button" class="icon-btn edit" title="Edit"><i class='bx bx-edit'></i></button>
+      <button type="button" class="icon-btn delete" title="Delete"><i class='bx bx-trash'></i></button>
+    </div>
+  </div>`;
+  return card;
+}
+
+function refreshEmpty(){
+  $$('.kanban-column').forEach(col=>{
+    const hasItems = !!$('.kanban-item',col);
+    $$('.kanban-empty',col).forEach(el=>el.style.display=hasItems?'none':'');
+  });
+}
+refreshEmpty();
+document.addEventListener('kanban:updated',refreshEmpty);
+
+function attachItemEvents(card) {
+  $('.edit', card)?.addEventListener('click', async ()=>{
+    const newTitle = prompt("Edit:", $(".task-title", card).textContent);
+    if(!newTitle) return;
+    const res = await fetch(card.dataset.editUrl, {
+      method:"POST",
+      headers:{
+        "X-CSRFToken":csrf(),
+        "Content-Type":"application/x-www-form-urlencoded"
+      },
+      body:new URLSearchParams({title:newTitle})
+    });
+    const data = await res.json();
+    if(data.ok) $(".task-title", card).textContent = newTitle;
+    else alert(data.error||"Error editing");
+  });
+
+  $('.delete', card)?.addEventListener('click', async ()=>{
+    if(!confirm("Delete this?")) return;
+    const res = await fetch(card.dataset.deleteUrl, {
+      method:"POST",
+      headers:{"X-CSRFToken":csrf()}
+    });
+    const data = await res.json();
+    if(data.ok) {
+      card.remove();
+      document.dispatchEvent(new CustomEvent("kanban:updated"));
+    } else alert(data.error||"Delete failed");
+  });
+}
+
+// ---------------- Drag & Drop Update ----------------
+const kanban = $("#kanban");
+if (kanban) {
+  const updateUrl = kanban.dataset.updateUrl;
+  let draggedCard = null;
+
+  async function saveOrder(status, ids) {
+    try {
+      const res = await fetch(updateUrl, {
+        method:"POST",
+        headers:{
+          "X-CSRFToken":csrf(),
+          "Content-Type":"application/json",
+          "X-Requested-With":"XMLHttpRequest"
+        },
+        body: JSON.stringify({status, ids})
+      });
+      return await res.json();
+    } catch(err) {
+      console.error("Update failed:", err);
+    }
+  }
+
+  function bindDragEvents(card) {
+    if (card.dataset.dragBound) return;
+    card.dataset.dragBound = "true";
+
+    card.addEventListener("dragstart", e=>{
+      draggedCard = card;
+      setTimeout(()=> card.classList.add("dragging"), 0);
+    });
+    card.addEventListener("dragend", e=>{
+      card.classList.remove("dragging");
+      draggedCard = null;
+    });
+  }
+
+  // bind existing cards
+  $$(".kanban-item").forEach(c=>{ attachItemEvents(c); bindDragEvents(c); });
+
+  // columns
+  $$(".kanban-column").forEach(col=>{
+    col.addEventListener("dragover", e=>{
+      e.preventDefault();
+      const afterElement = getDragAfterElement(col, e.clientY);
+      if (afterElement == null) {
+        col.appendChild(draggedCard);
+      } else {
+        col.insertBefore(draggedCard, afterElement);
+      }
+    });
+
+    col.addEventListener("drop", e=>{
+      e.preventDefault();
+      col.classList.remove("drag-over");
+      const status = col.dataset.status;
+      const ids = $$("[data-id]", col).map(el=>el.dataset.id);
+      saveOrder(status, ids);
+      document.dispatchEvent(new CustomEvent("kanban:updated"));
+    });
+
+    col.addEventListener("dragenter", ()=>col.classList.add("drag-over"));
+    col.addEventListener("dragleave", ()=>col.classList.remove("drag-over"));
+  });
+
+  function getDragAfterElement(container, y) {
+    const elements = [...container.querySelectorAll(".kanban-item:not(.dragging)")];
+    return elements.reduce((closest, child)=>{
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height/2;
+      if (offset < 0 && offset > closest.offset) {
+        return {offset: offset, element: child};
+      } else {
+        return closest;
+      }
+    }, {offset: Number.NEGATIVE_INFINITY}).element;
+  }
+}
