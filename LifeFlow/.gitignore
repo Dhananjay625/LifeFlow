@@ -9,3 +9,4 @@ __pycache__/
 .env.*
 !.env.example.venv/
 .venv/
+credentials.json
