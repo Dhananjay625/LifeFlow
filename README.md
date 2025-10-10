@@ -59,3 +59,37 @@ python3 manage.py runserver
 - *CSRF verification failed (non-localhost):* set `DJANGO_ALLOWED_HOSTS` and `DJANGO_CSRF_TRUSTED_ORIGINS` for your domain.
 - *Google redirect_uri_mismatch:* the redirect URI in Google Console must exactly match `GOOGLE_REDIRECT_URI`.
 - GH013 push blocked (secrets detected): see `SECURITY.md` → Rotate & purge history.
+
+# AI Query Setup Guide
+
+- Creating OpenAI API Key 
+
+1. Visit the Official OpenAI website:
+    https://platform.openai.com/account/api-keys
+
+2. Log in (or sign up)
+
+3. Click "Create new secret key".
+
+4. Copy the generated key - it will look like this: 
+    sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+- Set API Key in the Terminal 
+Open your terminal in the project directory and run the following command line:
+    export OPENAI_API_KEY="Your_key_here"
+replace "Your_key_here" with the actual created API key. 
+
+- Run the Project
+Once you have set the API key simply run the app.
+python manage.py runserver
+
+### Troubleshooting
+To check if your API key is loaded correctly 
+- Open Django shell, run:
+    python3 manage.py shell
+- Then inside, enter the following:
+    from django.conf import settings
+    print(settings.OPENAI_API_KEY)
+
+If it prints None, the environment variable isn't set correctly.
+If it prints something like 'sk.xxxxx', your key, then Django can read it fine. 
