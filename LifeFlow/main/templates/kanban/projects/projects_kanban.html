@@ -38,6 +38,12 @@
         <ul class="nav-links">
           <li><a href="{% url 'UserProfile' %}"><i class='bx bx-user'></i></a></li>
           <li>
+            <a href="{% url 'appboard:home' %}"
+               class="{% if request.resolver_match.namespace == 'appboard' %}active{% endif %}">
+              <i class='bx bx-grid-alt'></i><span>Dashboard</span>
+            </a>
+          </li>
+          <li>
             <a href="{% url 'kanban:kanban' %}"
                class="{% if request.resolver_match.url_name == 'kanban' %}active{% endif %}">
                <i class='bx bx-columns'></i><span>Kanban</span>

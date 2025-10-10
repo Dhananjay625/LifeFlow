@@ -17,6 +17,12 @@
         <ul class="nav-links">
           <li><a href="{% url 'UserProfile' %}"><i class='bx bx-user'></i><span><strong>{{ user.username }}</strong></span></a></li>
           <li>
+            <a href="{% url 'appboard:home' %}"
+               class="{% if request.resolver_match.namespace == 'appboard' %}active{% endif %}">
+              <i class='bx bx-grid-alt'></i><span>Dashboard</span>
+            </a>
+          </li>
+          <li>
             <a href="{% url 'kanban:kanban' %}" class="{% if request.resolver_match.url_name == 'kanban' %}active{% endif %}">
               <i class='bx bx-columns'></i><span>Kanban</span>
             </a>
@@ -46,7 +52,6 @@
       </header>
 
       <section>
-        <!-- ✅ No board.id required -->
         <div id="kanban" data-update-url="{% url 'kanban:kanbanUpdate' 'item' %}">
           <div class="kanban-grid">
             {% for col in columns_ctx %}
@@ -77,7 +82,6 @@
                       <i class='bx bx-plus'></i> Add
                     </button>
 
-                    <!-- ✅ No board.id required -->
                     <form class="mini-form" method="post"
                           action="{% url 'kanban:kanbanAdd' 'item' %}"
                           hidden autocomplete="off">
