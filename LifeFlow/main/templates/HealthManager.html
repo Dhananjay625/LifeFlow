@@ -153,7 +153,7 @@
   align-items: center;
   justify-content: center;
   gap: .75rem;
-  padding: .9rem 1.2rem;
+  padding: .5rem 1.0rem;
   border-radius: 14px;
   background: #1f1f1f;
   border: 1px solid rgba(255,255,255,.06);
@@ -184,6 +184,33 @@
   background: #1f1f1f;
   background-color: var(--primary-color);
 }
+
+.ai-card textarea {
+  background: #222;
+  color: var(--text-light);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: .7rem .8rem;
+  font-size: 1rem;
+  resize: vertical;
+  outline: none;
+}
+
+.ai-card textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(255,107,107,.18);
+}
+
+.ai-card .btn-ghost {
+  background: #1f1f1f;
+  border: 1px solid rgba(255,255,255,.08);
+  color: var(--text-light);
+}
+
+.ai-card .btn-ghost:hover {
+  background: #222;
+}
+
   </style>
 </head>
 <body>
@@ -376,6 +403,25 @@
               Health Connect
             </button>
           </div>
+
+          <!-- AI Assistant Card -->
+          <div class="card ai-card" style="margin-top:1rem;">
+            <div class="card-header">
+              <h2>AI Health Assistant</h2>
+              <p class="subtext">
+                Ask for diet plans, explanations, or summaries (not a substitute for medical advice).
+              </p>
+            </div>
+
+            <div style="padding:1rem;">
+              <textarea id="aiPrompt" placeholder="e.g. Make my diet plan based on my BMI" rows="3" style="width:100%"></textarea>
+              <div style="margin-top:.5rem; display:flex; gap:.5rem;">
+                <button id="sendAiBtn" class="btn btn-primary">Ask AI</button>
+                <button id="clearAiBtn" class="btn btn-ghost">Clear</button>
+              </div>
+              <div id="aiResponse" style="margin-top:1rem; white-space:pre-wrap;"></div>
+            </div>
+          </div>
         </div>
       </section>
     </main>
@@ -486,7 +532,7 @@
         alert(platform.toUpperCase() + " synced ✔\nSteps: " + data.steps + 
               "\nCalories: " + data.calories + 
               "\nWater: " + data.water_intake + "L");
-      // ✅ auto-refresh metrics section without full page reload
+      
         updateMetric("steps", data.steps);
         updateMetric("calories", data.calories);
         updateMetric("water", data.water_intake);
@@ -513,6 +559,42 @@
 
   document.getElementById(metric + "-value").innerText = displayValue;
   }
+
+  document.getElementById("sendAiBtn").addEventListener("click", async function(){
+  const prompt = document.getElementById("aiPrompt").value.trim();
+  if (!prompt) { alert("Type a prompt"); return; }
+  const respDiv = document.getElementById("aiResponse");
+  respDiv.textContent = "Thinking...";
+
+  try {
+    const res = await fetch("{% url 'ai_query' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}",
+      },
+      body: JSON.stringify({ prompt })
+    });
+
+    const contentType = res.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      const data = await res.json();
+      if (data.ok) {
+        respDiv.textContent = data.reply;
+      } else {
+        respDiv.textContent = "Error: " + (data.error || "Unknown error");
+      }
+    } else {
+      // non-JSON (HTML) response — show text to help debug
+      const text = await res.text();
+      respDiv.textContent = "Server returned non-JSON response. See console for details.";
+      console.error("Non-JSON response from ai-query:", text);
+    }
+  } catch (err) {
+    console.error(err);
+    respDiv.textContent = "Network error: " + err;
+  }
+});
   </script>
 </body>
 </html>

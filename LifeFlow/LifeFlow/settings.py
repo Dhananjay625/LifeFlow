@@ -122,3 +122,5 @@ if DEBUG and (not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET):
 
 GDAL_LIBRARY_PATH = '/opt/homebrew/Cellar/gdal/3.11.3/lib/libgdal.31.dylib'
 GEOS_LIBRARY_PATH = '/opt/homebrew/Cellar/geos/3.14.0/lib/libgeos_c.1.dylib'
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")

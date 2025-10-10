@@ -5,6 +5,11 @@ import json
 import os
 import secrets
 
+# AI Integration
+from openai import OpenAI
+from openai import APIError, APIConnectionError, RateLimitError, AuthenticationError, OpenAIError
+import logging
+
 # django
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, get_user_model
@@ -1818,3 +1823,79 @@ def ingest_health_data(request):
     Later you’ll connect APIs here.
     """
     return JsonResponse({"status": "success", "message": "Health data ingestion not yet implemented"})
+
+# AI Integration in Health Manager Page 
+_openai_api_key = getattr(settings, "OPENAI_API_KEY", None)
+if not _openai_api_key:
+    logging.warning("OPENAI_API_KEY not set in settings. OpenAI calls will fail until configured.")
+client = OpenAI(api_key=_openai_api_key) if _openai_api_key else None
+
+@login_required
+@require_POST
+def ai_query(request):
+    """Receive AJAX prompt, call OpenAI, and return assistant reply as JSON."""
+    try:
+        try:
+            payload = json.loads(request.body.decode("utf-8"))
+        except (ValueError, json.JSONDecodeError):
+            return JsonResponse({"ok": False, "error": "Invalid JSON payload"}, status=400)
+
+        prompt = payload.get("prompt", "").strip()
+        if not prompt:
+            return JsonResponse({"ok": False, "error": "Empty prompt"}, status=400)
+
+        # Build messaging
+        system_msg = (
+            "You are a concise, helpful health assistant. Provide general advice and "
+            "explain calculations where relevant. Always include a brief medical disclaimer."
+        )
+
+        profile, _ = UserHealthProfile.objects.get_or_create(user=request.user)
+        bmi = profile.bmi() or None
+        user_context = f"User: age={profile.age}, height_cm={profile.height_cm}, weight_kg={profile.weight_kg}, bmi={bmi}"
+
+        messages = [
+            {"role": "system", "content": system_msg},
+            {"role": "system", "content": f"Context: {user_context}"},
+            {"role": "user", "content": prompt},
+        ]
+
+        # Use a cost-conscious model and token limit for dev
+        resp = client.chat.completions.create(
+            model="gpt-3.5-turbo",   # cheaper for testing; switch to gpt-4* when billing is configured
+            messages=messages,
+            max_tokens=400,          # reduce tokens to lower cost
+            temperature=0.7,
+        )
+
+        assistant_text = ""
+        if getattr(resp, "choices", None) and len(resp.choices) > 0:
+            assistant_text = resp.choices[0].message.content.strip()
+
+        return JsonResponse({"ok": True, "reply": assistant_text})
+
+    except RateLimitError:
+        logging.exception("OpenAI rate limit / quota exceeded")
+        return JsonResponse({
+            "ok": False,
+            "error": "OpenAI quota exceeded or rate-limited. Check your billing/usage on the OpenAI dashboard."
+        }, status=429)
+
+    except AuthenticationError:
+        logging.exception("OpenAI authentication failed (bad API key)")
+        return JsonResponse({
+            "ok": False,
+            "error": "OpenAI authentication failed. Ensure OPENAI_API_KEY is set correctly on the server."
+        }, status=401)
+
+    except APIError:
+        logging.exception("OpenAI API error")
+        return JsonResponse({"ok": False, "error": "OpenAI API error. Try again later."}, status=502)
+
+    except OpenAIError:
+        logging.exception("OpenAI generic error")
+        return JsonResponse({"ok": False, "error": "OpenAI error occurred."}, status=500)
+
+    except Exception:
+        logging.exception("AI query failed (unexpected)")
+        return JsonResponse({"ok": False, "error": "Internal server error (see server logs)."}, status=500)
