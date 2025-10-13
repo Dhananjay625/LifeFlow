@@ -639,7 +639,7 @@ h1 {
 }
 
 .logout-btn {
-  margin-top: 150px;
+  margin-top: 100px;
   padding-top: 1rem;
 }
 
@@ -1644,7 +1644,7 @@ main.content .title{
 /* === Kanban Styles === */
 .kanban-grid{
   display:grid;
-  grid-template-columns:repeat(5,minmax(260px,1fr));
+  grid-template-columns:repeat(5,minmax(240px,1fr));
   gap:12px;
   margin-top:20px;
 }

@@ -267,17 +267,22 @@
                <i class='bx bx-briefcase'></i><span>Projects</span>
             </a>
           </li>
+          <li>
+            <a href="{% url 'store:store'%}">
+              <i class='bx bx-store'></i><span>Appstore</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" data-resize-btn aria-label="Toggle sidebar">
+              <i class='bx bx-chevrons-right'></i><span>Expand</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'login' %}">
+              <i class='bx bx-log-out'></i><span>Logout</span>
+            </a>
+          </li>
         </ul>
-        <div class="collapse-btn">
-          <a href="#" data-resize-btn>
-            <i class='bx bx-chevrons-right'></i><span>Collapse</span>
-          </a>
-        </div>
-        <div class="logout-btn">
-          <a href="{% url 'login' %}">
-            <i class='bx bx-log-out'></i><span>Logout</span>
-          </a>
-        </div>
       </nav>
     </aside>
 
