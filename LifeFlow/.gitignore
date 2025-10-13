@@ -10,3 +10,4 @@ __pycache__/
 !.env.example.venv/
 .venv/
 credentials.json.venv/
+/Users/shivamsejwal/vscode/LifeFlow/LifeFlow/db.sqlite3
