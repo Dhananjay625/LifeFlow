@@ -7,6 +7,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from main import views as main_views
+from main import views_widgets
+from main import views
 
 urlpatterns = [
     # Admin
@@ -57,7 +59,7 @@ urlpatterns = [
 
     # ---------- Calendar ----------
     path('calendar/', main_views.calendar_view, name='calendar'),
-    path('calendar/events/', main_views.calendar_events, name='calendar_events'),
+    path('calendar/events/', views_widgets.calendar_events, name='calendar_events'),
     path('calendar/events/create/', main_views.calendar_events_create, name='calendar_events_create'),
     path('calendar/events/update/', main_views.calendar_events_update, name='calendar_events_update'),
     path('calendar/events/delete/', main_views.calendar_events_delete, name='calendar_events_delete'),
@@ -96,6 +98,16 @@ urlpatterns = [
     # ---------- Deletes (from first file) ----------
     path('delete-bill/<int:bill_id>/', main_views.delete_bill, name='delete_bill'),
     path('delete-sub/<int:sub_id>/', main_views.delete_sub, name='delete_sub'),
+
+
+    path('api/widgets/kanban/', views_widgets.kanban_summary),
+    path("api/widgets/calendar/", views_widgets.calendar_events, name="calendar_events"),
+    path('api/widgets/bills/', views_widgets.bills_summary),
+    path("api/widgets/subscription/", views_widgets.subscriptions_summary, name="subscription_summary"),
+    path("api/widgets/dashboard/", views_widgets.dashboard_summary, name="dashboard_summary"),
+    path("api/widgets/document/", views_widgets.documents_summary, name="document_summary"),
+    path('api/widgets/health/', views_widgets.health_summary),
+    path('api/widgets/family/', views_widgets.family_summary),
 ]
 
 # Static/media (single append)

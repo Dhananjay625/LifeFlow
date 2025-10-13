@@ -21,6 +21,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods, require_POST
+from main import views_widgets
+from django.utils.timezone import localtime
 
 # google api
 from google_auth_oauthlib.flow import Flow
@@ -257,21 +259,58 @@ def calendar_view(request):
     return render(request, "calendar.html", context)
 
 @login_required
-def calendar_events(request):
-    events = []
+def calendar_events_create(request):
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+    try:
+        payload = json.loads(request.body or "{}")
+        title = (payload.get("title") or "").strip()
+        if not title:
+            return HttpResponseBadRequest("Title required")
+        start_str = payload.get("start")
+        if not start_str:
+            return HttpResponseBadRequest("start required")
 
-    # Tasks (one-off)
-    for t in Task.objects.filter(user=request.user).exclude(due_date__isnull=True).values(
-        "id", "title", "due_date", "status", "priority"
-    ):
-        events.append({
-            "id": f"task-{t['id']}",
-            "title": t["title"],
-            "start": t["due_date"].isoformat() if isinstance(t["due_date"], datetime) else t["due_date"],
-            "allDay": True,
-            "extendedProps": {"type": "task", "status": t["status"], "priority": t["priority"]},
-        })
+        all_day = bool(payload.get("allDay", False))
+        due_dt = _parse_iso_to_aware(start_str, expect_date_only=all_day)
 
+        task = Task.objects.create(
+            user=request.user, title=title, due_date=due_dt, status="pending"
+        )
+
+        CalendarEvent.objects.create(
+            user=request.user,
+            title=title,
+            start=due_dt,
+            all_day=all_day,
+            type="task"
+        )
+
+        return JsonResponse({"id": f"task-{task.id}"}, status=201)
+    except Exception as e:
+        return HttpResponseBadRequest(str(e))
+
+    # --- Optional dummy fallback events (if no tasks exist) ---
+    if not events:
+        now = datetime.now()
+        events = [
+            {
+                "id": "dummy-1",
+                "title": "🩺 Doctor's Appointment",
+                "start": (now + timedelta(days=1)).isoformat(),
+                "allDay": True,
+                "extendedProps": {"type": "dummy", "status": "scheduled"},
+            },
+            {
+                "id": "dummy-2",
+                "title": "📦 Subscription Renewal",
+                "start": (now + timedelta(days=3)).isoformat(),
+                "allDay": True,
+                "extendedProps": {"type": "dummy", "status": "renew"},
+            },
+        ]
+
+    return JsonResponse({"events": events})
     # Bills
     bills_qs = Bill.objects.filter(status="active")
     if _model_has_field(Bill, "user"):

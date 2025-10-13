@@ -91,22 +91,23 @@
   </div>
 
   <!-- Widget library -->
-  <div id="widgetLibraryPanel">
-    <h6>📦 Widget Library</h6>
-    <div class="library-widget" draggable="true" data-widget-type="news">🗞️ Mining News</div>
-    <div class="library-widget" draggable="true" data-widget-type="gis">🗺️ GIS Plotter</div>
-    <div class="library-widget" draggable="true" data-widget-type="apps">📱 My Apps</div>
-    <div class="library-widget" draggable="true" data-widget-type="calendar">📅 Calendar</div>
-    <div class="library-widget" draggable="true" data-widget-type="todo">📋 To-Do List</div>
-    <div class="library-widget" draggable="true" data-widget-type="disaster-alerts">⚠️ Disaster Alerts</div>
-    <div class="library-widget" draggable="true" data-widget-type="reminder">⏰ Reminder</div>
-  </div>
+<div id="widgetLibraryPanel">
+  <h6>📦 Widget Library</h6>
+  <div class="library-widget" draggable="true" data-widget-type="dashboard">📊 Dashboard</div>
+  <div class="library-widget" draggable="true" data-widget-type="kanban">📌 Kanban</div>
+  <div class="library-widget" draggable="true" data-widget-type="calendar">📅 Calendar</div>
+  <div class="library-widget" draggable="true" data-widget-type="document">📁 Document Manager</div>
+  <div class="library-widget" draggable="true" data-widget-type="subscription">📬 Subscription Tracker</div>
+  <div class="library-widget" draggable="true" data-widget-type="bills">📄 Bill Manager</div>
+  <div class="library-widget" draggable="true" data-widget-type="health">💪 Health Manager</div>
+  <div class="library-widget" draggable="true" data-widget-type="family">👨‍👩‍👧‍👦 Family</div>
+</div>
 
   <!-- Dashboard grid -->
   <div id="dashboard" class="row g-3 sortable-container"></div>
 </main>
 
-<!-- Example template: News -->
+<!-- Templates for all widgets -->
 <template id="template-news">
   <div class="col-lg-6 col-md-8 col-sm-12 sortable-item my-3" data-id="news">
     <div class="card shadow h-100">
@@ -114,88 +115,266 @@
         <h5 class="mb-0">🗞️ Latest Mining News</h5>
         <button class="delete-widget-btn btn btn-ghost btn-sm">X</button>
       </div>
+      <div class="card-body"><p class="text-muted">News goes here…</p></div>
+    </div>
+  </div>
+</template>
+
+<template id="template-dashboard">
+  <div class="col-lg-6 col-md-8 col-sm-12 sortable-item my-3" data-id="dashboard">
+    <div class="card shadow h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">📊 Dashboard</h5>
+        <button class="delete-widget-btn btn btn-ghost btn-sm">X</button>
+      </div>
+      <div class="card-body"><p class="text-muted">Overview content…</p></div>
+    </div>
+  </div>
+</template>
+
+<template id="template-kanban">
+  <div class="col-lg-6 col-md-8 col-sm-12 sortable-item my-3" data-id="kanban">
+    <div class="card shadow h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">📌 Kanban</h5>
+        <button class="delete-widget-btn btn btn-ghost btn-sm">X</button>
+      </div>
+      <div class="card-body"><p class="text-muted">Tasks & projects…</p></div>
+    </div>
+  </div>
+</template>
+
+<template id="template-calendar">
+  <div class="col-lg-6 col-md-8 col-sm-12 sortable-item my-3" data-id="calendar">
+    <div class="card shadow h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">📅 Calendar</h5>
+        <button class="delete-widget-btn btn btn-ghost btn-sm">X</button>
+      </div>
       <div class="card-body">
-        <p class="text-muted">News goes here…</p>
+        <ul class="text-muted small mb-0"></ul> 
       </div>
     </div>
   </div>
 </template>
 
-<!-- Add more widget templates as needed -->
+<template id="template-document">
+  <div class="col-lg-6 col-md-8 col-sm-12 sortable-item my-3" data-id="document">
+    <div class="card shadow h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">📁 Document Manager</h5>
+        <button class="delete-widget-btn btn btn-ghost btn-sm">X</button>
+      </div>
+      <div class="card-body"><ul class="text-muted small mb-0"></ul></div>
+    </div>
+  </div>
+</template>
 
+<template id="template-subscription">
+  <div class="col-lg-6 col-md-8 col-sm-12 sortable-item my-3" data-id="subscription">
+    <div class="card shadow h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">📬 Subscription Tracker</h5>
+        <button class="delete-widget-btn btn btn-ghost btn-sm">X</button>
+      </div>
+      <div class="card-body"><ul class="text-muted small mb-0"></ul></div>
+    </div>
+  </div>
+</template>
+
+<template id="template-bills">
+  <div class="col-lg-6 col-md-8 col-sm-12 sortable-item my-3" data-id="bills">
+    <div class="card shadow h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">📄 Bill Manager</h5>
+        <button class="delete-widget-btn btn btn-ghost btn-sm">X</button>
+      </div>
+      <div class="card-body"><ul class="text-muted small mb-0"></ul></div>
+    </div>
+  </div>
+</template>
+
+<template id="template-health">
+  <div class="col-lg-6 col-md-8 col-sm-12 sortable-item my-3" data-id="health">
+    <div class="card shadow h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">💪 Health Manager</h5>
+        <button class="delete-widget-btn btn btn-ghost btn-sm">X</button>
+      </div>
+      <div class="card-body"><p class="text-muted">Loading health data…</p></div>
+    </div>
+  </div>
+</template>
+
+<template id="template-family">
+  <div class="col-lg-6 col-md-8 col-sm-12 sortable-item my-3" data-id="family">
+    <div class="card shadow h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">👨‍👩‍👧‍👦 Family</h5>
+        <button class="delete-widget-btn btn btn-ghost btn-sm">X</button>
+        <button class="edit-widget-btn btn btn-ghost btn-sm">✏️</button>
+      </div>
+      <div class="card-body"><ul class="text-muted small mb-0"></ul></div>
+    </div>
+  </div>
+</template>
+
+<!-- Dashboard Script -->
 <script>
-  document.addEventListener('DOMContentLoaded', function(){
-    // Date
-    const d = new Date();
-    document.getElementById('today-date').textContent = d.toLocaleDateString(
-      undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' }
-    );
+document.addEventListener('DOMContentLoaded', function(){
+  const dashboard = document.getElementById('dashboard');
+  const editBtn   = document.getElementById('edit-dashboard-btn');
+  const library   = document.getElementById('widgetLibraryPanel');
 
-    // Dashboard state
-    const dashboard = document.getElementById('dashboard');
-    const editBtn   = document.getElementById('edit-dashboard-btn');
-    const library   = document.getElementById('widgetLibraryPanel');
+  const dateDiv = document.getElementById("today-date");
+  const now = new Date();
+  const options = { weekday: "short", month: "short", day: "numeric", year: "numeric" };
+  if (dateDiv) {
+    dateDiv.textContent = now.toLocaleDateString("en-AU", options);
+  }
+  
 
-    let sortable = new Sortable(dashboard, {
-      animation: 150, handle: '.card-header', filter: '.delete-widget-btn',
-      preventOnFilter: false, disabled: true, onEnd: saveState
-    });
-
-    function createWidget(type){
-      const tpl = document.getElementById(`template-${type}`);
-      if (!tpl) return;
-      const frag = tpl.content.cloneNode(true);
-      dashboard.appendChild(frag);
-      bindDelete();
-      saveState();
-    }
-
-    function bindDelete(){
-      dashboard.querySelectorAll('.delete-widget-btn').forEach(btn=>{
-        btn.onclick = e=>{
-          const item = e.target.closest('.sortable-item');
-          if (item) item.remove();
-          saveState();
-        };
-      });
-    }
-
-    function saveState(){
-      const ids = Array.from(dashboard.querySelectorAll('.sortable-item')).map(i=>i.dataset.id);
-      localStorage.setItem('dashboardOrder', JSON.stringify(ids));
-    }
-
-    function loadState(){
-      const ids = JSON.parse(localStorage.getItem('dashboardOrder')||'[]');
-      dashboard.innerHTML = '';
-      ids.forEach(id=> createWidget(id));
-    }
-
-    editBtn.addEventListener('click', ()=>{
-      const editing = sortable.option('disabled');
-      sortable.option('disabled', !editing);
-      library.style.display = editing ? 'block' : 'none';
-      dashboard.querySelectorAll('.delete-widget-btn').forEach(btn=>{
-        btn.style.display = editing ? 'block' : 'none';
-      });
-      editBtn.textContent = editing ? 'Save Layout' : 'Edit Dashboard';
-    });
-
-    // Drag from library
-    document.querySelectorAll('.library-widget').forEach(w=>{
-      w.addEventListener('dragstart', e=>{
-        e.dataTransfer.setData('widget-type', w.dataset.widgetType);
-      });
-    });
-    dashboard.addEventListener('dragover', e=> e.preventDefault());
-    dashboard.addEventListener('drop', e=>{
-      e.preventDefault();
-      const type = e.dataTransfer.getData('widget-type');
-      if (type) createWidget(type);
-    });
-
-    loadState();
+  let sortable = new Sortable(dashboard, {
+    animation: 150,
+    handle: '.card-header',
+    filter: '.delete-widget-btn',
+    preventOnFilter: false,
+    disabled: true,
+    onEnd: saveState
   });
+
+  function createWidget(type){
+    const tpl = document.getElementById(`template-${type}`);
+    if (!tpl) return;
+    const frag = tpl.content.cloneNode(true);
+    dashboard.appendChild(frag);
+    bindDelete();
+    loadWidgetData(type);
+    saveState();
+  }
+
+  function bindDelete(){
+    dashboard.querySelectorAll('.delete-widget-btn').forEach(btn => {
+      btn.onclick = e => {
+        const item = e.target.closest('.sortable-item');
+        if (item) item.remove();
+        saveState();
+      };
+    });
+  }
+
+  function loadWidgetData(type) {
+    const widget = dashboard.querySelector(`.sortable-item[data-id="${type}"]`);
+    if (!widget) return;
+    const body = widget.querySelector('.card-body');
+    const url = `/api/widgets/${type}/`;
+    console.log("🚀 Widget loading triggered:", type);
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        if (type === "kanban") {
+          body.innerHTML = `<p class="text-muted">Pending: ${data.summary.pending || 0}, Completed: ${data.summary.completed || 0}, Archived: ${data.summary.archived || 0}</p>`;
+        } else if (type === "calendar") {
+          const ul = body.querySelector('ul');
+          ul.innerHTML = '';
+          data.forEach(ev => {   // our Django view returns a plain list now
+            const li = document.createElement('li');
+            const creator = ev.created_by || 'Anonymous';   // new field we added
+            const date = ev.start ? ev.start.split('T')[0] : 'No date';
+            li.textContent = `${ev.title} (by ${creator}) on ${date}`;
+            ul.appendChild(li);
+          });
+        } else if (type === "bills") {
+          const ul = body.querySelector('ul');
+          ul.innerHTML = '';
+          data.bills.forEach(b => {
+            const li = document.createElement('li');
+            li.textContent = `${b.name} - $${b.cost} (due ${b.renewal})`;
+            ul.appendChild(li);
+          });
+        } else if (type === "subscription") {
+          const ul = body.querySelector('ul');
+          ul.innerHTML = '';
+          data.subscriptions.forEach(s => {
+            const li = document.createElement('li');
+            li.textContent = `${s.name} - $${s.cost} (renews ${s.renewal})`;
+            ul.appendChild(li);
+          });
+        } else if (type === "document") {
+          const ul = body.querySelector('ul');
+          ul.innerHTML = '';
+          data.documents.forEach(d => {
+            const li = document.createElement('li');
+            li.textContent = `${d.name} (uploaded ${d.uploaded})`;
+            ul.appendChild(li);
+          });
+        } else if (type === "health") {
+          if (data.metrics) {
+            body.innerHTML = `<p class="text-muted">
+              Date: ${data.metrics.date}<br>
+              Water: ${data.metrics.water} L<br>
+              Steps: ${data.metrics.steps}<br>
+              Calories: ${data.metrics.calories}
+            </p>`;
+          } else {
+            body.innerHTML = `<p class="text-muted">No health metrics found.</p>`;
+          }
+        } else if (type === "family") {
+          const ul = body.querySelector('ul');
+          ul.innerHTML = '';
+          data.families.forEach(f => {
+            const li = document.createElement('li');
+            li.textContent = `${f.name} (role: ${f.role})`;
+            ul.appendChild(li);
+          });
+        }
+      })
+      .catch(err => {
+        console.error(`Widget ${type} error:`, err);
+        body.innerHTML = `<p class="text-danger">Failed to load data.</p>`;
+      });
+  }
+
+  function saveState(){
+    const ids = Array.from(dashboard.querySelectorAll('.sortable-item')).map(i => i.dataset.id);
+    localStorage.setItem('dashboardOrder', JSON.stringify(ids));
+  }
+
+  function loadState(){
+    let ids = JSON.parse(localStorage.getItem('dashboardOrder') || '[]');
+    if (ids.length === 0) {
+      ids = ["calendar", "document", "subscription", "bills", "health", "family"];
+    }
+    dashboard.innerHTML = '';
+    ids.forEach(id => createWidget(id));
+  }
+
+  editBtn.addEventListener('click', () => {
+    const editing = sortable.option('disabled');
+    sortable.option('disabled', !editing);
+    library.style.display = editing ? 'block' : 'none';
+    dashboard.querySelectorAll('.delete-widget-btn').forEach(btn => {
+      btn.style.display = editing ? 'block' : 'none';
+    });
+    editBtn.textContent = editing ? 'Save Layout' : 'Edit Dashboard';
+  });
+
+  document.querySelectorAll('.library-widget').forEach(w => {
+    w.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('widget-type', w.dataset.widgetType);
+    });
+  });
+
+  dashboard.addEventListener('dragover', e => e.preventDefault());
+  dashboard.addEventListener('drop', e => {
+    e.preventDefault();
+    const type = e.dataTransfer.getData('widget-type');
+    if (type) createWidget(type);
+  });
+
+  loadState();
+});
 </script>
 
 {% endblock %}

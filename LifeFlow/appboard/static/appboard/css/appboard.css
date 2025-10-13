@@ -267,6 +267,39 @@ table.dataTable tbody tr:hover,
     border-radius: 0 0 12px 12px;
 }
 
+.calendar-widget {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.08);
+    padding: 16px;
+    min-width: 280px;
+    max-width: 400px;
+    margin-bottom: 20px;
+  }
+  
+  .calendar-widget h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .calendar-widget .event {
+    background: #fef1e1;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .calendar-widget .event-date {
+    font-weight: bold;
+    color: #ff8040;
+  }
+
 /* ------------------------------------ Accounts Dropdown ------------------------------------ */
 .account-menu {
     width: 300px;

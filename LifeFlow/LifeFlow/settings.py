@@ -132,3 +132,14 @@ if DEBUG and (not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET):
 
 GDAL_LIBRARY_PATH = '/opt/homebrew/Cellar/gdal/3.11.3/lib/libgdal.31.dylib'
 GEOS_LIBRARY_PATH = '/opt/homebrew/Cellar/geos/3.14.0/lib/libgeos_c.1.dylib'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+#SMTP
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_HOST = 'smtp.gmail.com'
+#EMAIL_PORT = 587
+#EMAIL_USE_TLS = True
+#EMAIL_HOST_USER = 'your_email@gmail.com'
+#EMAIL_HOST_PASSWORD = 'your_app_password'
