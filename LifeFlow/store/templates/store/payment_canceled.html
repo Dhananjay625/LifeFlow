@@ -1,0 +1,58 @@
+{% extends 'appboard/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md mx-auto">
+    <div class="bg-white rounded-lg shadow-sm p-8 text-center space-y-6">
+
+      <!-- Red Cancel Icon -->
+      <div class="mx-auto w-fit mb-4">
+        <svg class="w-24 h-24 custom-red animate-cancel" 
+             fill="none" 
+             stroke="currentColor"
+             style="width: 4rem; height: 4rem;" 
+             viewBox="0 0 24 24">
+          <path stroke-linecap="round" 
+                stroke-linejoin="round" 
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </div>
+
+      <div class="space-y-4">
+        <h1 class="text-3xl font-bold">
+          Transaction Cancelled
+        </h1>
+        
+        <div class="space-y-2">
+          <p>Unfortunately, your payment didn't go through :(</p>
+          <p>Please try again</p>
+        </div>
+
+        <div class="flex justify-center gap-8 mt-8">
+          <a href="{% url 'store' %}" 
+             class="py-3 px-6 ">
+            Back to Home
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes cancel-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+  .animate-cancel { 
+    animation: cancel-shake 0.4s ease-in-out;
+  }
+  .custom-red { color: #EF4444; }
+</style>
+
+
+{% endblock %}

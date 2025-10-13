@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'appboard',
     'kanban.apps.KanbanConfig',
 
+     "store.apps.StoreConfig", 
 ]
 
 STATIC_URL = "/static/"
@@ -142,3 +143,13 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 #EMAIL_USE_TLS = True
 #EMAIL_HOST_USER = 'your_email@gmail.com'
 #EMAIL_HOST_PASSWORD = 'your_app_password'
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY", "")
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+
+SITE_URL = os.getenv("SITE_URL", "http://127.0.0.1:8001")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "no-reply@lifeflow.local")
+CUSTOMER_SERVICE_EMAIL = os.getenv("CUSTOMER_SERVICE_EMAIL", "support@lifeflow.local")
+CUSTOMER_SERVICE_TELEPHONE = os.getenv("CUSTOMER_SERVICE_TELEPHONE", "+61 000 000 000")

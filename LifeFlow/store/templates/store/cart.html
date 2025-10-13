@@ -1,0 +1,193 @@
+{% extends 'appboard/base.html' %}
+{% comment %}
+
+    The primary shopping cart template.
+
+{% endcomment %}
+{% load static %}
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <h5>Shopping Cart</h5>
+        {% if order.items.all %}
+        <table id="product-table" class="table">
+            {% for order_item in order.items.all %}
+                <tr>
+                    <td class="p-3">
+                        <div class="d-flex flex-wrap align-items-start" data-item-id="{{ order_item.id }}">
+                            {# Thumbnail #}
+                            <div class="me-3">
+                                {% if order_item.product.image_name %}
+                                    <img src="{% static 'images/' %}{{ order_item.product.image_name }}_640x360.png"
+                                         class="img-thumbnail" style="width: 100px; height: auto;" alt="{{ order_item.product.name }}">
+                                {% else %}
+                                    <img src="{% static 'images/placeholder.png' %}"
+                                         class="img-thumbnail" style="width: 100px; height: auto;" alt="Placeholder">
+                                {% endif %}
+                            </div>
+
+                            {# Product Info #}
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-1">
+                                        <a class="text-decoration-none text-dark" href="{{ order_item.product.url }}">
+                                            {{ order_item.product.name }}
+                                        </a>
+                                    </h5>
+                                    <span class="fw-bold">${{ order_item.price.price }}</span>
+                                </div>
+
+                                <p class="mb-1 text-muted">{{ order_item.product.long_description }}</p>
+
+                                <div class="mb-2 small">
+                                    {% for tag in order_item.product.tags.all %}
+                                        <span class="badge bg-secondary me-1">{{ tag.name }}</span>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="me-2">Quantity:</span>
+                                    <span data-quantity class="fw-semibold">{{ order_item.quantity }}</span>
+                                    <button class="btn btn-sm btn-outline-secondary" data-action="remove"><i class="fa fa-minus"></i></button>
+                                    <button class="btn btn-sm btn-outline-primary" data-action="add"><i class="fa fa-plus"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td>
+                    Total Price: $<span id="order-total-price">{{ total_price }}</span>
+                </td>
+            </tr>
+        </table>
+        <div class="text-end">
+            <a class="btn btn-sm btn-ofx-gray" href="{% url 'store:store' %}">Continue Shopping</a>
+            <a class="btn btn-sm btn-ofx-blue" href="{% url 'store:checkout' %}">Checkout</a>
+        </div>
+        {% else %}
+            <p class="text-muted mb-0">Your cart is empty.</p>
+        {% endif %}
+    </div>
+</div>
+<script>
+    $(document).ready( () => {
+
+        $('#product-table').on('click', 'button[data-action]', function (e) {
+            const $button = $(this);
+            const $itemContainer = $button.closest('div[data-item-id]');
+
+            let orderItemId = $itemContainer.data('item-id');
+            let action = $button.data('action');
+
+            $.ajax({
+                url: "{% url 'store:update_cart' %}",
+
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': "{{ csrf_token }}",
+                },
+                data: {
+                    item_id: orderItemId,
+                    action: action,
+                },
+                success: function (response) {
+                    const $container = $('#item-' + orderItemId);
+                    const $quantity = $itemContainer.find('[data-quantity]');
+
+                    console.log(response)
+
+                    if (response.quantity > 0) {
+                        $quantity.text(response.quantity);
+                    } else {
+                        $container.remove();  {# Remove entire row #}
+                    }
+
+                    $('#order-total-price').text(response.total_price);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Update failed:", error)
+                }
+            })
+        });
+
+
+    });
+</script>
+{% endblock content %}
+
+{% comment %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="box-element">
+            <a class="btn btn-outline-dark" href="{% url 'store:store' %}">&#x2190; Continue Shopping</a>
+            <br><br>
+            <table class="table">
+                <tr>
+                    <th><h5>Items: <strong>{{ total_quantity }}</strong></h5></th>
+                    <th><h5>Total: <strong>${{ total_price }}</strong></h5></th>
+                    <th>
+                        <a class="btn btn-ofx-blue" href="{% url 'store:checkout' %}">Checkout</a>
+                    </th>
+                </tr>
+            </table>
+        </div>
+        <br>
+        <div class="box-element">
+            <div class="cart-row">
+                <div style="flex:2"></div>
+                <div style="flex:2"><strong>Item</strong></div>
+                <div style="flex:1"><strong>Price</strong></div>
+                <div style="flex:1"><strong>Quantity</strong></div>
+                <div style="flex:1"><strong></strong></div>  <!--  for delete product icon -->
+                <div style="flex:1"><strong>Total</strong></div>
+            </div>
+            {% for item in items %}
+            <div class="cart-row">
+                <div style="flex:2">
+                    {% if item.product.image_name %}
+                        <img class="row-image" src="{% static 'images/' %}{{ item.product.image_name }}_640x360.png" alt="{{ item.product.name }}">
+                    {% else %}
+                        <img class="row-image" src="{% static 'images/placeholder.png' %}" alt="Placeholder Image">
+                    {% endif %}
+                </div>
+                <div style="flex:2"><p>{{ item.product.name }}</p></div>
+                <div style="flex:1"><p>${{ item.product.price }}</p></div>
+               <div style="flex:1">
+                    <p class="quantity">{{ item.quantity }}</p>
+                    <div class="quantity">
+                        <img class="chg-quantity" src="{% static 'images/arrow-up.png' %}" data-product="{{ item.product.id }}" data-action="add">
+                        <img class="chg-quantity" src="{% static 'images/arrow-down.png' %}" data-product="{{ item.product.id }}" data-action="remove">
+                    </div>
+                </div> 
+                <div style="flex:1">
+                    <div>
+                        <img id="delete-product-icon" class="delete-product" src="{% static 'images/delete-product.png' %}" data-product="{{ item.product.id }}" data-action="delete_product">
+                    </div>
+                </div>
+                <div style="flex:1"><p>${{ item.total_price }}</p></div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% else %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="box-element">
+            <a class="btn btn-outline-dark" href="{% url 'store:store' %}">&#x2190; Continue Shopping</a>
+            <br><br><br>
+            <div style="margin:0 auto; text-align: center;">
+                <p> No items currently in your cart. Let's get shopping! </p>
+                <p> 
+                    <a href="{% url 'store:store' %}">Continue Shopping</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endcomment %}

@@ -1,0 +1,74 @@
+{% extends 'appboard/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md mx-auto">
+            <div class="bg-white rounded-lg shadow-sm p-8 text-center space-y-6">
+
+                <!-- Checkmark Icon -->
+                <div class="flex justify-center mb-4">
+                    <svg class="w-24 h-24 custom-green animate-checkmark"
+                         fill="none"
+                         stroke="currentColor"
+                         style="width: 6rem; height: 6rem;"
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+
+                <!-- Main Content -->
+                <div class="space-y-4">
+                    <h1 class="text-2xl font-bold text-gray-900">
+                        Thank you, {{ user.full_name }}! 🎉
+                    </h1>
+                    <p class="text-gray-600">
+                        Your payment was successful and your digital access has been granted.
+                    </p>
+                </div>
+
+                <!-- Additional Info -->
+                <div class="text-sm text-gray-500 space-y-2">
+                    <p>A confirmation email has been sent to {{ user.email }}</p>
+                    <p>Need help? <a href="mailto:admin@orefox.com" class="text-green-600 hover:underline">Contact
+                        Support</a></p>
+                </div>
+
+                <div class="flex justify-center gap-8 mt-8">
+                    <a href="{% url 'store:store' %}"
+                       class="py-3 px-6 ">
+                        Back to Home
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes checkmark {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            80% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .animate-checkmark {
+            animation: checkmark 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.12) forwards;
+            transform-origin: center;
+        }
+
+        .custom-green {
+            color: #25be37;
+        }
+    </style>
+
+{% endblock %}

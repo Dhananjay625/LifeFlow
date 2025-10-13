@@ -1,0 +1,79 @@
+{% extends 'appboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center my-4">
+        <h2 class="m-0">Checkout</h2>
+        <a href="{% url 'store:store' %}" 
+           class="btn d-flex align-items-center justify-content-center"
+           style="background:#FF6B6B; color:#fff; border-radius:50%; width:42px; height:42px; box-shadow:0 6px 12px rgba(0,0,0,.3); text-decoration:none;">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+      </div>
+    
+    {% if error %}
+    <div class="alert alert-danger">
+        {{ error }}
+    </div>
+    {% endif %}
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Order Summary</h5>
+                    {% for item in items %}
+                    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                        <div class="d-flex align-items-center">
+                            <!-- Product Image -->
+                            <div class="mr-3" style="width: 100px; height: 100px;">
+                                {% if item.product.image_url %}
+                                    <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" 
+                                         class="img-fluid rounded" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% else %}
+                                    <img src="{% static 'images/placeholder.png' %}" alt="placeholder" 
+                                         class="img-fluid rounded" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% endif %}
+                            </div>
+                            <!-- Product Details -->
+                            <div>
+                                <h6 class="mb-1">{{ item.product.name }}</h6>
+                                <small class="text-muted">Quantity: {{ item.quantity }}</small>
+                                <div class="mt-1">${{ item.product.price }} each</div>
+                            </div>
+                        </div>
+                        <!-- Item Total -->
+                        <div class="h5 mb-0">${{ item.get_total }}</div>
+                    </div>
+                    {% endfor %}
+                    <hr>
+                    <!-- Order Summary -->
+                    {% comment %} <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div class="text-muted">Subtotal</div>
+                        <div>${{ total_price }}</div>
+                    </div> {% endcomment %}
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <h5>Total</h5>
+                        <h5>${{ total }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Payment</h5>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            Proceed to Payment
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

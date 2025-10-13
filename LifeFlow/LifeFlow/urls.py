@@ -21,6 +21,7 @@ urlpatterns = [
     path("kanban/", include(("kanban.urls", "kanban"), namespace="kanban")),
     path('dashboard/', main_views.dashboard, name='dashboard'),
     path('dashboard-v2/', include(('appboard.urls', 'appboard'), namespace='appboard')),
+    path("store/", include(("store.urls", "store"), namespace="store")),
 
     # ---------- Family ----------
     # Menu page (wrapper using real data)
@@ -46,7 +47,7 @@ urlpatterns = [
     path('profile/', main_views.user_profile, name='user_profile'),
     path('UserProfile/', main_views.user_profile, name='UserProfile'),
     path('calendar/', main_views.calendar_view, name='calendar'),
-    path('calendar/events/', main_views.calendar_events, name='calendar_events'),
+    path('calendar/events/', main_views.calendar_view, name='calendar_view'),
     path('calendar/events/create/', main_views.calendar_events_create, name='calendar_events_create'),
     path('calendar/events/update/', main_views.calendar_events_update, name='calendar_events_update'),
     path('calendar/events/delete/', main_views.calendar_events_delete, name='calendar_events_delete'),

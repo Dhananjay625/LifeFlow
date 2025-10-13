@@ -1,0 +1,19 @@
+{% comment %}
+
+    Template for rendering an item in the small shopping cart on the store page.
+
+{% endcomment %}
+<tr id="{{ order_item.product.id }}">
+    <td><a href="{{ order_item.product.url }}">{{ order_item.product.name }}</a></td>
+    <td data-type="price" data-value="{{ order_item.price.price }}">${{ order_item.price.price }}</td>
+    <td data-type="quantity" data-value="{{ order_item.quantity }}">{{ order_item.quantity }}</td>
+    <td>
+        <div class="d-flex align-items-center">
+            {% if not order_item.product.single_purchase_only %}
+            <button data-action="sub" class="btn-ofx-fa btn-ofx-fa-red"><i class="fa-solid fa-minus"></i></button>
+            <button data-action="add" class="btn-ofx-fa btn-ofx-fa-blue"><i class="fa-solid fa-plus"></i></button>
+            {% endif %}
+            <button data-action="rem" class="btn-ofx-fa btn-ofx-fa-red"><i class="fa-solid fa-trash"></i></button>
+        </div>
+    </td>
+</tr>
