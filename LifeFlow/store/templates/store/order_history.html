@@ -1,0 +1,326 @@
+{% extends 'appboard/base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<style>
+  /* ==== Scoped to Order History only ==== */
+  .order-history-page{
+    color: var(--text-light, #eee);
+  }
+
+  /* Cards / surface */
+  .order-history-page .card{
+    background: var(--background-light, #1f1f1f);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 14px;
+    box-shadow: 0 10px 22px rgba(0,0,0,.28);
+  }
+  .order-history-page .card-body{ padding: 1.1rem 1.1rem 1.2rem; }
+
+  /* Headings */
+  .order-history-page h2.my-4{
+    margin-top: .5rem!important;
+    color: var(--primary-color, #FF6B6B);
+    font-weight: 800;
+    letter-spacing: .02em;
+  }
+
+  /* Tabs with orange buttons */
+  .order-history-page .tabs{ margin-top: .75rem; }
+  .order-history-page .tab-buttons{
+    display:flex; gap:.5rem; margin-bottom: .9rem;
+  }
+  .order-history-page .tab-buttons button{
+    -webkit-appearance:none; appearance:none;
+    border:none; outline:none;
+    background:#262626; color:var(--text-light,#eee);
+    padding:.55rem .9rem; border-radius:999px;
+    font-weight:700; letter-spacing:.15px;
+    box-shadow:0 6px 16px rgba(0,0,0,.25);
+    cursor:pointer;
+  }
+  .order-history-page .tab-buttons button.active{
+    background: var(--primary-color, #FF6B6B);
+    color:#fff;
+  }
+  .order-history-page .tab-content{ display:none; }
+  .order-history-page .tab-content.active{ display:block; }
+
+  /* Tables */
+  .order-history-page table{ width:100%; border-collapse:collapse; }
+  .order-history-page td{
+    padding:.45rem .25rem;
+    vertical-align: top;
+  }
+  .order-history-page hr{
+    border-color: rgba(255,255,255,.08);
+    margin:.6rem 0 .8rem;
+  }
+  .order-history-page .text-muted{ color: var(--text-muted,#bbb)!important; }
+
+  /* Small, themed buttons for row actions (refund/cancel/etc.)  */
+  .order-history-page .btn-oh{
+    display:inline-flex; align-items:center; justify-content:center;
+    gap:.35rem; padding:.4rem .7rem; min-height:34px;
+    border-radius:10px; font-weight:700; text-decoration:none;
+    border: none;
+    box-shadow:0 6px 16px rgba(0,0,0,.22);
+    transition: transform .06s, filter .15s;
+    white-space: nowrap;
+  }
+  .order-history-page .btn-oh:hover{ transform: translateY(-1px); filter: brightness(.98); }
+
+  .order-history-page .btn-primary-oh{ background: var(--primary-color,#FF6B6B); color:#fff; }
+  .order-history-page .btn-ghost-oh{ background:#232323; color:#eee; border:1px solid rgba(255,255,255,.12); }
+
+  /* Thumbnail cells */
+  .order-history-page .thumb{
+    width:72px; height:48px; object-fit:cover; border-radius:8px; display:block;
+    background:#111; border:1px solid rgba(255,255,255,.06);
+  }
+
+  /* Lists of actions inside the far-right column */
+  .order-history-page ol{
+    list-style:none; padding:0; margin:0;
+    display:flex; flex-wrap:wrap; gap:.4rem;
+  }
+
+  /* Make the two tab panels breathe on small screens */
+  @media (max-width: 720px){
+    .order-history-page td[style*="width: 20%"]{ width:auto!important; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container order-history-page">
+    <div class="d-flex justify-content-between align-items-center my-4">
+        <h2 class="m-0">Order History</h2>
+        <a href="{% url 'store:store' %}" 
+           class="btn d-flex align-items-center justify-content-center"
+           style="background:#FF6B6B; color:#fff; border-radius:50%; width:42px; height:42px; box-shadow:0 6px 12px rgba(0,0,0,.3); text-decoration:none;">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+      </div>
+      
+
+  <div class="tabs">
+    <div class="tab-buttons">
+      <button data-tab="orders" class="active">Orders</button>
+      <button data-tab="subscriptions">Subscriptions</button>
+    </div>
+
+    <!-- ================= ORDERS ================= -->
+    <div class="tab-content active" id="orders" role="tabpanel" aria-labelledby="order-tab">
+      {% if orders %}
+        {% for order in orders.all %}
+        <div class="card m-2">
+          <div class="card-body" data-order-id="{{ order.order_number }}">
+            <table>
+              <tbody>
+                <tr>
+                  <td style="width: 15%;">Order Placed</td>
+                  <td style="width: 15%;">Total</td>
+                  <td style="width: 50%;" class="text-muted">Order #{{ order.order_number }}</td>
+                  <td style="width: 20%;" rowspan="2">
+                    <ol>
+                      {% if order.can_refund %}
+                        <li>
+                          <a href="#" class="btn-oh btn-primary-oh" data-action="refund">Refund Order</a>
+                        </li>
+                      {% endif %}
+                    </ol>
+                  </td>
+                </tr>
+                <tr>
+                  <td>{{ order.created_at|date:'d b Y' }}</td>
+                  <td>${{ order.total_price }}</td>
+                  <td><a href="{{ order.receipt_url }}" class="btn-oh btn-ghost-oh">Invoice</a></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <hr>
+
+            {% for item in order.items.all %}
+            <table data-item-id="{{ item.id }}">
+              <tbody>
+                <tr>
+                  <td style="width: 8%; padding-right:10px;" rowspan="2">
+                    {% if item.product.thumbnail %}
+                      <img src="{{ item.product.thumbnail.url }}" class="thumb" alt="thumbnail">
+                    {% else %}
+                      <img src="{% static 'store/images/placeholder.png' %}" class="thumb" alt="Placeholder">
+                    {% endif %}
+                  </td>
+                  <td style="width: 62%;">
+                    <a href="{{ item.product.url }}" class="text-decoration-none">{{ item.product.name }}</a>
+                    x {{ item.quantity }}
+                  </td>
+                  <td style="width: 10%;">Cost</td>
+                  <td style="width: 20%;" rowspan="2">
+                    <ol>
+                      {% if order.can_refund and not item.refunded %}
+                      <li>
+                        <a href="#" class="btn-oh btn-primary-oh" data-action="refund">Refund Item</a>
+                      </li>
+                      {% endif %}
+                    </ol>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-muted">{{ item.product.description }}</td>
+                  <td>${{ item.price.amount_dollars }}</td>
+                </tr>
+              </tbody>
+            </table>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="card m-2">
+          <div class="card-body"><div class="text-center">No Orders Yet!</div></div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- ================= SUBSCRIPTIONS ================= -->
+    <div class="tab-content" id="subscriptions" role="tabpanel" aria-labelledby="subscription-tab">
+      {% if subscriptions %}
+        {% for subscription in subscriptions.all %}
+        <div class="card m-2">
+          <div class="card-body" data-sub-id="{{ subscription.get_subscription_id }}">
+            <table>
+              <tbody>
+                <tr>
+                  <td style="width: 15%;">Date Started</td>
+                  <td style="width: 15%;">Cost</td>
+                  <td style="width: 50%;" class="text-muted">
+                    Sub #{{ subscription.get_subscription_id|upper }}
+                  </td>
+                  <td style="width: 20%;" rowspan="2">
+                    <ol>
+                      {% if subscription.is_active %}
+                        <li><a href="#" class="btn-oh btn-primary-oh" data-action="cancel">Cancel</a></li>
+                      {% endif %}
+                      {% if subscription.status == 'past_due' %}
+                        <li><a href="#" class="btn-oh btn-primary-oh" data-action="retry">Retry Payment</a></li>
+                      {% elif subscription.can_refund %}
+                        <li><a href="#" class="btn-oh btn-primary-oh" data-action="refund">Refund</a></li>
+                      {% endif %}
+                    </ol>
+                  </td>
+                </tr>
+                <tr>
+                  <td>{{ subscription.created_at|date:'d b Y' }}</td>
+                  <td>${{ subscription.price.amount_dollars }} p/{{ subscription.price.billing_interval }}</td>
+                  <td><a href="{{ subscription.receipt_url }}" class="btn-oh btn-ghost-oh">Latest Invoice</a></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <hr>
+
+            <table>
+              <tbody>
+                <tr>
+                  <td style="width: 8%; padding-right:10px;" rowspan="2">
+                    {% if subscription.product.thumbnail %}
+                      <img src="{{ subscription.product.thumbnail.url }}" class="thumb" alt="thumbnail">
+                    {% else %}
+                      <img src="{% static 'store/images/placeholder.png' %}" class="thumb" alt="Placeholder">
+                    {% endif %}
+                  </td>
+                  <td style="width: 28%;">
+                    <a href="{{ subscription.product.url }}" class="text-decoration-none">
+                      {{ subscription.product.name }}
+                    </a>
+                  </td>
+                  <td style="width: 14%;">Status</td>
+                  <td style="width: 30%;">
+                    {% if subscription.is_active %}Next Payment{% else %}End Date{% endif %}
+                  </td>
+                  <td style="width: 20%;" rowspan="2"></td>
+                </tr>
+                <tr>
+                  <td class="text-muted">{{ subscription.product.description }}</td>
+                  <td>{{ subscription.get_status_display }}</td>
+                  <td>
+                    {% if subscription.is_active %}
+                      {{ subscription.current_period_end|date:"j F, Y" }}
+                    {% else %}
+                      {{ subscription.ended_at|date:"j F, Y" }}
+                    {% endif %}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="card m-2">
+          <div class="card-body"><div class="text-center">No Subscriptions Yet!</div></div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+  // tabs
+  document.addEventListener("DOMContentLoaded", function () {
+    const buttons = document.querySelectorAll(".tab-buttons button");
+    const contents = document.querySelectorAll(".tab-content");
+    buttons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-tab");
+        buttons.forEach(b => b.classList.remove("active"));
+        contents.forEach(c => c.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(id).classList.add("active");
+      });
+    });
+  });
+
+  // existing ajax handlers unchanged
+  $(document).ready(function () {
+    function postOrderRequest(url, context) {
+      $.ajax({
+        type: "POST",
+        headers: {'X-CSRFToken': "{{ csrf_token }}"},
+        url: url,
+        data: context,
+        success: function (data) {}
+      });
+    }
+
+    $(document).on('click', '*[data-sub-id] a[data-action]', function (e) {
+      e.stopImmediatePropagation();
+      const $wrap = $(this).closest('div[data-sub-id]');
+      postOrderRequest("{% url 'store:history_subscription' %}", {
+        id: $wrap.data('sub-id'), action: $(this).data('action')
+      });
+    });
+
+    $(document).on('click', '*[data-item-id] a[data-action]', function (e) {
+      e.stopImmediatePropagation();
+      const $item = $(this).closest('*[data-item-id]');
+      const $order = $(this).closest('*[data-order-id]');
+      postOrderRequest("{% url 'store:history_item' %}", {
+        id: $item.data('item-id'), order: $order.data('order-id'), action: $(this).data('action')
+      });
+    });
+
+    $(document).on('click', '*[data-order-id] a[data-action]', function (e) {
+      e.stopImmediatePropagation();
+      const $order = $(this).closest('*[data-order-id]');
+      postOrderRequest("{% url 'store:history_order' %}", {
+        id: $order.data('order-id'), action: $(this).data('action')
+      });
+    });
+  });
+</script>
+{% endblock content %}

@@ -19,6 +19,7 @@ urlpatterns = [
     path("kanban/", include(("kanban.urls", "kanban"), namespace="kanban")),
     path('dashboard/', main_views.dashboard, name='dashboard'),
     path('dashboard-v2/', include(('appboard.urls', 'appboard'), namespace='appboard')),
+    path("store/", include(("store.urls", "store"), namespace="store")),
 
     # ---------- Family ----------
     # Menu page (wrapper using real data)

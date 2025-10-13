@@ -1,0 +1,22 @@
+{% comment %}
+  Slimmed partial for embedding in the sidebar card.
+  No heading or outer buttons; those live in the parent card.
+{% endcomment %}
+{% load static %}
+
+<table id="shopping-cart" class="table table-dark table-sm mb-0" {% if not shopping_cart %}hidden{% endif %}>
+  <thead>
+    <tr>
+      <th>Item</th>
+      <th>Price</th>
+      <th>Qty</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody id="shopping-cart-items">
+    {% for order_item in shopping_cart %}
+      {% include "store/cart_small_item.html" with order_item=order_item %}
+    {% empty %}
+    {% endfor %}
+  </tbody>
+</table>

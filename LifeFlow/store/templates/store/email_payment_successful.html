@@ -1,0 +1,56 @@
+<!DCOTYPE html>
+<html>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <head>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box;}
+        </style>
+    </head>
+    <body style="background-color: #f6f6f6">
+        <div style="width: 50%; min-width: 550px; margin: 0 auto; border: 1px solid #f6f7fb; text-align: center; padding-top: 20px;">
+            <h2>Thank you for your payment.</h2>
+            <div style="margin: 15px 0">
+                <p>
+                    This email is confirmation of your purchase, a summary of
+                    the transaction is below.
+                </p>
+            </div>
+
+            <div style="width: 50%; max-width: 300px; background-color: #000 !important; color: #fff; margin: 0 auto; height: 40px; line-height: 40px; border-radius: 50px;">
+                <a href="{{ receipt_url }}" target="_blank" style="color: #fff !important;text-decoration: none;cursor: pointer !important;font-size: 13px; font-weight: bold; text-align: center !important;">
+                    Download Tax Invoice/Receipt
+                </a>
+            </div>
+
+            <div>
+                <div style="width: 70%; margin: 30px auto; background-color: #ddd !important; padding: 20px 30px; border-radius: 10px; overflow: hidden;">
+                    <!-- left content -->
+                    <div style="text-align: left;width: 47%;float: left;">
+                        <p>
+                          <div style="font-weight: bold;margin-bottom: 8px;">Transaction ID</div>
+                          <div style="white-space: normal; word-wrap: break-word;">{{ transaction_id }}</div>
+                        </p>
+                        <br />
+                        <p>
+                            <b style="margin-right: 20px;">Total</b>${{  total_price }}
+                        </p>
+                    </div>
+
+                    <div style="text-align: left;width: 47%;float: left; margin-left: 6%;">
+                      <div style="font-weight: bold;margin-bottom: 8px;">Transaction Date</div>
+                      <div>{{ transaction_date }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: right; width: 70%; margin: 0 auto; margin-top: 20px; padding-left: 55px; padding-bottom: 30px;">
+                <p>
+                    Need help?<br />
+                    Contact us on our below details for assistance<br />
+                    {{ contact_phone }}<br />
+                    {{ contact_email }}
+                </p>
+            </div>
+        </div>
+    </body>
+</html>
