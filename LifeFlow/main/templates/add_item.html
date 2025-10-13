@@ -146,6 +146,7 @@
   </style>
 </head>
 
+<!-- ... head unchanged ... -->
 <body>
   <div class="form-container">
     <h2>Add {{ item_type|capfirst }}</h2>
@@ -153,6 +154,7 @@
       {% csrf_token %}
 
       {% if item_type == "bill" %}
+        <!-- bill fields -->
         <div class="form-group">
           <label for="name">Bill Name</label>
           <input type="text" name="name" id="name" required>
@@ -171,6 +173,7 @@
         </div>
 
       {% elif item_type == "subscription" %}
+        <!-- subscription fields -->
         <div class="form-group">
           <label for="name">Subscription Name</label>
           <input type="text" name="name" id="name" required>
@@ -189,6 +192,7 @@
         </div>
 
       {% elif item_type == "document" %}
+        <!-- document fields -->
         <div class="form-group">
           <label for="doc_name">Document Name</label>
           <input type="text" name="doc_name" id="doc_name" required>
@@ -199,6 +203,7 @@
         </div>
 
       {% elif item_type == "task" %}
+        <!-- task fields -->
         <div class="form-group">
           <label for="title">Task Title</label>
           <input type="text" name="title" id="title" required>
@@ -211,16 +216,19 @@
           <label for="due_date">Due Date</label>
           <input type="date" name="due_date" id="due_date">
         </div>
-
       {% endif %}
 
+      {# Show Add-to-Calendar for everything EXCEPT documents #}
+      {% if item_type != "document" %}
       <div class="calendar-check">
         <input type="checkbox" name="add_to_calendar" id="add_to_calendar">
         <label for="add_to_calendar">Add to Calendar</label>
       </div>
+      {% endif %}
 
       <div class="form-actions">
-        <button type="submit" class="add-btn"> Add {{ item_type|capfirst }}</button>
+        <button type="submit" class="add-btn">Add {{ item_type|capfirst }}</button>
+
         {% if item_type == "task" %}
           <a href="{% url 'TaskManager' %}" class="cancel-btn">Cancel</a>
         {% elif item_type == "document" %}
@@ -230,8 +238,6 @@
         {% elif item_type == "bill" %}
           <a href="{% url 'BillManager' %}" class="cancel-btn">Cancel</a>
         {% endif %}
-
-            
       </div>
     </form>
   </div>

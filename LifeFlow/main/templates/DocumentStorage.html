@@ -11,6 +11,7 @@
 
 <body>
   <div class="container">
+    <!-- Sidebar -->
     <aside>
       <nav class="nav">
         <ul class="nav-links">
@@ -81,37 +82,37 @@
       </nav>
     </aside>
 
+    <!-- Main content -->
     <main class="content">
       <header class="header">
-        <div class="date">Monday, December 14, 2025</div>
+        <div class="date">{% now "l, F j, Y" %}</div>
         <h1>Document Storage</h1>
       </header>
 
       <section class="subscription-list">
-{% for doc in documents %}
-<div class="subscription-item" style="display: flex; justify-content: space-between; align-items: center;">
-  <div class="details">
-    <h3>{{ doc.doc_name }}</h3>
-    <a href="{{ doc.file.url }}" target="_blank" style="color: #FF6B6B; text-decoration: underline;">View</a>
-  </div>
-  <button class="delete-btn" data-doc-id="{{ doc.id }}">
-    <i class='bx bx-trash' style="color: #FF6B6B; font-size: 1.3rem;"></i>
-  </button>
-    <i class='bx bx-trash' style="color: #FF6B6B; font-size: 1.3rem;"></i>
-  </button>
-</div>
-{% empty %}
-        <p style="color: #999;">No documents uploaded yet.</p>
-{% endfor %}
+        {% for doc in documents %}
+        <div class="subscription-item" style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="details">
+            <h3>{{ doc.doc_name }}</h3>
+            <a href="{{ doc.file.url }}" target="_blank" style="color:#FF6B6B;text-decoration:underline;">View</a>
+          </div>
+          <button class="delete-btn" 
+                  data-delete-url="{% url 'delete_document' doc.id %}">
+            <i class='bx bx-trash' style="color:#FF6B6B;font-size:1.3rem;"></i>
+          </button>
+        </div>
+        {% empty %}
+          <p style="color:#999;">No documents uploaded yet.</p>
+        {% endfor %}
 
-        
         <a href="{% url 'add_item' 'document' %}" class="add-btn">
-          <i class='bx bx-plus'></i> 
+          <i class='bx bx-plus'></i>
         </a>
       </section>
     </main>
   </div>
 
+  <!-- Modal -->
   <div id="customConfirmModal" class="modal">
     <div class="modal-content">
       <p>Are you sure you want to delete this document?</p>
@@ -137,7 +138,6 @@
       overflow: auto;
       background-color: rgba(0, 0, 0, 0.6);
     }
-
     .modal-content {
       background-color: #1f1f1f;
       margin: 15% auto;
@@ -148,13 +148,11 @@
       text-align: center;
       color: #eee;
     }
-
     .modal-buttons {
       display: flex;
       justify-content: space-between;
       margin-top: 20px;
     }
-
     .modal-buttons button,
     .modal-buttons .delete-confirm {
       padding: 10px 20px;
@@ -164,56 +162,54 @@
       cursor: pointer;
       font-size: 14px;
     }
-
     #cancelBtn {
       background-color: transparent;
       border: 2px solid #FF6B6B;
       color: #FF6B6B;
     }
-
     .delete-confirm {
       background-color: #FF6B6B;
       color: white;
     }
-
     #cancelBtn:hover {
       background-color: #2a2a2a;
     }
-
     .delete-confirm:hover {
       background-color: #cc5555;
     }
   </style>
 
-<script>
-  const resizeBtn = document.getElementById("resizeBtn");
-  resizeBtn.addEventListener("click", function (e) {
-    e.preventDefault();
-    document.body.classList.toggle("sb-expanded");
-  });
-
-  function openConfirmModal(docId) {
-    const form = document.getElementById('confirmDeleteForm');
-    form.action = '/delete-document/' + docId + '/';
-    document.getElementById('customConfirmModal').style.display = 'block';
-  }
-  document.querySelectorAll('.delete-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.docId; 
-      openConfirmModal(id);
+  <script>
+    // Sidebar toggle fix
+    const resizeBtn = document.querySelector("[data-resize-btn]");
+    resizeBtn?.addEventListener("click", (e) => {
+      e.preventDefault();
+      document.body.classList.toggle("sb-expanded");
     });
-  });
 
-  document.getElementById('cancelBtn').addEventListener('click', function () {
-    document.getElementById('customConfirmModal').style.display = 'none';
-  });
-
-  window.onclick = function (event) {
-    const modal = document.getElementById('customConfirmModal');
-    if (event.target === modal) {
-      modal.style.display = 'none';
+    // Modal logic
+    function openConfirmModal(deleteUrl) {
+      const form = document.getElementById('confirmDeleteForm');
+      form.action = deleteUrl;
+      document.getElementById('customConfirmModal').style.display = 'block';
     }
-  };
-</script>
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openConfirmModal(btn.dataset.deleteUrl);
+      });
+    });
+
+    document.getElementById('cancelBtn').addEventListener('click', function () {
+      document.getElementById('customConfirmModal').style.display = 'none';
+    });
+
+    window.onclick = function (event) {
+      const modal = document.getElementById('customConfirmModal');
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    };
+  </script>
 </body>
 </html>

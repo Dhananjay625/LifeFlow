@@ -22,6 +22,8 @@ urlpatterns = [
     path('dashboard/', main_views.dashboard, name='dashboard'),
     path('dashboard-v2/', include(('appboard.urls', 'appboard'), namespace='appboard')),
     path("store/", include(("store.urls", "store"), namespace="store")),
+    path("delete-document/<int:doc_id>/", views.delete_document, name="delete_document"),
+
 
     # ---------- Family ----------
     # Menu page (wrapper using real data)

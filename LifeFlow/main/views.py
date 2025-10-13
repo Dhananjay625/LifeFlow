@@ -1447,3 +1447,12 @@ def delete_reminder(request, reminder_id):
     reminder = get_object_or_404(Reminder, id=reminder_id, user=request.user)
     reminder.delete()
     return redirect('HealthManager')
+@login_required
+def delete_document(request, doc_id):
+    doc = get_object_or_404(Document, id=doc_id, user=request.user)
+    if request.method == "POST":
+        doc.delete()
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({"status": "ok"})
+        return redirect("confirm_password")
+    return JsonResponse({"error": "Invalid request"}, status=400)
