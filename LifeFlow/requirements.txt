@@ -10,6 +10,8 @@ google-auth>=2.0
 google-auth-oauthlib>=1.0
 
 openai>=1.0.0
+stripe
+
 
 # --- HTTP utilities ---
 requests>=2.31
