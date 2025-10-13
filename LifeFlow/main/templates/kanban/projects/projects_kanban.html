@@ -1,0 +1,135 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projects - LifeFlow</title>
+
+  <link rel="stylesheet" href="{% static 'index.css' %}?v=20">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+
+  <style>
+    .kanban-column {
+      display: flex;
+      flex-direction: column;
+      min-height: 300px;
+    }
+
+    .kanban-items {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .add-card {
+      margin-top: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <aside>
+      <nav class="nav">
+        <ul class="nav-links">
+          <li><a href="{% url 'UserProfile' %}"><i class='bx bx-user'></i></a></li>
+          <li>
+            <a href="{% url 'appboard:home' %}"
+               class="{% if request.resolver_match.namespace == 'appboard' %}active{% endif %}">
+              <i class='bx bx-grid-alt'></i><span>Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'kanban:kanban' %}"
+               class="{% if request.resolver_match.url_name == 'kanban' %}active{% endif %}">
+               <i class='bx bx-columns'></i><span>Kanban</span>
+            </a>
+          </li> 
+          <li><a href="{% url 'calendar' %}"><i class='bx bx-calendar'></i></a></li>
+          <li><a href="{% url 'confirm_password' %}"><i class='bx bx-folder'></i></a></li>
+          <li><a href="{% url 'Subscription' %}"><i class='bx bx-cloud-download'></i></a></li>
+          <li><a href="{% url 'BillManager' %}"><i class='bx bx-receipt'></i></a></li>
+          <li><a href="{% url 'HealthManager' %}"><i class='bx bx-dumbbell'></i></a></li>
+          <li><a href="#"><i class='bx bx-group'></i></a></li>
+          <li><a href="http://127.0.0.1:8000" target="_blank"><i class='bx bx-map'></i></a></li>
+          <li><a href="{% url 'kanban:projectsKanban' %}" class="active"><i class='bx bx-briefcase'></i></a></li>
+        </ul>
+        <div class="collapse-btn"><a href="#" data-resize-btn><i class='bx bx-chevrons-right'></i></a></div>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <header class="header">
+        <div class="date">{% now "l, F j, Y" %}</div>
+        <h1>Projects</h1>
+      </header>
+
+      <section>
+        <div id="kanban" data-update-url="{% url 'kanban:kanbanUpdate' 'project' %}">
+          <div class="kanban-grid">
+            {% for col in columns_ctx %}
+            <div class="kanban-col">
+              <div class="kanban-col-header">{{ col.label }}</div>
+              <div class="kanban-column" data-status="{{ col.status }}">
+                <div class="kanban-items">
+                  {% if col.items %}
+                  {% for project in col.items %}
+                  <div class="kanban-item task-with-actions" draggable="true" data-id="{{ project.id }}"
+                    data-edit-url="{{ project.edit_url }}" data-delete-url="{{ project.delete_url }}">
+                    <div class="task-row">
+                      <span class="task-title">{{ project.name }}</span>
+                      <div class="task-actions">
+                        <a href="{% url 'kanban:projectTasksKanban' project.id %}" class="icon-btn"
+                          title="Open Project">
+                          <i class='bx bx-columns'></i>
+                        </a>
+                        <button type="button" class="icon-btn edit" title="Edit"><i class='bx bx-edit'></i></button>
+                        <button type="button" class="icon-btn delete" title="Delete"><i
+                            class='bx bx-trash'></i></button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {% endfor %}
+                  {% else %}
+                  <div class="kanban-empty">Empty</div>
+                  {% endif %}
+                </div>
+
+                <div class="add-card" data-add-card data-col="{{ col.status }}">
+                  <button type="button" class="btn btn-accent btn-sm" data-add-toggle>
+                    <i class='bx bx-plus'></i> Add
+                  </button>
+                  <form class="mini-form" data-add-form action="{% url 'kanban:kanbanAdd' 'project' %}" method="post"
+                    hidden>
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="{{ col.status }}">
+                    <div class="row">
+                      <input type="text" name="name" class="input" placeholder="Project name" required>
+                    </div>
+                    <div class="row" style="margin-top:.5rem;display:flex;gap:.5rem;">
+                      <button type="submit" class="btn btn-accent btn-sm">Save</button>
+                      <button type="button" class="btn btn-sm" data-add-cancel>Cancel</button>
+                    </div>
+                  </form>
+                </div>
+
+                <!-- End Add Project Form -->
+
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="{% static 'kanban.js' %}?v=1"></script>
+</body>
+
+</html>

@@ -136,7 +136,6 @@ GEOS_LIBRARY_PATH = '/opt/homebrew/Cellar/geos/3.14.0/lib/libgeos_c.1.dylib'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
-#SMTP
 #EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 #EMAIL_HOST = 'smtp.gmail.com'
 #EMAIL_PORT = 587

@@ -141,6 +141,76 @@
   padding: .8rem 1rem;
   border-radius: 12px;
 }
+/* Shared look for Health Sync buttons */
+.health-sync {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.health-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  padding: .5rem 1.0rem;
+  border-radius: 14px;
+  background: #1f1f1f;
+  border: 1px solid rgba(255,255,255,.06);
+  box-shadow: 0 8px 20px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.03);
+  color: var(--text-light);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.health-btn img {
+  height: 28px;
+  width: auto;
+}
+
+.health-btn:hover {
+  transform: translateY(-3px); /* lift effect */
+  box-shadow: 0 12px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.ios-btn {
+  background: #1f1f1f;
+  background-color: var(--primary-color);
+}
+
+.android-btn {
+  background: #1f1f1f;
+  background-color: var(--primary-color);
+}
+
+.ai-card textarea {
+  background: #222;
+  color: var(--text-light);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: .7rem .8rem;
+  font-size: 1rem;
+  resize: vertical;
+  outline: none;
+}
+
+.ai-card textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(255,107,107,.18);
+}
+
+.ai-card .btn-ghost {
+  background: #1f1f1f;
+  border: 1px solid rgba(255,255,255,.08);
+  color: var(--text-light);
+}
+
+.ai-card .btn-ghost:hover {
+  background: #222;
+}
+
   </style>
 </head>
 <body>
@@ -160,7 +230,7 @@
             </a>
           </li>
           <li>
-            <a href="{% url 'kanban:kanbanTable' %}" class="{% if request.resolver_match.url_name == 'kanbanTable' %}active{% endif %}">
+            <a href="{% url 'kanban:kanban' %}" class="{% if request.resolver_match.url_name == 'kanban' %}active{% endif %}">
               <i class='bx bx-columns'></i><span>Kanban</span>
             </a>
           </li>
@@ -192,6 +262,9 @@
           <li>
             <a href="{% url 'FamilyManager' %}" class="{% if request.resolver_match.url_name == 'FamilyManager' %}active{% endif %}">
               <i class='bx bx-group'></i><span>Family</span>
+            <a href="{% url 'kanban:projectsKanban' %}"
+               class="{% if request.resolver_match.url_name == 'projectsKanban' %}active{% endif %}">
+               <i class='bx bx-briefcase'></i><span>Projects</span>
             </a>
           </li>
         </ul>
@@ -229,17 +302,17 @@
           <button class="chip" type="button" onclick="prepQuick('water_intake','litres')">
             <i class='bx bx-droplet'></i>
             <span>Water</span>
-            <strong>{{ metrics.water_intake|default:"—" }}</strong>
+            <strong id="water-value">{{ metrics.water_intake|default:"—" }}</strong>
           </button>
           <button class="chip" type="button" onclick="prepQuick('steps','steps')">
             <i class='bx bx-walk'></i>
             <span>Steps</span>
-            <strong>{{ metrics.steps|default:"—" }}</strong>
+            <strong id="steps-value">{{ metrics.steps|default:"—" }}</strong>
           </button>
           <button class="chip" type="button" onclick="prepQuick('calories','kcal')">
             <i class='bx bx-receipt'></i>
             <span>Calories</span>
-            <strong>{{ metrics.calories|default:"—" }}</strong>
+            <strong id="calories-value">{{ metrics.calories|default:"—" }}</strong>
           </button>
         </div>
       </section>
@@ -317,9 +390,38 @@
             {% endfor %}
           </ul>
 
-          <a href="{% url 'google_fit_auth' %}" class="google-fit-btn" style="margin-top:.8rem;">
+          <!-- <a href="{% url 'google_fit_auth' %}" class="google-fit-btn" style="margin-top:.8rem;">
             <i class='bx bxs-heart'></i> Connect Google Fit
-          </a>
+          </a> -->
+          <div class="health-sync">
+            <button type="button" class="health-btn ios-btn" onclick="uploadDemoData('ios')">
+              <img src="/media/documents/healthkit.png"  alt="HealthKit">
+              Health Kit
+            </button>
+            <button type="button" class="health-btn android-btn" onclick="uploadDemoData('android')">
+              <img src="/media/documents/healthconnect.png" alt="HealthConnect">
+              Health Connect
+            </button>
+          </div>
+
+          <!-- AI Assistant Card -->
+          <div class="card ai-card" style="margin-top:1rem;">
+            <div class="card-header">
+              <h2>AI Health Assistant</h2>
+              <p class="subtext">
+                Ask for diet plans, explanations, or summaries (not a substitute for medical advice).
+              </p>
+            </div>
+
+            <div style="padding:1rem;">
+              <textarea id="aiPrompt" placeholder="e.g. Make my diet plan based on my BMI" rows="3" style="width:100%"></textarea>
+              <div style="margin-top:.5rem; display:flex; gap:.5rem;">
+                <button id="sendAiBtn" class="btn btn-primary">Ask AI</button>
+                <button id="clearAiBtn" class="btn btn-ghost">Clear</button>
+              </div>
+              <div id="aiResponse" style="margin-top:1rem; white-space:pre-wrap;"></div>
+            </div>
+          </div>
         </div>
       </section>
     </main>
@@ -408,6 +510,91 @@
       document.getElementById('metricValue').value = '';
       openModal('quickModal');
     }
+
+    function uploadDemoData(platform) {
+    const demoMetrics = [
+      { type: "steps", value: 1234 },
+      { type: "calories", value: 250 },
+      { type: "water_intake", value: 0.7 }
+    ];
+
+    fetch("{% url 'upload_health_data' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}"
+      },
+      body: JSON.stringify({ metrics: demoMetrics })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "ok") {
+        alert(platform.toUpperCase() + " synced ✔\nSteps: " + data.steps + 
+              "\nCalories: " + data.calories + 
+              "\nWater: " + data.water_intake + "L");
+      
+        updateMetric("steps", data.steps);
+        updateMetric("calories", data.calories);
+        updateMetric("water", data.water_intake);
+      } else {
+        alert("Upload failed: " + JSON.stringify(data));
+      }
+    })
+    .catch(err => {
+      console.error("Error uploading:", err);
+      alert("Upload failed: " + err);
+    });
+  }
+  function updateMetric(metric, value) {
+  let displayValue = value;
+
+  if (metric === "water") {
+    // value is in liters → convert to milliliters
+    displayValue = Math.round(value * 1000) + " mL";
+  } else if (metric === "steps") {
+    displayValue = Math.round(value); // steps should be whole numbers
+  } else if (metric === "calories") {
+    displayValue = Math.round(value) + " kcal";
+  }
+
+  document.getElementById(metric + "-value").innerText = displayValue;
+  }
+
+  document.getElementById("sendAiBtn").addEventListener("click", async function(){
+  const prompt = document.getElementById("aiPrompt").value.trim();
+  if (!prompt) { alert("Type a prompt"); return; }
+  const respDiv = document.getElementById("aiResponse");
+  respDiv.textContent = "Thinking...";
+
+  try {
+    const res = await fetch("{% url 'ai_query' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}",
+      },
+      body: JSON.stringify({ prompt })
+    });
+
+    const contentType = res.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      const data = await res.json();
+      if (data.ok) {
+        respDiv.textContent = data.reply;
+      } else {
+        respDiv.textContent = "Error: " + (data.error || "Unknown error");
+      }
+    } else {
+      // non-JSON (HTML) response — show text to help debug
+      const text = await res.text();
+      respDiv.textContent = "Server returned non-JSON response. See console for details.";
+      console.error("Non-JSON response from ai-query:", text);
+    }
+  } catch (err) {
+    console.error(err);
+    respDiv.textContent = "Network error: " + err;
+  }
+});
   </script>
 </body>
 </html>

@@ -45,6 +45,16 @@ urlpatterns = [
     # ---------- Profile / Auth ----------
     path('profile/', main_views.user_profile, name='user_profile'),
     path('UserProfile/', main_views.user_profile, name='UserProfile'),
+    path('calendar/', main_views.calendar_view, name='calendar'),
+    path('calendar/events/', main_views.calendar_events, name='calendar_events'),
+    path('calendar/events/create/', main_views.calendar_events_create, name='calendar_events_create'),
+    path('calendar/events/update/', main_views.calendar_events_update, name='calendar_events_update'),
+    path('calendar/events/delete/', main_views.calendar_events_delete, name='calendar_events_delete'),
+    path('Subscription/', main_views.SubscriptionTracker, name='Subscription'),
+    path('TaskManager/', main_views.TaskManager, name='TaskManager'),
+    path('BillManager/', main_views.BillManager, name='BillManager'),
+    path("health-manager/", main_views.health_manager, name="HealthManager"),
+    path('health/search/', main_views.health_search, name='health_search'), 
     path('register/', main_views.register, name='register'),
     path('login/', main_views.login_view, name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
@@ -87,6 +97,9 @@ urlpatterns = [
     path('health/search/', main_views.health_search, name='health_search'),
     path('reminder/<int:reminder_id>/edit/', main_views.edit_reminder, name='edit_reminder'),
     path('reminder/<int:reminder_id>/delete/', main_views.delete_reminder, name='delete_reminder'),
+    path("ingest-health-data/", main_views.ingest_health_data, name="ingest_health_data"),
+    path("upload-health-data/", main_views.upload_health_data, name="upload_health_data"),
+    path("ai-query/", main_views.ai_query, name="ai_query"),
 
     # ---------- Google Fit ----------
     path('google-fit-auth/', main_views.google_fit_auth, name="google_fit_auth"),
@@ -108,6 +121,7 @@ urlpatterns = [
     path("api/widgets/document/", views_widgets.documents_summary, name="document_summary"),
     path('api/widgets/health/', views_widgets.health_summary),
     path('api/widgets/family/', views_widgets.family_summary),
+    path('add/<str:item_type>/', main_views.add_item, name='add_item'),
 ]
 
 # Static/media (single append)

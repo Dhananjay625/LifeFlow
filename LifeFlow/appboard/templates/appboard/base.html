@@ -138,7 +138,7 @@
       display:flex; align-items:center; gap:.6rem;
     }
     .lf-title h1{
-      font-size:2rem;                      /* bigger title */
+      font-size:4rem;                      /* bigger title */
       font-weight:800; margin:0; color:#fff;
     }
     .btn-icon{
@@ -181,7 +181,7 @@
           </a>
         </li>
         <li>
-          <a href="{% url 'kanban:kanbanTable' %}" class="{% if request.resolver_match.url_name == 'kanbanTable' %}active{% endif %}">
+          <a href="{% url 'kanban:kanban' %}" class="{% if request.resolver_match.url_name == 'kanban' %}active{% endif %}">
             <i class='bx bx-columns'></i><span>Kanban</span>
           </a>
         </li>

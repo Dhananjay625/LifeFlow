@@ -1,4 +1,3 @@
-# stdlib
 from datetime import date, datetime, timedelta
 from calendar import monthrange
 import calendar as cal
@@ -6,11 +5,19 @@ import json
 import os
 import secrets
 
+# AI Integration
+from openai import OpenAI
+from openai import APIError, APIConnectionError, RateLimitError, AuthenticationError, OpenAIError
+import logging
+
 # django
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from types import SimpleNamespace
+from urllib.parse import urlencode
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import (
     JsonResponse,
     HttpResponseBadRequest,
@@ -30,6 +37,9 @@ from googleapiclient.discovery import build
 from google.oauth2 import id_token
 from google.oauth2.credentials import Credentials as GoogleCredentials
 from google.auth.transport import requests as google_requests
+from google.oauth2.credentials import Credentials
+from google.auth.transport import requests as google_requests
+from google.auth.transport.requests import Request as GoogleRequest
 from google.auth.exceptions import RefreshError
 
 # local
@@ -41,6 +51,7 @@ from django.core.mail import EmailMultiAlternatives
 # Health manager bits
 from .models import HealthMetric, Reminder, UserHealthProfile
 from .forms import HealthMetricForm, HealthProfileForm, ReminderForm
+from django.views.decorators.csrf import csrf_exempt
 
 # Support either Subscription or sub model names
 try:
@@ -49,6 +60,15 @@ except Exception:
     from .models import sub as SubscriptionModel
 
 User = get_user_model()
+
+try:
+    from .models import Subscription
+except Exception:
+    from .models import sub
+User = get_user_model()
+
+from .models import HealthMetric, Reminder, UserHealthProfile
+from .forms import HealthMetricForm, HealthProfileForm, ReminderForm
 
 # Allow HTTP for local dev (never in prod)
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
@@ -114,11 +134,23 @@ def _google_flow_config(redirect_uri: str):
         }
     }
 
+# Base Calendar scopes you already use
+
 GCAL_SCOPES = [
-    "openid",
-    "https://www.googleapis.com/auth/userinfo.profile",
-    "https://www.googleapis.com/auth/userinfo.email",
     "https://www.googleapis.com/auth/calendar",
+]
+
+# Unified session key + Fit scopes + identity scopes
+GOOGLE_SESSION_KEY = "google_credentials"
+GFIT_SCOPES = [
+    "https://www.googleapis.com/auth/fitness.activity.read",
+    "https://www.googleapis.com/auth/fitness.nutrition.read",
+    "https://www.googleapis.com/auth/fitness.body.read",
+]
+GOOGLE_ID_SCOPES = [
+    "openid",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile",
 ]
 
 def _sync_gcal_events_to_tasks(request, max_results=50, creds=None):
@@ -127,12 +159,14 @@ def _sync_gcal_events_to_tasks(request, max_results=50, creds=None):
     If creds is provided, use it (fresh from callback). Otherwise rebuild from session.
     """
     if creds is None:
-        creds_dict = request.session.get("google_credentials")
+        creds_dict = request.session.get(GOOGLE_SESSION_KEY)
         if not creds_dict or not request.user.is_authenticated:
             return
         creds = GoogleCredentials.from_authorized_user_info(
             creds_dict, scopes=creds_dict.get("scopes")
         )
+        creds = Credentials.from_authorized_user_info(creds_dict, scopes=creds_dict.get("scopes"))
+
     try:
         service = build("calendar", "v3", credentials=creds)
         resp = service.events().list(
@@ -142,7 +176,6 @@ def _sync_gcal_events_to_tasks(request, max_results=50, creds=None):
             orderBy="startTime",
         ).execute()
     except RefreshError:
-        # No refresh_token or invalid creds — skip silently
         return
 
     items = resp.get("items", [])
@@ -171,6 +204,53 @@ def _sync_gcal_events_to_tasks(request, max_results=50, creds=None):
         else:
             if not Task.objects.filter(user=request.user, title=summary, due_date=due_dt).exists():
                 Task.objects.create(user=request.user, title=summary, due_date=due_dt, status="pending")
+
+# ---------- Unified Google creds helpers ----------
+
+def _load_google_credentials(request):
+    data = request.session.get(GOOGLE_SESSION_KEY)
+    if not data:
+        return None
+
+    creds = Credentials(
+        token=data.get("token"),
+        refresh_token=data.get("refresh_token"),
+        token_uri=data.get("token_uri"),
+        client_id=data.get("client_id"),
+        client_secret=data.get("client_secret"),
+        scopes=data.get("scopes") or [],
+    )
+
+    expiry_iso = data.get("expiry")
+    if expiry_iso:
+        try:
+            exp = datetime.fromisoformat(expiry_iso.replace("Z", "+00:00"))
+            creds.expiry = exp  # google-auth handles tz awareness internally
+        except Exception:
+            pass
+
+    # Refresh silently if expired (and we have a refresh token)
+    try:
+        if creds and creds.refresh_token and (not creds.valid or creds.expired):
+            creds.refresh(GoogleRequest())
+            request.session[GOOGLE_SESSION_KEY] = {
+                "token": creds.token,
+                "refresh_token": creds.refresh_token,
+                "token_uri": creds.token_uri,
+                "client_id": creds.client_id,
+                "client_secret": creds.client_secret,
+                "scopes": list(creds.scopes) if getattr(creds, "scopes", None) else data.get("scopes", []),
+                "expiry": creds.expiry.isoformat() if getattr(creds, "expiry", None) else None,
+            }
+            request.session.modified = True
+    except Exception:
+        return None
+
+    return creds
+
+def _has_required_scopes(creds, required_scopes: list[str]) -> bool:
+    current = set((creds.scopes or [])) if creds else set()
+    return set(required_scopes).issubset(current)
 
 # ---------- auth (username/password) ----------
 def login_view(request):
@@ -388,10 +468,10 @@ def calendar_events_create(request):
             })
 
     # Google Calendar (live) if connected
-    creds_dict = request.session.get("google_credentials")
+    creds_dict = request.session.get(GOOGLE_SESSION_KEY)
     if creds_dict:
         try:
-            gcreds = GoogleCredentials.from_authorized_user_info(
+            gcreds = Credentials.from_authorized_user_info(
                 creds_dict, scopes=creds_dict.get("scopes")
             )
             service = build("calendar", "v3", credentials=gcreds)
@@ -416,10 +496,9 @@ def calendar_events_create(request):
                     "extendedProps": {"type": "gcal", "htmlLink": ev.get("htmlLink")},
                 })
         except Exception:
-            # token errors etc — ignore gracefully
             pass
 
-    # Health reminders on the calendar (optional)
+    # Health reminders
     if request.user.is_authenticated:
         for r in Reminder.objects.filter(user=request.user):
             events.append({
@@ -970,9 +1049,15 @@ def google_connect(request):
     state = secrets.token_urlsafe(32)
     request.session["oauth_state"] = state
 
+    requested_scopes = request.GET.getlist("scope")
+    if not requested_scopes:
+        requested_scopes = GOOGLE_ID_SCOPES + GCAL_SCOPES  
+
+    request.session["google_requested_scopes"] = requested_scopes
+
     flow = Flow.from_client_config(
         _google_flow_config(redirect_uri),
-        scopes=GCAL_SCOPES,
+        scopes=requested_scopes,
         state=state,
     )
     flow.redirect_uri = redirect_uri
@@ -990,10 +1075,6 @@ def google_connect(request):
     return redirect(auth_url)
 
 def google_callback(request):
-    """
-    Callback: verify state, fetch tokens, log in Django user, store creds, sync events, go to profile.
-    Also fills first/last name when available.
-    """
     expected_state = request.session.get("oauth_state")
     returned_state = request.GET.get("state")
     if not expected_state or expected_state != returned_state:
@@ -1001,9 +1082,17 @@ def google_callback(request):
         return redirect("google_connect")
 
     redirect_uri = settings.GOOGLE_REDIRECT_URI
+
+    # Reuse EXACT scopes we initiated with; default to base if missing
+    requested_scopes = request.session.pop(
+        "google_requested_scopes", GOOGLE_ID_SCOPES + GCAL_SCOPES
+    )
+
+    # Important: build Flow without fixing scopes here to avoid
+    # oauthlib raising "Scope has changed" if Google returns a different format/order
     flow = Flow.from_client_config(
         _google_flow_config(redirect_uri),
-        scopes=GCAL_SCOPES,
+        scopes=None,                 # <-- tolerate returned scope
         state=expected_state,
     )
     flow.redirect_uri = redirect_uri
@@ -1012,57 +1101,42 @@ def google_callback(request):
         authorization_response=request.build_absolute_uri(),
         state=expected_state,
     )
-    credentials = flow.credentials  # fresh access token (likely not expired yet)
+    credentials = flow.credentials
 
-    # Identify user via Google ID token
+    # Identify user via ID token
     idinfo = id_token.verify_oauth2_token(
         credentials.id_token, google_requests.Request(), settings.GOOGLE_CLIENT_ID
     )
     email = idinfo.get("email")
-
-    # Prefer split name fields; fall back gracefully
-    first = idinfo.get("given_name")
-    last = idinfo.get("family_name")
-    if not first and not last:
-        full = (idinfo.get("name") or "").strip()
-        if full:
-            parts = full.split()
-            first = parts[0]
-            last = " ".join(parts[1:]) if len(parts) > 1 else ""
-        else:
-            local = (email or "").split("@")[0]
-            first = local or ""
-            last = ""
+    first = idinfo.get("given_name") or ""
+    last = idinfo.get("family_name") or ""
 
     user, created = User.objects.get_or_create(username=email, defaults={"email": email})
-
-    changed = False
-    if created:
-        if first: user.first_name = first; changed = True
-        if last:  user.last_name = last;  changed = True
-    else:
-        if first and not user.first_name: user.first_name = first; changed = True
-        if last and not user.last_name:   user.last_name = last;   changed = True
-        if not user.email and email:      user.email = email;      changed = True
-    if changed:
+    if created or not user.first_name or not user.last_name or not user.email:
+        user.first_name = user.first_name or first
+        user.last_name  = user.last_name  or last
+        user.email      = user.email      or email
         user.save()
 
     login(request, user)
     request.session.pop("oauth_state", None)
 
-    # Save Google creds (include expiry!)
+    # Store creds (record the scopes that were actually granted)
     request.session["google_credentials"] = {
         "token": credentials.token,
         "refresh_token": credentials.refresh_token,
         "token_uri": credentials.token_uri,
         "client_id": credentials.client_id,
         "client_secret": credentials.client_secret,
-        "scopes": credentials.scopes,
+        "scopes": list(credentials.scopes) if getattr(credentials, "scopes", None) else requested_scopes,
         "expiry": credentials.expiry.isoformat() if getattr(credentials, "expiry", None) else None,
     }
+    request.session.modified = True
 
-    # Sync immediately using the fresh creds (no refresh needed)
-    _sync_gcal_events_to_tasks(request, creds=credentials)
+    try:
+        _sync_gcal_events_to_tasks(request, creds=credentials)
+    except Exception:
+        pass
 
     return redirect("user_profile")
 
@@ -1338,3 +1412,529 @@ def family_task_assign(request):
             if _model_has_field(Task, "priority") else ""
         ),
     }, status=201)
+    # ---- Task ----
+    if full_id.startswith("task-"):
+        task_id = full_id.split("task-")[-1]
+        task = get_object_or_404(Task, id=task_id, user=request.user)
+
+        if isinstance(title, str) and title.strip():
+            task.title = title.strip()
+
+        if start_str:
+            # If allDay is not provided, default to True for tasks (same as your code)
+            all_day = bool(payload.get("allDay", True))
+            # Your helper decides whether to parse as date-only or datetime
+            task.due_date = _parse_iso_to_aware(start_str, expect_date_only=all_day)
+
+        task.save()
+        return JsonResponse({"ok": True, "id": full_id})
+
+    # ---- Subscription ----
+    if full_id.startswith("sub-"):
+        sub_id = full_id.split("sub-")[-1]
+        if _model_has_field(Subscription, "user"):
+            s = get_object_or_404(Subscription, id=sub_id, user=request.user)
+        else:
+            s = get_object_or_404(Subscription, id=sub_id)
+
+        if isinstance(title, str) and title.strip():
+            s.name = title.strip()
+
+        if start_str:
+            # Calendar drag for subs is date-based
+            s.renewal_date = _parse_iso_to_aware(start_str, expect_date_only=True).date()
+
+        s.save()
+        return JsonResponse({"ok": True, "id": full_id})
+
+    # ---- Bill ----
+    if full_id.startswith("bill-"):
+        bill_id = full_id.split("bill-")[-1]
+        if _model_has_field(Bill, "user"):
+            b = get_object_or_404(Bill, id=bill_id, user=request.user)
+        else:
+            b = get_object_or_404(Bill, id=bill_id)
+
+        if isinstance(title, str) and title.strip():
+            b.name = title.strip()
+
+        if start_str:
+            b.renewal_date = _parse_iso_to_aware(start_str, expect_date_only=True).date()
+
+        b.save()
+        return JsonResponse({"ok": True, "id": full_id})
+
+    # Unknown prefix
+    return HttpResponseBadRequest("Unknown id prefix")
+
+@login_required
+def calendar_events_delete(request):
+    """
+    Delete a Task from the calendar.
+    Body: { id }
+    Only supports ids that start with 'task-'.
+    """
+    if request.method != 'DELETE':
+        return HttpResponseNotAllowed(['DELETE'])
+    try:
+        payload = json.loads(request.body or '{}')
+        full_id = payload.get('id') or ''
+        if not full_id.startswith('task-'):
+            return HttpResponseBadRequest('Only tasks can be deleted from the calendar')
+        task_id = full_id.split('task-')[-1]
+        task = get_object_or_404(Task, id=task_id, user=request.user)
+        task.delete()
+        return JsonResponse({'ok': True})
+    except Exception as e:
+        return HttpResponseBadRequest(str(e))
+
+# ---------- other views ----------
+
+@login_required
+def add_item(request, item_type):
+    if request.method == 'POST':
+        if item_type == 'bill':
+            create_kwargs = dict(
+                name=request.POST.get('name'),
+                cost=request.POST.get('cost'),
+                renewal_date=request.POST.get('renewal_date') or None,
+                contract_type=request.POST.get('contract_type') or 'NA',
+                status='active',
+            )
+            if _model_has_field(Bill, 'user'):
+                create_kwargs['user'] = request.user
+            Bill.objects.create(**create_kwargs)
+            return redirect('BillManager')
+
+        elif item_type == 'document':
+            doc_name = request.POST.get('doc_name')
+            uploaded_file = request.FILES.get('upload')
+            if uploaded_file:
+                Document.objects.create(user=request.user, doc_name=doc_name, file=uploaded_file)
+            return redirect('DocumentStorage')
+
+        elif item_type == 'subscription':
+            create_kwargs = dict(
+                name=request.POST.get('name'),
+                cost=request.POST.get('cost'),
+                renewal_date=request.POST.get('renewal_date') or None,
+                contract_type=request.POST.get('contract_type') or 'NA',
+                status='active',
+            )
+            if _model_has_field(sub, 'user'):
+                create_kwargs['user'] = request.user
+            sub.objects.create(**create_kwargs)
+            return redirect('Subscription')
+
+    return render(request, 'add_item.html', {'item_type': item_type})
+
+@login_required
+def SubscriptionTracker(request):
+    subs_qs = sub.objects.all()
+    if _model_has_field(sub, 'user'):
+        subs_qs = subs_qs.filter(user=request.user)
+    total_cost = sum(b.cost for b in subs_qs)
+    subs_with_colors = [{"obj": s, "hue": (i + 1) * 60} for i, s in enumerate(subs_qs)]
+    return render(request, 'Subscription.html', {'subs': subs_with_colors, 'total_cost': total_cost})
+
+def TaskManager(request):
+    return render(request, 'TaskManager.html')
+
+def BillManager(request):
+    bills_qs = Bill.objects.all()
+    if _model_has_field(Bill, 'user'):
+        bills_qs = bills_qs.filter(user=request.user)
+    total_cost = sum(b.cost for b in bills_qs)
+    bills_with_colors = [{"obj": b, "hue": (i + 1) * 60} for i, b in enumerate(bills_qs)]
+    return render(request, 'BillManager.html', {'bills': bills_with_colors, 'total_cost': total_cost})
+
+def LandingPage(request):
+    return render(request, 'LandingPage.html')
+
+@login_required
+def DocumentStorage(request):
+    if not request.session.get('document_verified'):
+        return redirect('confirm_password')
+    documents = Document.objects.filter(user=request.user)
+    return render(request, 'DocumentStorage.html', {'documents': documents})
+
+@login_required
+def delete_document(request, doc_id):
+    document = get_object_or_404(Document, id=doc_id, user=request.user)
+    document.delete()
+    return redirect('DocumentStorage')
+
+@login_required
+def dashboard(request):
+    return render(request, 'dashboard.html')
+
+@login_required
+def user_profile(request):
+    return render(request, 'UserProfile.html', {'user': request.user})
+
+@login_required
+def confirm_password(request):
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        user = authenticate(username=request.user.username, password=password)
+        if user is not None:
+            request.session['document_verified'] = True
+            return redirect('DocumentStorage')
+        return render(request, 'confirm_password.html', {'error': 'Incorrect password.'})
+    return render(request, 'confirm_password.html')
+
+def delete_bill(request, bill_id):
+    if request.method == 'POST':
+        if _model_has_field(Bill, 'user'):
+            bill = get_object_or_404(Bill, id=bill_id, user=request.user)
+        else:
+            bill = get_object_or_404(Bill, id=bill_id)
+        bill.delete()
+    return redirect('BillManager')
+
+@login_required
+def delete_sub(request, sub_id):
+    if _model_has_field(sub, 'user'):
+        subscription = get_object_or_404(sub, id=sub_id, user=request.user)
+    else:
+        subscription = get_object_or_404(sub, id=sub_id)
+    subscription.delete()
+    return redirect('Subscription')
+
+# Convenience aliases
+calendar = calendar_view
+calender_view = calendar_view
+
+def FamilyManager(request):
+    family = SimpleNamespace(id=1, name="The Rai Family", created_at=datetime.now())
+    owner = SimpleNamespace(username=getattr(request.user, "username", "owner"))
+    members = [
+        SimpleNamespace(user=SimpleNamespace(username="yash"), role="owner"),
+        SimpleNamespace(user=SimpleNamespace(username="Vaidehi"), role="parent"),
+        SimpleNamespace(user=SimpleNamespace(username="aarav"), role="child"),
+    ]
+    invites = []
+    tasks = [
+        SimpleNamespace(title="Grocery run", due_date=datetime.now()+timedelta(hours=6),
+                        assigned_to=SimpleNamespace(username="yash"), priority="high", completed=False),
+        SimpleNamespace(title="Pay electricity bill", due_date=datetime.now()+timedelta(days=1),
+                        assigned_to=SimpleNamespace(username="jiya"), priority="medium", completed=False),
+    ]
+    return render(request, "FamilyManager.html", {
+        "family": family, "owner": owner, "members": members,
+        "invites": invites, "tasks": tasks, "families": [family],
+    })
+
+# -------- AI Helpers -----------
+
+def _rule_based_advice(age, bmi):
+    """
+    Simple built-in AI advice (works without external APIs).
+    """
+    tips = []
+    if bmi is None:
+        return ["Enter your height and weight to get BMI-based advice."]
+    if bmi < 18.5:
+        tips.append("Your BMI suggests you're underweight. Consider nutrient-dense meals and speak to a GP or dietitian.")
+    elif bmi < 25:
+        tips.append("Great—your BMI is in the healthy range. Keep up regular activity and balanced meals.")
+    elif bmi < 30:
+        tips.append("Your BMI suggests you're overweight. Aim for consistent activity (e.g., brisk walking 30 mins/day) and watch portion sizes.")
+    else:
+        tips.append("Your BMI suggests obesity. Consider a structured plan with a healthcare professional.")
+
+    if age and age >= 45:
+        tips.append("For 45+, include strength training 2–3×/week to preserve muscle and bone health.")
+    tips.append("Hydration: ~2–2.5L/day (adjust for activity and climate).")
+    tips.append("Aim for 7–9 hours of sleep and regular checkups.")
+    return tips
+
+# ---------- Health Manager (uses unified Google creds with incremental consent) ----------
+
+@login_required
+def health_manager(request):
+    profile, _ = UserHealthProfile.objects.get_or_create(user=request.user)
+    today = timezone.now().date()
+    today_metrics = HealthMetric.objects.filter(user=request.user, date=today).first()
+    reminders = Reminder.objects.filter(user=request.user).order_by('-date')[:7]
+
+    metric_form = HealthMetricForm(initial={
+        'water_intake': getattr(today_metrics, 'water_intake', ''),
+        'steps': getattr(today_metrics, 'steps', ''),
+        'calories': getattr(today_metrics, 'calories', ''),
+    })
+    profile_form = HealthProfileForm(instance=profile)
+    reminder_form = ReminderForm()
+
+    if request.method == 'POST':
+        if 'save_profile' in request.POST:
+            profile_form = HealthProfileForm(request.POST, instance=profile)
+            if profile_form.is_valid():
+                profile_form.save()
+                return redirect('HealthManager')
+
+        elif 'save_metrics' in request.POST:
+            form = HealthMetricForm(request.POST)
+            if form.is_valid():
+                data = form.cleaned_data
+                data['steps'] = data.get('steps') or 0
+                data['calories'] = data.get('calories') or 0
+                data['water_intake'] = data.get('water_intake') or 0
+                HealthMetric.objects.update_or_create(
+                    user=request.user, date=today, defaults=data
+                )
+                return redirect('HealthManager')
+
+        elif 'quick_metric' in request.POST:
+            metric_type = request.POST.get('metric_type')
+            value = request.POST.get('metric_value')
+            if metric_type not in ['water_intake', 'steps', 'calories']:
+                return HttpResponseBadRequest("Invalid metric type")
+            defaults = {}
+            try:
+                if metric_type == 'water_intake':
+                    defaults['water_intake'] = float(value)
+                elif metric_type == 'steps':
+                    defaults['steps'] = int(value)
+                else:
+                    defaults['calories'] = int(value)
+            except (TypeError, ValueError):
+                return HttpResponseBadRequest("Invalid value")
+
+            existing = HealthMetric.objects.filter(user=request.user, date=today).first()
+            if existing:
+                defaults.setdefault('water_intake', existing.water_intake or 0)
+                defaults.setdefault('steps', existing.steps or 0)
+                defaults.setdefault('calories', existing.calories or 0)
+            defaults['water_intake'] = defaults.get('water_intake', 0)
+            defaults['steps'] = defaults.get('steps', 0)
+            defaults['calories'] = defaults.get('calories', 0)
+
+            HealthMetric.objects.update_or_create(
+                user=request.user, date=today, defaults=defaults
+            )
+            return redirect('HealthManager')
+
+        elif 'save_reminder' in request.POST:
+            reminder_form = ReminderForm(request.POST)
+            if reminder_form.is_valid():
+                rem = reminder_form.save(commit=False)
+                rem.user = request.user
+                rem.save()
+                return redirect('HealthManager')
+
+    # BMI/advice
+    bmi = profile.bmi()
+    bmi_cat = profile.bmi_category()
+    advice = _rule_based_advice(profile.age, bmi)
+
+    # ---- Google Fit integration via unified creds ----
+    google_fit_data = {"steps": None, "calories": None, "water_intake": None}
+    required_scopes = GFIT_SCOPES + GOOGLE_ID_SCOPES
+    creds = _load_google_credentials(request)
+
+    if not creds or not _has_required_scopes(creds, required_scopes):
+        # ask ONLY for missing scopes (incremental consent)
+        scope_params = "&".join(f"scope={s}" for s in required_scopes)
+        return redirect(f"/google/connect/?{scope_params}")
+
+    # Build Fitness service and aggregate last 24h
+    service = build("fitness", "v1", credentials=creds)
+    end_time = datetime.utcnow()
+    start_time = end_time - timedelta(days=1)
+
+    results = service.users().dataset().aggregate(
+        userId="me",
+        body={
+            "aggregateBy": [
+                {"dataTypeName": "com.google.step_count.delta"},
+                {"dataTypeName": "com.google.calories.expended"},
+                {"dataTypeName": "com.google.hydration"},
+            ],
+            "bucketByTime": {"durationMillis": 86400000},
+            "startTimeMillis": int(start_time.timestamp() * 1000),
+            "endTimeMillis": int(end_time.timestamp() * 1000),
+        }
+    ).execute()
+
+    for bucket in results.get("bucket", []):
+        for dataset in bucket.get("dataset", []):
+            for point in dataset.get("point", []):
+                dtype = point.get("dataTypeName")
+                for value in point.get("value", []):
+                    if dtype == "com.google.step_count.delta":
+                        google_fit_data["steps"] = (google_fit_data["steps"] or 0) + value.get("intVal", 0)
+                    elif dtype == "com.google.calories.expended":
+                        google_fit_data["calories"] = (google_fit_data["calories"] or 0) + value.get("fpVal", 0.0)
+                    elif dtype == "com.google.hydration":
+                        google_fit_data["water_intake"] = (google_fit_data["water_intake"] or 0) + value.get("fpVal", 0.0)
+
+    # Save to DB (merge with today_metrics)
+    today_metrics = HealthMetric.objects.filter(user=request.user, date=today).first()
+    if any(v is not None for v in google_fit_data.values()):
+        if today_metrics:
+            today_metrics.steps = google_fit_data["steps"] if google_fit_data["steps"] is not None else today_metrics.steps
+            today_metrics.calories = google_fit_data["calories"] if google_fit_data["calories"] is not None else today_metrics.calories
+            today_metrics.water_intake = google_fit_data["water_intake"] if google_fit_data["water_intake"] is not None else today_metrics.water_intake
+            today_metrics.save()
+        else:
+            HealthMetric.objects.create(
+                user=request.user,
+                date=today,
+                steps=google_fit_data["steps"] or 0,
+                calories=google_fit_data["calories"] or 0.0,
+                water_intake=google_fit_data["water_intake"] or 0.0,
+            )
+
+    context = {
+        "profile_form": profile_form,
+        "metric_form": metric_form,
+        "reminder_form": reminder_form,
+        "metrics": HealthMetric.objects.filter(user=request.user, date=today).first(),
+        "reminders": reminders,
+        "bmi": bmi,
+        "bmi_cat": bmi_cat,
+        "advice": advice,
+        "google_fit_data": google_fit_data,
+    }
+    return render(request, "HealthManager.html", context)
+
+# ---------- Health search ----------
+
+@login_required
+def health_search(request):
+    """
+    Redirects to a trusted health site search in a new tab based on query.
+    You can change domains below to your preference.
+    """
+    q = request.GET.get('q', '').strip()
+    if not q:
+        return redirect('HealthManager')
+
+    query = f"site:healthdirect.gov.au OR site:who.int OR site:cdc.gov {q}"
+    params = urlencode({'q': query})
+    return redirect(f"https://www.google.com/search?{params}")
+
+@csrf_exempt
+@login_required
+def upload_health_data(request):
+    """Demo: Inject mock health data for Health Connect / HealthKit."""
+    if request.method != "POST":
+        return HttpResponseBadRequest("POST required")
+
+    try:
+        data = json.loads(request.body)
+        metrics = data.get("metrics", [])
+        today = timezone.now().date()
+
+        # Get or create today's record
+        today_metric, _ = HealthMetric.objects.get_or_create(
+            user=request.user,
+            date=today,
+            defaults={"steps": 0, "calories": 0, "water_intake": 0},
+        )
+
+        for m in metrics:
+            mtype = m.get("type")
+            value = m.get("value")
+            if mtype == "steps":
+                today_metric.steps = (today_metric.steps or 0) + int(value)
+            elif mtype == "calories":
+                today_metric.calories = (today_metric.calories or 0) + int(value)
+            elif mtype == "water_intake":
+                today_metric.water_intake = (today_metric.water_intake or 0) + float(value)
+
+        today_metric.save()
+
+        return JsonResponse({
+            "status": "ok",
+            "date": str(today),
+            "steps": today_metric.steps,
+            "calories": today_metric.calories,
+            "water_intake": today_metric.water_intake,
+        })
+    except Exception as e:
+        return HttpResponseBadRequest(str(e))
+@login_required
+def ingest_health_data(request):
+    """
+    Placeholder view for ingesting Health Connect / HealthKit data.
+    Later you’ll connect APIs here.
+    """
+    return JsonResponse({"status": "success", "message": "Health data ingestion not yet implemented"})
+
+# AI Integration in Health Manager Page 
+_openai_api_key = getattr(settings, "OPENAI_API_KEY", None)
+if not _openai_api_key:
+    logging.warning("OPENAI_API_KEY not set in settings. OpenAI calls will fail until configured.")
+client = OpenAI(api_key=_openai_api_key) if _openai_api_key else None
+
+@login_required
+@require_POST
+def ai_query(request):
+    """Receive AJAX prompt, call OpenAI, and return assistant reply as JSON."""
+    try:
+        try:
+            payload = json.loads(request.body.decode("utf-8"))
+        except (ValueError, json.JSONDecodeError):
+            return JsonResponse({"ok": False, "error": "Invalid JSON payload"}, status=400)
+
+        prompt = payload.get("prompt", "").strip()
+        if not prompt:
+            return JsonResponse({"ok": False, "error": "Empty prompt"}, status=400)
+
+        # Build messaging
+        system_msg = (
+            "You are a concise, helpful health assistant. Provide general advice and "
+            "explain calculations where relevant. Always include a brief medical disclaimer."
+        )
+
+        profile, _ = UserHealthProfile.objects.get_or_create(user=request.user)
+        bmi = profile.bmi() or None
+        user_context = f"User: age={profile.age}, height_cm={profile.height_cm}, weight_kg={profile.weight_kg}, bmi={bmi}"
+
+        messages = [
+            {"role": "system", "content": system_msg},
+            {"role": "system", "content": f"Context: {user_context}"},
+            {"role": "user", "content": prompt},
+        ]
+
+        # Use a cost-conscious model and token limit for dev
+        resp = client.chat.completions.create(
+            model="gpt-3.5-turbo",   # cheaper for testing; switch to gpt-4* when billing is configured
+            messages=messages,
+            max_tokens=400,          # reduce tokens to lower cost
+            temperature=0.7,
+        )
+
+        assistant_text = ""
+        if getattr(resp, "choices", None) and len(resp.choices) > 0:
+            assistant_text = resp.choices[0].message.content.strip()
+
+        return JsonResponse({"ok": True, "reply": assistant_text})
+
+    except RateLimitError:
+        logging.exception("OpenAI rate limit / quota exceeded")
+        return JsonResponse({
+            "ok": False,
+            "error": "OpenAI quota exceeded or rate-limited. Check your billing/usage on the OpenAI dashboard."
+        }, status=429)
+
+    except AuthenticationError:
+        logging.exception("OpenAI authentication failed (bad API key)")
+        return JsonResponse({
+            "ok": False,
+            "error": "OpenAI authentication failed. Ensure OPENAI_API_KEY is set correctly on the server."
+        }, status=401)
+
+    except APIError:
+        logging.exception("OpenAI API error")
+        return JsonResponse({"ok": False, "error": "OpenAI API error. Try again later."}, status=502)
+
+    except OpenAIError:
+        logging.exception("OpenAI generic error")
+        return JsonResponse({"ok": False, "error": "OpenAI error occurred."}, status=500)
+
+    except Exception:
+        logging.exception("AI query failed (unexpected)")
+        return JsonResponse({"ok": False, "error": "Internal server error (see server logs)."}, status=500)

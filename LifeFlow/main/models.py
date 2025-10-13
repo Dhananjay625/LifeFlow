@@ -114,13 +114,17 @@ class HealthMetric(models.Model):
     steps = models.PositiveIntegerField(help_text="Number of steps walked")
     calories = models.PositiveIntegerField(help_text="Calories consumed")
     date = models.DateField(auto_now_add=True)
+    timestamp = models.DateTimeField(default=timezone.now)
 
-    class Meta:
+    """ class Meta:
         ordering = ['-date']   # latest first
-        unique_together = ('user', 'date')  # prevent duplicates for same day
+        unique_together = ('user', 'date')  # prevent duplicates for same day """
 
+    """ def __str__(self):
+        return f"{self.user.username} - {self.date}" """
+    
     def __str__(self):
-        return f"{self.user.username} - {self.date}"
+        return f"{self.user} - {self.steps} steps - {self.water_intake}L - {self.calories} kcal"
     
 class Reminder(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reminders")

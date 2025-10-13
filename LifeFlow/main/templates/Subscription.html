@@ -14,7 +14,7 @@
       <nav class="nav">
         <ul class="nav-links">
           <li>
-            <a href="{% url 'UserProfile' %}" {% if request.resolver_match.url_name == 'TaskManager' %}{% endif %}>
+            <a href="{% url 'UserProfile' %}" {% if request.resolver_match.url_name == 'kanbanTable' %}{% endif %}>
               <i class='bx bx bx-user'></i><span><strong>{{ user.username }}</strong></span>
             </a>
           </li>
@@ -25,7 +25,7 @@
             </a>
           </li>
           <li>
-            <a href="{% url 'kanban:kanbanTable' %}" class="{% if request.resolver_match.url_name == 'kanbanTable' %}active{% endif %}">
+            <a href="{% url 'kanban:kanban' %}" class="{% if request.resolver_match.url_name == 'kanban' %}active{% endif %}">
               <i class='bx bx-columns'></i><span>Kanban</span>
             </a>
           </li>
@@ -55,6 +55,17 @@
             </a>
           </li>
           <li><a href="#"><i class='bx bx-group'></i><span>Family</span></a></li>
+          <li>
+            <a href="http://127.0.0.1:8000" target="_blank">
+              <i class='bx bx-map'></i><span>GeoDesk</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'kanban:projectsKanban' %}"
+               class="{% if request.resolver_match.url_name == 'projectsKanban' %}active{% endif %}">
+               <i class='bx bx-briefcase'></i><span>Projects</span>
+            </a>
+          </li>
         </ul>
         
         <div class="collapse-btn">
