@@ -125,7 +125,7 @@ Implement these on-device APIs directly in native mobile applications.
 - Requires maintaining separate codebase for iOS and Android.
 - Increases development complexity. 
 
-### Option 2: 3rd-Party API Aggregator**
+### Option 2: 3rd-Party API Aggregator
 Integrate through a 3rd-party health data aggregation service that bridges btoh APIs Health Kit and Health Connect. 
 API Aggregators options:
 - Terra
