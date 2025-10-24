@@ -10,7 +10,7 @@ A Django web app to manage Tasks, Subscriptions, Bills and a unified Calendar. O
 - Documents: upload & delete user documents
 
 
-### Project Structure
+```### Project Structure
 
 LifeFlow/
 │
@@ -33,6 +33,7 @@ LifeFlow/
 ├── requirements.txt
 └── manage.py
 
+```
 
 ### Quickstart (macOS/Linux)
 ```
