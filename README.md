@@ -9,6 +9,31 @@ A Django web app to manage Tasks, Subscriptions, Bills and a unified Calendar. O
 - Google OAuth (optional): connect your Google account; import upcoming events into Tasks
 - Documents: upload & delete user documents
 
+
+### Project Structure
+
+LifeFlow/
+│
+├── LifeFlow/                 
+│
+├── main/                     
+│   ├── static/
+│   ├── templates/
+│   └── kanban/
+│   │   └── projects/
+│   ├── models.py
+│   ├── views.py
+│   ├── forms.py
+│   └── apps.py
+│
+├── kanban/                   
+├── appboard/                
+├── media/                   
+├── .env.example             
+├── requirements.txt
+└── manage.py
+
+
 ### Quickstart (macOS/Linux)
 ```
 # 1) Clone & enter
@@ -27,9 +52,9 @@ python3 manage.py migrate
 # 5) Run
 python3 manage.py runserver `
 
-### Quickstart (Windows PowerShell)
-
 ```
+
+### Quickstart (Windows PowerShell)
 ```
 # 1) Clone & enter
 git clone <REPO_URL>
@@ -47,6 +72,7 @@ python3 manage.py migrate
 
 # 5) Run
 python3 manage.py runserver
+
 ```
 
 # Local login vs Google login
@@ -93,10 +119,10 @@ To check if your API key is loaded correctly
 
 If it prints None, the environment variable isn't set correctly.
 If it prints something like 'sk.xxxxx', your key, then Django can read it fine. 
-
-
-# Health Data Integration 
-## Overview
+ 
+ 
+## Health Data Integration 
+### Overview
 This project enhances the Health Manager page by integrating the Health Kit (iOS) and Health Connect (Android) APIs, which allow for real-time synchronisation of user's health data. 
 
 Initially, the Google Fit API was integrated in the project to collect user data. However, since Google Fit will be deprecated in 2026, the integration strategy has been revised to ensure cross-platform compatibility. 
@@ -141,3 +167,10 @@ API Aggregators options:
 **Cons**
 - Adds a dependency on an external service.
 - Potential costs or rate limits. Each of the API aggregators requires cost for implementation vary costs. 
+
+
+### Tech Stack
+- **Backend:** Django, Python3 
+- **Frontend:** HTML5, Bootstrap, JavaScript
+- **Database:** SQLite, PostgreSQL 
+- **APIs:** Google Calendar API, OpenAI API
