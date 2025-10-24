@@ -38,8 +38,7 @@
         <ul class="nav-links">
           <li><a href="{% url 'UserProfile' %}"><i class='bx bx-user'></i><span><strong>{{ user.username }}</strong></span></a></li>
           <li>
-            <a href="{% url 'appboard:home' %}"
-               class="{% if request.resolver_match.namespace == 'appboard' %}active{% endif %}">
+            <a href="{% url 'appboard:home' %}" class="{% if request.resolver_match.namespace == 'appboard' %}active{% endif %}">
               <i class='bx bx-grid-alt'></i><span>Dashboard</span>
             </a>
           </li>
@@ -75,6 +74,7 @@
             </a>
           </li>
         </ul>
+      </nav>
     </aside>
 
     <main class="content">
@@ -98,17 +98,21 @@
                     <div class="task-row">
                       <span class="task-title">{{ project.name }}</span>
                       <div class="task-actions">
-                        <a href="{% url 'kanban:projectTasksKanban' project.id %}" class="icon-btn"
-                          title="Open Project">
-                          <i class='bx bx-columns'></i>
+                        <!-- Go to Tasks Button -->
+                        <a href="{% url 'kanban:projectTasksKanban' project.id %}" class="icon-btn" title="View Tasks">
+                          <i class='bx bx-list-check'></i>
                         </a>
-                        <button type="button" class="icon-btn edit" title="Edit"><i class='bx bx-edit'></i></button>
-                        <button type="button" class="icon-btn delete" title="Delete"><i
-                            class='bx bx-trash'></i></button>
+                        <!-- Edit Button -->
+                        <button type="button" class="icon-btn edit" title="Edit">
+                          <i class='bx bx-edit'></i>
+                        </button>
+                        <!-- Delete Button -->
+                        <button type="button" class="icon-btn delete" title="Delete">
+                          <i class='bx bx-trash'></i>
+                        </button>
                       </div>
                     </div>
                   </div>
-
                   {% endfor %}
                   {% else %}
                   <div class="kanban-empty">Empty</div>
@@ -144,5 +148,4 @@
 
   <script src="{% static 'kanban.js' %}?v=1"></script>
 </body>
-
 </html>
