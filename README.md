@@ -93,3 +93,51 @@ To check if your API key is loaded correctly
 
 If it prints None, the environment variable isn't set correctly.
 If it prints something like 'sk.xxxxx', your key, then Django can read it fine. 
+
+
+# Health Data Integration 
+## Overview
+This project enhances the Health Manager page by integrating the Health Kit (iOS) and Health Connect (Android) APIs, which allow for real-time synchronisation of user's health data. 
+
+Initially, the Google Fit API was integrated in the project to collect user data. However, since Google Fit will be deprecated in 2026, the integration strategy has been revised to ensure cross-platform compatibility. 
+
+## Integration Options (Health Kit and Health Connect)
+### Option 1: Native Integration (Manually)
+Implement these on-device APIs directly in native mobile applications. 
+
+- **iOS (Swift)**
+    - Use Apple Health Kit to fetch and write health-related metries.
+    - Requires user authorisation via 'HKHealthStore'.
+    - Data is stored securely on the device and can be selectively shared with the backend. 
+
+- **Android (Kotlin)**
+    - Use Health Connect to access fitness data.
+    - Offers granular permission management for user privacy.
+    - Requires creating a Health Connect client and requesting read/write permissions. 
+
+**Pros**
+- Offers direct and secure access to user data 
+- No dependency on 3rd party services.
+- Better control over permissions and data flow.
+- Free of cost. 
+
+**Cons**
+- Requires maintaining separate codebase for iOS and Android.
+- Increases development complexity. 
+
+### Option 2: 3rd-Party API Aggregator**
+Integrate through a 3rd-party health data aggregation service that bridges btoh APIs Health Kit and Health Connect. 
+API Aggregators options:
+- Terra
+- Human API
+- Validic
+- Fitbit Web API 
+
+**Pros**
+- Simplifies integration with a single unified API.
+- Supports multiple platforms and data types.
+- Reduces native development effort.
+
+**Cons**
+- Adds a dependency on an external service.
+- Potential costs or rate limits. Each of the API aggregators requires cost for implementation vary costs. 
