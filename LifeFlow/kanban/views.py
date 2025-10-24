@@ -20,7 +20,7 @@ def _title_for(item: KanbanItem) -> str:
     return getattr(t, "title", None) or getattr(t, "name", None) or str(t)
 
 
-# ---------------- Boards ----------------
+# Boards 
 @login_required
 def kanban_table(request):
     boards = KanbanBoard.objects.all().only("id", "name")
@@ -55,8 +55,7 @@ def kanban_view(request):
 
 
 
-# ---------------- Generic Add ----------------
-# ---------------- Generic Add ----------------
+# Add 
 @require_POST
 @login_required
 def kanban_add(request, obj_type, parent_id=None):
@@ -67,7 +66,6 @@ def kanban_add(request, obj_type, parent_id=None):
     if not title:
         return JsonResponse({"ok": False, "error": "Title required"})
 
-    # --- Item (no board now) ---
     if obj_type == "item":
         task = MainTask.objects.create(user=request.user, title=title, description=description)
         task_ct = ContentType.objects.get_for_model(MainTask)
@@ -83,7 +81,7 @@ def kanban_add(request, obj_type, parent_id=None):
             "delete_url": reverse("kanban:kanbanDelete", args=["item", item.id]),
         })
 
-    # --- Project task ---
+    # Project task
     elif obj_type == "task":
         project = get_object_or_404(Project, pk=parent_id)
         task = Task.objects.create(project=project, title=title, description=description, status=status)
@@ -95,7 +93,7 @@ def kanban_add(request, obj_type, parent_id=None):
             "delete_url": reverse("kanban:kanbanDeleteWithParent", args=["task", project.id, task.id]),
         })
 
-    # --- Project ---
+    # Project
     elif obj_type == "project":
         project = Project.objects.create(name=title, description=description, status=status)
         return JsonResponse({
@@ -119,7 +117,6 @@ def kanban_edit(request, obj_type, obj_id, parent_id=None):
     if not title:
         return JsonResponse({"ok": False, "error": "Title required"})
 
-    # --- Board item (MainTask) ---
     if obj_type == "item":
         item = get_object_or_404(KanbanItem, pk=obj_id)
         task = get_object_or_404(MainTask, pk=item.task_object_id, user=request.user)
@@ -127,7 +124,7 @@ def kanban_edit(request, obj_type, obj_id, parent_id=None):
         task.save(update_fields=["title", "description"])
         return JsonResponse({"ok": True, "id": item.id, "title": task.title})
 
-    # --- Project task ---
+    # Project task
     elif obj_type == "task":
         project = get_object_or_404(Project, pk=parent_id)
         task = get_object_or_404(Task, pk=obj_id, project=project)
@@ -137,7 +134,7 @@ def kanban_edit(request, obj_type, obj_id, parent_id=None):
         task.save(update_fields=["title", "description", "status"])
         return JsonResponse({"ok": True, "id": task.id, "title": task.title, "status": task.status})
 
-    # --- Project itself ---
+    # Project
     elif obj_type == "project":
         project = get_object_or_404(Project, pk=obj_id)
         project.name, project.description = title, description
@@ -149,11 +146,10 @@ def kanban_edit(request, obj_type, obj_id, parent_id=None):
     return HttpResponseBadRequest("Invalid type")
 
 
-# ---------------- Generic Delete ----------------
 @require_POST
 @login_required
 def kanban_delete(request, obj_type, obj_id, parent_id=None):
-    # --- Kanban task item (MainTask) ---
+    # Kanban task
     if obj_type == "item":
         item = get_object_or_404(KanbanItem, pk=obj_id)
         task = get_object_or_404(MainTask, pk=item.task_object_id, user=request.user)
@@ -162,14 +158,14 @@ def kanban_delete(request, obj_type, obj_id, parent_id=None):
             task.delete()
         return JsonResponse({"ok": True, "id": obj_id, "message": "Deleted"})
 
-    # --- Project task ---
+    # Project task 
     elif obj_type == "task":
         project = get_object_or_404(Project, pk=parent_id)
         task = get_object_or_404(Task, pk=obj_id, project=project)
         task.delete()
         return JsonResponse({"ok": True, "id": obj_id, "message": "Deleted"})
 
-    # --- Project itself ---
+    # Project itself
     elif obj_type == "project":
         project = get_object_or_404(Project, pk=obj_id)
         project.delete()
@@ -179,7 +175,6 @@ def kanban_delete(request, obj_type, obj_id, parent_id=None):
 
 
 
-# ---------------- Projects ----------------
 @login_required
 def projects_kanban(request):
     columns_ctx = []
@@ -210,12 +205,6 @@ def project_tasks_kanban(request, pk):
         "columns_ctx": columns_ctx
     })
 
-
-# ---------------- Update (drag/drop) ----------------
-# ---------------- Generic Update ----------------
-@require_POST
-@login_required
-# ---------------- Update (drag/drop) ----------------
 @require_POST
 @login_required
 def kanban_update(request, obj_type, parent_id=None):
@@ -230,7 +219,6 @@ def kanban_update(request, obj_type, parent_id=None):
     if not ids or new_status is None:
         return HttpResponseBadRequest("Invalid payload")
 
-    # --- Items (no board now) ---
     if obj_type == "item":
         with transaction.atomic():
             for idx, pk in enumerate(ids):
@@ -238,14 +226,14 @@ def kanban_update(request, obj_type, parent_id=None):
                     status=new_status, order=idx
                 )
 
-    # --- Project tasks ---
+    # Project tasks
     elif obj_type == "task":
         project = get_object_or_404(Project, pk=parent_id)
         with transaction.atomic():
             for pk in ids:
                 Task.objects.filter(project=project, id=pk).update(status=new_status)
 
-    # --- Projects ---
+    # Projects
     elif obj_type == "project":
         with transaction.atomic():
             for pk in ids:

@@ -474,7 +474,6 @@
       let left = rect.right + margin;
       let top = rect.top;
 
-      // flip to left side if overflowing right edge
       const overflowRight = left + popW > window.innerWidth - 8;
       popEl.classList.remove('arrow-left', 'arrow-right');
       if (overflowRight) {
@@ -487,7 +486,6 @@
       const maxTop = window.innerHeight - popEl.offsetHeight - 8;
       top = Math.min(Math.max(8, top), Math.max(8, maxTop));
 
-      // account for scroll
       popEl.style.left = `${left}px`;
       popEl.style.top = `${top}px`;
     }

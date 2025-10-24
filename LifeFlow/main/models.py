@@ -32,11 +32,9 @@ class Task(models.Model):
         return self.title
 
     def is_due_today(self):
-        """Check if the task is due today"""
         return self.due_date and self.due_date.date() == timezone.now().date()
 
     def is_overdue(self):
-        """Check if the task is overdue"""
         return self.due_date and self.due_date < timezone.now()
     
 class Bill(models.Model):
@@ -116,12 +114,6 @@ class HealthMetric(models.Model):
     date = models.DateField(auto_now_add=True)
     timestamp = models.DateTimeField(default=timezone.now)
 
-    """ class Meta:
-        ordering = ['-date']   # latest first
-        unique_together = ('user', 'date')  # prevent duplicates for same day """
-
-    """ def __str__(self):
-        return f"{self.user.username} - {self.date}" """
     
     def __str__(self):
         return f"{self.user} - {self.steps} steps - {self.water_intake}L - {self.calories} kcal"
@@ -162,9 +154,8 @@ class UserHealthProfile(models.Model):
     def __str__(self):
         return f"{self.user.username} Profile"
     
-    # Family domain
-# ──────────────────────────────────────────────────────────────────────────────
 
+# Family domain
 class Family(models.Model):
     name = models.CharField(max_length=100)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="owned_families")

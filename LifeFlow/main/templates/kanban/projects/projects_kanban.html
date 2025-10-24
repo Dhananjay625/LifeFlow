@@ -124,7 +124,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="status" value="{{ col.status }}">
                     <div class="row">
-                      <input type="text" name="name" class="input" placeholder="Project name" required>
+                      <input type="text" name="title" class="input" placeholder="Project name" required>
                     </div>
                     <div class="row" style="margin-top:.5rem;display:flex;gap:.5rem;">
                       <button type="submit" class="btn btn-accent btn-sm">Save</button>
@@ -132,8 +132,6 @@
                     </div>
                   </form>
                 </div>
-
-                <!-- End Add Project Form -->
 
               </div>
             </div>

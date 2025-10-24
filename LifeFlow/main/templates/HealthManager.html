@@ -8,9 +8,8 @@
   <link rel="stylesheet" href="{% static 'index.css' %}?v=53">
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 
-  <!-- Page-scoped fixes/overrides -->
   <style>
-    /* --- Search bar (full width) --- */
+    /* --- Search bar --- */
     .search-banner{
       display:flex; align-items:center; gap:.75rem;
       width:100%; padding:.8rem .9rem; border-radius:14px;
@@ -25,7 +24,7 @@
     }
     .search-banner input:focus{ border-color:var(--primary-color); box-shadow:0 0 0 3px rgba(255,107,107,.18); }
 
-    /* --- Thin Health Log strip (full width) --- */
+    /* --- Thin Health Log strip --- */
     .health-strip{
       padding:12px 14px;
       display:flex; flex-direction:column; gap:.6rem;
@@ -34,12 +33,11 @@
       display:flex; gap:14px; flex-wrap:nowrap; overflow:auto; padding-bottom:4px;
     }
     .health-strip .chip{
-      min-width:220px; min-height:86px;  /* thinner */
+      min-width:220px; min-height:86px;  
       border-width:3px; padding:.8rem 1rem;
     }
     .health-strip .strip-actions{ display:flex; justify-content:center; }
 
-    /* --- Equal two-column layout under the strip --- */
     .equal-grid{
       display:grid; grid-template-columns:1fr 1fr; gap:28px; align-items:stretch;
       margin-top:18px;
@@ -47,11 +45,9 @@
     @media(max-width:980px){ .equal-grid{ grid-template-columns:1fr; } }
     .equal-grid .card{ height:100%; }
 
-    /* --- Your Details card polish --- */
     .details-card .card-header h2{ margin:0; color:var(--primary-color); }
     .details-card .subtext{ color:var(--text-muted); margin-top:.25rem; font-size:.95rem; }
 
-    /* Full-width stacked inputs */
     .details-card .form-stack{ display:flex; flex-direction:column; gap:12px; margin:.9rem 0 .5rem; }
     .details-card label{ display:block; margin:0 0 .35rem; color:var(--text-muted); }
     .details-card input, .details-card select{
@@ -83,24 +79,20 @@
       border:1px solid rgba(255,255,255,.12); background:#1a1a1a; color:#eee; text-decoration:none;
     }
     .small-btn:hover{ background:#222; }
-    /* Health page: neutralize Family-page globals */
 .health-page .card{
   min-height: auto !important;
   height: auto !important;
 }
 
-/* Make the thin Health Log strip truly thin */
 .health-page .health-strip.card{
   min-height: 0 !important;
   padding: 12px 14px !important;
 }
 
-/* Prevent input spill — make everything border-box on this page */
 .health-page, .health-page *{
   box-sizing: border-box;
 }
 
-/* Full-width inputs inside Your Details */
 .health-page .details-card .form-stack > div{ width:100%; }
 .health-page .details-card input,
 .health-page .details-card select{
@@ -130,7 +122,7 @@
   display:flex; gap:14px; overflow:auto; flex-wrap:nowrap;
 }
 .health-page .actions-right{
-  margin: .8rem 0 0 !important;   /* reset the old large left margin */
+  margin: .8rem 0 0 !important;   
   display: block !important;
 }
 
@@ -141,7 +133,6 @@
   padding: .8rem 1rem;
   border-radius: 12px;
 }
-/* Shared look for Health Sync buttons */
 .health-sync {
   display: flex;
   gap: 1rem;
@@ -171,7 +162,7 @@
 }
 
 .health-btn:hover {
-  transform: translateY(-3px); /* lift effect */
+  transform: translateY(-3px); 
   box-shadow: 0 12px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05);
 }
 
@@ -294,14 +285,12 @@
         <h1>Health Manager</h1>
       </header>
 
-      <!-- Full-width search -->
       <form class="search-banner" method="GET" action="{% url 'health_search' %}" target="_blank">
         <i class="bx bx-search"></i>
         <input type="text" name="q" placeholder="Search Health Topics" required>
         <button type="submit" class="btn btn-primary">Search</button>
       </form>
 
-      <!-- THIN, FULL-WIDTH HEALTH LOG STRIP -->
       <section class="card health-strip">
         <div class="chips">
           <button class="chip" type="button" onclick="prepQuick('water_intake','litres')">
@@ -321,8 +310,6 @@
           </button>
         </div>
       </section>
-
-      <!-- TWO EQUAL CARDS BELOW -->
       <section class="equal-grid">
         <!-- Your Details -->
         <div class="card details-card">
@@ -554,10 +541,9 @@
   let displayValue = value;
 
   if (metric === "water") {
-    // value is in liters → convert to milliliters
     displayValue = Math.round(value * 1000) + " mL";
   } else if (metric === "steps") {
-    displayValue = Math.round(value); // steps should be whole numbers
+    displayValue = Math.round(value); 
   } else if (metric === "calories") {
     displayValue = Math.round(value) + " kcal";
   }
@@ -590,7 +576,6 @@
         respDiv.textContent = "Error: " + (data.error || "Unknown error");
       }
     } else {
-      // non-JSON (HTML) response — show text to help debug
       const text = await res.text();
       respDiv.textContent = "Server returned non-JSON response. See console for details.";
       console.error("Non-JSON response from ai-query:", text);

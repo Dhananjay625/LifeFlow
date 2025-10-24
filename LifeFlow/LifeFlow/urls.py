@@ -31,7 +31,7 @@ urlpatterns = [
     # Optional direct family page
     path('family/', main_views.family_page, name='FamilyPage'),
 
-    # Family actions (copied from the first file)
+    # Family actions
     path('family/create/', main_views.family_create, name='family_create'),
     path('family/leave/', main_views.family_leave, name='family_leave'),
     path('family/delete/', main_views.family_delete, name='family_delete'),
@@ -111,7 +111,7 @@ urlpatterns = [
     path("google-fit-connect/", main_views.google_fit_connect, name="google_fit_connect"),
     path('google-fit-callback/', main_views.google_fit_callback, name="google_fit_callback"),
 
-    # ---------- Deletes (from first file) ----------
+    # ---------- Deletes ----------
     path('delete-bill/<int:bill_id>/', main_views.delete_bill, name='delete_bill'),
     path('delete-sub/<int:sub_id>/', main_views.delete_sub, name='delete_sub'),
 
@@ -127,6 +127,5 @@ urlpatterns = [
     path('add/<str:item_type>/', main_views.add_item, name='add_item'),
 ]
 
-# Static/media (single append)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

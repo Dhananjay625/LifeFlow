@@ -37,7 +37,7 @@ from google.oauth2.credentials import Credentials as GoogleCredentials
 from google.auth.transport.requests import Request as GoogleRequest
 from google.auth.exceptions import RefreshError
 
-# OpenAI (optional)
+# OpenAI
 from openai import OpenAI
 from openai import RateLimitError, AuthenticationError, APIError, OpenAIError
 
@@ -49,7 +49,6 @@ from .models import (
     HealthMetric, Reminder, UserHealthProfile,
 )
 
-# Support either Subscription or sub model names
 try:
     from .models import Subscription as SubscriptionModel
 except Exception:
@@ -57,10 +56,6 @@ except Exception:
 
 User = get_user_model()
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Config
-# ──────────────────────────────────────────────────────────────────────────────
-# Allow HTTP for local OAuth flows (never do this in production)
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 GCAL_SCOPES = ["https://www.googleapis.com/auth/calendar"]
@@ -76,15 +71,12 @@ GOOGLE_ID_SCOPES = [
 ]
 GOOGLE_SESSION_KEY = "google_credentials"
 
-# OpenAI client (optional)
+# OpenAI client 
 _openai_api_key = getattr(settings, "OPENAI_API_KEY", None)
 if not _openai_api_key:
     logging.warning("OPENAI_API_KEY not set in settings. OpenAI calls will fail until configured.")
 client = OpenAI(api_key=_openai_api_key) if _openai_api_key else None
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Helpers
-# ──────────────────────────────────────────────────────────────────────────────
 def _model_has_field(model, field_name: str) -> bool:
     return any(f.name == field_name for f in model._meta.get_fields())
 
@@ -110,10 +102,6 @@ def _monthly_rrule_for(dt: date):
     return {"freq": "monthly", "dtstart": dt.isoformat(), "bymonthday": dt.day}
 
 def _parse_iso_to_aware(s: str, expect_date_only=False):
-    """
-    Parse ISO8601 to an aware datetime in the current timezone.
-    If expect_date_only=True and the string is YYYY-MM-DD, returns local midnight that day.
-    """
     if not s:
         return None
     try:
@@ -186,10 +174,6 @@ def _has_required_scopes(creds, required_scopes: list[str]) -> bool:
     return set(required_scopes).issubset(current)
 
 def _sync_gcal_events_to_tasks(request, max_results=50, creds=None):
-    """
-    Pull upcoming Google events and upsert into Task table.
-    If creds is provided, use it (fresh from callback). Otherwise rebuild from session.
-    """
     if creds is None:
         creds_dict = request.session.get(GOOGLE_SESSION_KEY)
         if not creds_dict or not request.user.is_authenticated:
@@ -236,9 +220,7 @@ def _sync_gcal_events_to_tasks(request, max_results=50, creds=None):
             if not Task.objects.filter(user=request.user, title=summary, due_date=due_dt).exists():
                 Task.objects.create(user=request.user, title=summary, due_date=due_dt, status="pending")
 
-# ──────────────────────────────────────────────────────────────────────────────
 # Auth & User
-# ──────────────────────────────────────────────────────────────────────────────
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username') or ""
@@ -272,9 +254,7 @@ def register(request):
 def user_profile(request):
     return render(request, "UserProfile.html", {"user": request.user})
 
-# ──────────────────────────────────────────────────────────────────────────────
 # Landing / Generic Pages
-# ──────────────────────────────────────────────────────────────────────────────
 def LandingPage(request):
     return render(request, "LandingPage.html")
 
@@ -335,9 +315,8 @@ def delete_sub(request, sub_id):
     subscription.delete()
     return redirect("Subscription")
 
-# ──────────────────────────────────────────────────────────────────────────────
+
 # Tasks
-# ──────────────────────────────────────────────────────────────────────────────
 @login_required
 def create_task(request):
     if request.method == "POST":
@@ -370,9 +349,7 @@ def archive_task(request, task_id):
     task.save()
     return redirect("task_list")
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Calendar (page + JSON feed + mutations)
-# ──────────────────────────────────────────────────────────────────────────────
+# Calendar 
 @login_required
 def calendar_view(request):
     today = date.today()
@@ -426,20 +403,19 @@ def calendar_events_create(request):
     except Exception as e:
         return HttpResponseBadRequest(str(e))
 
-    # --- Optional dummy fallback events (if no tasks exist) ---
     if not events:
         now = datetime.now()
         events = [
             {
                 "id": "dummy-1",
-                "title": "🩺 Doctor's Appointment",
+                "title": " Doctor's Appointment",
                 "start": (now + timedelta(days=1)).isoformat(),
                 "allDay": True,
                 "extendedProps": {"type": "dummy", "status": "scheduled"},
             },
             {
                 "id": "dummy-2",
-                "title": "📦 Subscription Renewal",
+                "title": "Subscription Renewal",
                 "start": (now + timedelta(days=3)).isoformat(),
                 "allDay": True,
                 "extendedProps": {"type": "dummy", "status": "renew"},
@@ -523,7 +499,7 @@ def calendar_events_create(request):
                 "extendedProps": {"type": "subscription"},
             })
 
-    # Google Calendar (live) if connected
+    # Google Calendar
     creds_dict = request.session.get(GOOGLE_SESSION_KEY)
     if creds_dict:
         try:
@@ -604,7 +580,7 @@ def calendar_events_update(request):
     title = payload.get("title")
     start_str = payload.get("start")
 
-    # ---- Task ----
+    # Task
     if full_id.startswith("task-"):
         task_id = full_id.split("task-")[-1]
         task = get_object_or_404(Task, id=task_id, user=request.user)
@@ -619,7 +595,7 @@ def calendar_events_update(request):
         task.save()
         return JsonResponse({"ok": True, "id": full_id})
 
-    # ---- Subscription ----
+    # Subscription
     if full_id.startswith("sub-"):
         sub_id = full_id.split("sub-")[-1]
         if _model_has_field(SubscriptionModel, "user"):
@@ -636,7 +612,7 @@ def calendar_events_update(request):
         s.save()
         return JsonResponse({"ok": True, "id": full_id})
 
-    # ---- Bill ----
+    # Bill
     if full_id.startswith("bill-"):
         bill_id = full_id.split("bill-")[-1]
         if _model_has_field(Bill, "user"):
@@ -653,16 +629,10 @@ def calendar_events_update(request):
         b.save()
         return JsonResponse({"ok": True, "id": full_id})
 
-    # Unknown prefix
     return HttpResponseBadRequest("Unknown id prefix")
 
 @login_required
 def calendar_events_delete(request):
-    """
-    Delete a Task from the calendar.
-    Body: { id }
-    Only supports ids that start with 'task-'.
-    """
     if request.method != "DELETE":
         return HttpResponseNotAllowed(["DELETE"])
     try:
@@ -677,13 +647,10 @@ def calendar_events_delete(request):
     except Exception as e:
         return HttpResponseBadRequest(str(e))
 
-# Convenience aliases for historical imports
 calendar = calendar_view
 calender_view = calendar_view
 
-# ──────────────────────────────────────────────────────────────────────────────
 # Subscription tracker
-# ──────────────────────────────────────────────────────────────────────────────
 @login_required
 def SubscriptionTracker(request):
     subs_qs = SubscriptionModel.objects.all()
@@ -731,9 +698,7 @@ def add_item(request, item_type):
 
     return render(request, "add_item.html", {"item_type": item_type})
 
-# ──────────────────────────────────────────────────────────────────────────────
 # Health Manager
-# ──────────────────────────────────────────────────────────────────────────────
 def _rule_based_advice(age, bmi):
     tips = []
     if bmi is None:
@@ -830,7 +795,7 @@ def health_manager(request):
     bmi_cat = profile.bmi_category()
     advice = _rule_based_advice(profile.age, bmi)
 
-    # Google Fit via unified creds (incremental consent)
+    # Google Fit
     google_fit_data = {"steps": None, "calories": None, "water_intake": None}
     required_scopes = GFIT_SCOPES + GOOGLE_ID_SCOPES
     creds = _load_google_credentials(request)
@@ -869,7 +834,7 @@ def health_manager(request):
         except Exception:
             pass
 
-        # Save to DB (merge with today_metrics)
+        # Save to DB 
         today_metrics = HealthMetric.objects.filter(user=request.user, date=today).first()
         if any(v is not None for v in google_fit_data.values()):
             if today_metrics:
@@ -950,7 +915,6 @@ def upload_health_data(request):
 def ingest_health_data(request):
     return JsonResponse({"status": "success", "message": "Health data ingestion not yet implemented"})
 
-# OpenAI endpoint used by Health page
 @login_required
 @require_POST
 def ai_query(request):
@@ -1011,9 +975,7 @@ def ai_query(request):
         logging.exception("AI query failed (unexpected)")
         return JsonResponse({"ok": False, "error": "Internal server error."}, status=500)
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Google OAuth (two flows: generic + Google Fit helpers)
-# ──────────────────────────────────────────────────────────────────────────────
+# Google OAuth
 def google_connect(request):
     redirect_uri = settings.GOOGLE_REDIRECT_URI
     state = secrets.token_urlsafe(32)
@@ -1084,7 +1046,6 @@ def google_callback(request):
 
     return redirect("user_profile")
 
-# Extra helpers used by your urls.py (legacy endpoints for Google Fit demo)
 def google_fit_auth(request):
     flow = Flow.from_client_secrets_file(
         os.path.join(settings.BASE_DIR, "credentials.json"),
@@ -1152,15 +1113,9 @@ def google_fit_callback(request):
     }
     return redirect("HealthManager")
 
-# ──────────────────────────────────────────────────────────────────────────────
 # Family
-# ──────────────────────────────────────────────────────────────────────────────
 @login_required
 def family_page(request):
-    """
-    Render the Family page with real data. If the user owns a family, use that;
-    otherwise, use the first family they are a member of.
-    """
     family = (
         Family.objects.filter(owner=request.user).first()
         or Family.objects.filter(memberships__user=request.user).first()
@@ -1194,7 +1149,6 @@ def family_page(request):
 
 @login_required
 def FamilyManager(request):
-    # Menu route wrapper → always call the real page
     return family_page(request)
 
 @login_required
@@ -1281,7 +1235,6 @@ def family_invite_create(request):
     if not email:
         return HttpResponseBadRequest("Email required")
 
-    # ensure owner membership record exists
     FamilyMembership.objects.get_or_create(
         user=request.user, family=family, defaults={"role": "owner"}
     )
@@ -1357,10 +1310,6 @@ def family_join_code(request):
 @login_required
 @require_POST
 def family_task_assign(request):
-    """
-    JSON body: { member_id: <FamilyMembership.id>, title: str, due_date?: ISO or YYYY-MM-DD }
-    Creates a Task linked to the family and assigned to that member.
-    """
     try:
         payload = json.loads(request.body or "{}")
     except ValueError:
@@ -1382,7 +1331,6 @@ def family_task_assign(request):
     if not membership:
         return HttpResponseBadRequest("Member not found.")
 
-    # Caller must be in the same family (or the owner)
     fam = membership.family
     same_family = FamilyMembership.objects.filter(family=fam, user=request.user).exists() or fam.owner_id == request.user.id
     if not same_family:
@@ -1396,7 +1344,7 @@ def family_task_assign(request):
         except Exception:
             return HttpResponseBadRequest("Invalid due date.")
 
-    # Create the task (requires Task to have assigned_to and family FKs if present)
+    # Create the task 
     task_kwargs = dict(
         user=request.user,
         title=title,
@@ -1426,9 +1374,6 @@ def family_task_assign(request):
             if _model_has_field(Task, "priority") else ""
         ),
     }, status=201)
-# --- Reminders (add to main/views.py) ---
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 
 @login_required
 def edit_reminder(request, reminder_id):

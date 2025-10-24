@@ -45,7 +45,6 @@ $$('.add-card').forEach(box => {
   toggle?.addEventListener('click', open);
   cancel?.addEventListener('click', close);
 
-  // unified add handling
   if (form && form.dataset.bound !== "true") {
     form.dataset.bound = "true"; 
     form.addEventListener('submit', async e=>{
@@ -148,7 +147,6 @@ function attachItemEvents(card) {
   });
 }
 
-// ---------------- Drag & Drop Update ----------------
 const kanban = $("#kanban");
 if (kanban) {
   const updateUrl = kanban.dataset.updateUrl;
@@ -185,7 +183,6 @@ if (kanban) {
     });
   }
 
-  // bind existing cards
   $$(".kanban-item").forEach(c=>{ attachItemEvents(c); bindDragEvents(c); });
 
   // columns

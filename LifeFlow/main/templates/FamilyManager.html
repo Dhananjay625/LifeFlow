@@ -7,8 +7,6 @@
   <title>Family - LifeFlow</title>
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'index.css' %}?v=51">
-
-  <!-- Leaflet CSS (for map) -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -16,7 +14,7 @@
     crossorigin=""
   />
   <style>
-    /* Map modal styles */
+    /* Map modal  */
     .map-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999}
     .map-wrap{position:absolute;inset:5%;background:#111;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.4);display:flex;flex-direction:column}
     .map-head{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border-bottom:1px solid rgba(255,255,255,.08)}
@@ -107,7 +105,6 @@
         <h1>Family</h1>
       </header>
 
-      <!-- Flash messages -->
       {% if messages %}
       <ul class="messages" style="margin:.5rem 0 1rem; padding:0; list-style:none;">
         {% for message in messages %}
@@ -118,7 +115,6 @@
       </ul>
       {% endif %}
 
-      <!-- Top row -->
       {% if has_family %}
       <section class="cards-grid family-grid">
         <!-- Family Summary -->
@@ -143,7 +139,6 @@
             </div>
           </div>
 
-          <!-- Primary: Invite (visible to all, only owners can open) -->
           <div class="card-actions">
             <a class="btn btn-primary btn-lg" href="#" id="openInviteModal">
               <i class='bx bx-user-plus' style="font-size:1.2rem;vertical-align:-2px"></i>
@@ -152,9 +147,7 @@
           </div>
 
           {% if is_owner %}
-            <!-- Owners: no leave button here -->
           {% else %}
-            <!-- Non-owners: Leave button (first card) -->
             <form method="post" action="{% url 'family_leave' %}" style="margin:0;">
               {% csrf_token %}
               <input type="hidden" name="family_id" value="{{ family.id }}">
@@ -245,7 +238,6 @@
               <i class='bx bx-plus'></i>
             </button>
 
-            <!-- Remove (placeholder) -->
             <button class="delete-btn" title="Remove" onclick="toast('Remove: hook backend next')">
               <i class='bx bx-user-x'></i>
             </button>
@@ -320,7 +312,6 @@
     // toast
     window.toast = (msg) => alert(msg);
 
-    // CSRF helper
     function getCookie(name) {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
@@ -347,7 +338,7 @@
     cancelBtn?.addEventListener('click', () => modal.style.display='none');
     window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display='none'; });
 
-    // Delete family (form submit; guard for non-owners)
+    // Delete family 
     const deleteForm = document.getElementById('deleteFamilyForm');
     deleteForm?.addEventListener('submit', (e) => {
       if (!HAS_FAMILY) { e.preventDefault(); toast('No family to delete.'); return; }
@@ -355,7 +346,7 @@
       if (!confirm('Delete this family? This cannot be undone.')) e.preventDefault();
     });
 
-    // Assign task (existing)
+    // Assign task
     const membersList = document.getElementById('membersList');
     membersList?.addEventListener('click', async (e) => {
       const assignBtn = e.target.closest('.assign-btn');
@@ -403,7 +394,7 @@
     });
   </script>
 
-  <!-- Leaflet JS (for map) -->
+  <!-- Leaflet JS  -->
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
@@ -421,7 +412,6 @@
     </div>
   </div>
 
-  <!-- Map logic + hook into location button -->
   <script>
     const mapModal = document.getElementById('mapModal');
     const mapClose = document.getElementById('mapClose');
@@ -449,7 +439,6 @@
       openMapModal();
     }
 
-    // hook: location buttons -> geolocation -> map
     membersList?.addEventListener('click', (e) => {
       const locBtn = e.target.closest('.location-btn');
       if(!locBtn) return;

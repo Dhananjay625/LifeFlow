@@ -9,7 +9,6 @@
   --text-muted: #bbb;
   --sb-width: 5rem; 
 
-  /*helpers for calendar look */
   --panel-brd: #2b3748;
   --today-cell: #222427;
   --hover-cell: #212225;
@@ -514,8 +513,6 @@ h1 {
   color: var(--primary-color);
   text-decoration: underline;
 }
-
-
 
 .intro-screen {
   height: 100vh;
@@ -1166,9 +1163,7 @@ h1 {
   from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
 }
-/* ============================================================
-   FAMILY PAGE STYLING (moved from family.html template <style>)
-   ============================================================ */
+/* ============ FAMILY PAGE =============== */
 
    .family-container {
     max-width: 800px;
@@ -1249,7 +1244,6 @@ h1 {
     color: var(--accent-color);
   }
   
-  /* Modal Styling */
   .modal {
     position: fixed;
     top: 0;
@@ -1343,9 +1337,7 @@ h1 {
       transform: scale(1);
     }
   }
-  /* =========================
-   CORE BUTTONS (restored)
-   ========================= */
+  /* ======== CORE BUTTONS ========= */
 .btn{
   -webkit-appearance:none;
   appearance:none;
@@ -1380,25 +1372,19 @@ h1 {
 /* Make icon in Invite button sit nicely */
 #openInviteModal i{ font-size:1.2rem; vertical-align:-2px; }
 
-/* =========================
-   FAMILY HEADING SIZE FIX
-   ========================= */
+/* ======= FAMILY HEADING SIZE ======= */
 main.content .title{
   font-size:1.5rem;
   color:var(--primary-color);
 }
 
-/* (Optional) keep Join row pill look aligned */
 .join-row .btn{
   min-height:44px;
   padding:0 18px;
   border-radius:999px;
 }
-/* =========================
-   FAMILY PAGE — LAYOUT RESTORE (scoped + !important)
-   ========================= */
+/* ======== FAMILY PAGE ============= */
 
-/* Grid: two columns on desktop */
 main.content .cards-grid{
   display:grid !important;
   grid-template-columns:repeat(2,minmax(340px,1fr)) !important;
@@ -1508,9 +1494,7 @@ main.content .task-item label{ font-size:18px !important; color:var(--text-light
 
 /* Family section subtitle size */
 main.content .title{ font-size:1.5rem !important; color:var(--primary-color) !important; margin:0 0 .6rem !important; }
-/* =========================
-   FAMILY PAGE — MICRO POLISH
-   ========================= */
+
 
 .cards-grid .card form .form-actions{
   margin-top:.6rem !important;
@@ -1555,7 +1539,6 @@ main.content .title{
 .task-list .task-item label{
   line-height:1.25 !important;
 }
-
 
 .cards-grid .card .card-actions #openInviteModal{
   display:flex !important;
@@ -1626,8 +1609,6 @@ main.content .title{
   padding: .8rem 1rem !important;
 }
 
-/* ===== FAMILY CARD SPACING FIX ===== */
-
 .cards-grid .card .stats{
   margin-bottom:.6rem !important;   
 }
@@ -1641,7 +1622,7 @@ main.content .title{
   width:100% !important;            
 }
 
-/* === Kanban Styles === */
+/* === Kanban === */
 .kanban-grid{
   display:grid;
   grid-template-columns:repeat(5,minmax(240px,1fr));
@@ -1706,7 +1687,6 @@ main.content .title{
   background:transparent;
 }
 
-/* Drop target highlight; toggle from JS by adding .drag-over on the column */
 .kanban-column.drag-over{
   outline:2px dashed var(--primary-color);
   outline-offset:3px;
@@ -1717,7 +1697,6 @@ main.content .title{
 @media (max-width:1100px){ .kanban-grid{ grid-template-columns:repeat(3,1fr); } }
 @media (max-width:720px){  .kanban-grid{ grid-template-columns:1fr; } }
 
-/* Optional: themed inputs & buttons used in the add-task form */
 .input{
   background:#111; color:var(--text-light);
   border:1px solid var(--panel-brd); border-radius:10px; padding:.6rem .8rem;
@@ -1729,7 +1708,7 @@ main.content .title{
 .btn-accent{ background:var(--primary-color); color:#0b0b0b; border-color:transparent; }
 .btn-accent:hover{ filter:brightness(.96); }
 
-/* Health Manager section */
+/* Health Manager  */
 
 .header{
   display:flex;
@@ -1948,9 +1927,7 @@ h1{
   background: #d93b2c;
 }
 
-/* --- Fix primary buttons being overridden --- */
 
-/* Keep primary color no matter what came before */
 a.btn.btn-primary,
 button.btn.btn-primary,
 .cards-grid .btn.btn-primary,
@@ -1961,13 +1938,11 @@ button.btn.btn-primary,
   border-color: transparent !important;
 }
 
-/* Make the generic .btn styling apply only to non-variant buttons */
 .btn:not(.btn-primary):not(.btn-secondary):not(.btn-ghost) {
   background: #171717;
   color: var(--text-light);
 }
 
-/* In modals, allow primary to win over the broad `.modal-content button` rule */
 .modal-content button.btn-primary {
   background: var(--primary-color) !important;
   color: #fff !important;

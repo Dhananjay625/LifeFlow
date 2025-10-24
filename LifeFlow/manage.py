@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
@@ -7,8 +6,6 @@ import dotenv
 
 
 def main():
-    """Run administrative tasks."""
-
     BASE_DIR = pathlib.Path(__file__).resolve().parent
     dotenv.load_dotenv(BASE_DIR / ".env")
 
