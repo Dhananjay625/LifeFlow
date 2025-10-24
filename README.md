@@ -51,7 +51,7 @@ pip install -r requirements.txt
 python3 manage.py migrate
 
 # 5) Run
-python3 manage.py runserver `
+python3 manage.py runserver
 
 ```
 
