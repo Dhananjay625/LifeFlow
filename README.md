@@ -19,8 +19,8 @@ LifeFlow/
 ├── main/                     
 │   ├── static/
 │   ├── templates/
-│   └── kanban/
-│   │   └── projects/
+│       └── kanban/
+│   │        └── projects/
 │   ├── models.py
 │   ├── views.py
 │   ├── forms.py

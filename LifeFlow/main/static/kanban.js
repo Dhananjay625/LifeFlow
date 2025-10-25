@@ -2,13 +2,13 @@ const $ = (s, p=document)=>p.querySelector(s);
 const $$ = (s, p=document)=>Array.from(p.querySelectorAll(s));
 const csrf = () => $('meta[name="csrf-token"]')?.getAttribute('content');
 
-// --- Sidebar collapse ---
+// sidebar toggle
 $("[data-resize-btn]")?.addEventListener("click", e => {
   e.preventDefault();
   document.body.classList.toggle("sb-expanded");
 });
 
-// ---------------- Add Cards (Items/Projects/Tasks) ----------------
+// add cards
 function closeAllAdd() {
   $$('.add-card').forEach(box => {
     box.classList.remove('is-open');
@@ -62,7 +62,6 @@ $$('.add-card').forEach(box => {
         });
         if(!res.ok) throw new Error(await res.text());
         const item = await res.json();
-
         if (!item || !item.id) return;
 
         const card = buildKanbanCard(
@@ -90,6 +89,7 @@ $$('.add-card').forEach(box => {
   }
 });
 
+// create card element
 function buildKanbanCard(id, title, editUrl, deleteUrl) {
   const card = document.createElement('div');
   card.className = 'kanban-item task-with-actions';
@@ -107,6 +107,7 @@ function buildKanbanCard(id, title, editUrl, deleteUrl) {
   return card;
 }
 
+// hide empty text
 function refreshEmpty(){
   $$('.kanban-column').forEach(col=>{
     const hasItems = !!$('.kanban-item',col);
@@ -116,6 +117,7 @@ function refreshEmpty(){
 refreshEmpty();
 document.addEventListener('kanban:updated',refreshEmpty);
 
+// edit delete
 function attachItemEvents(card) {
   $('.edit', card)?.addEventListener('click', async ()=>{
     const newTitle = prompt("Edit:", $(".task-title", card).textContent);
@@ -147,6 +149,7 @@ function attachItemEvents(card) {
   });
 }
 
+// kanban drag
 const kanban = $("#kanban");
 if (kanban) {
   const updateUrl = kanban.dataset.updateUrl;
@@ -185,7 +188,6 @@ if (kanban) {
 
   $$(".kanban-item").forEach(c=>{ attachItemEvents(c); bindDragEvents(c); });
 
-  // columns
   $$(".kanban-column").forEach(col=>{
     col.addEventListener("dragover", e=>{
       e.preventDefault();

@@ -2,16 +2,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- meta and title -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kanban - LifeFlow</title>
 
+  <!-- styles -->
   <link rel="stylesheet" href="{% static 'index.css' %}?v=14">
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
+
 <body>
   <div class="container">
+    <!-- sidebar -->
     <aside>
       <nav class="nav">
         <ul class="nav-links">
@@ -54,14 +58,17 @@
             </a>
           </li>
         </ul>
+      </nav>
     </aside>
 
+    <!-- main -->
     <main class="content">
       <header class="header">
         <div class="date">{% now "l, F j, Y" %}</div>
         <h1>Kanban</h1>
       </header>
 
+      <!-- kanban board -->
       <section>
         <div id="kanban" data-update-url="{% url 'kanban:kanbanUpdate' 'item' %}">
           <div class="kanban-grid">
@@ -69,6 +76,7 @@
               <div class="kanban-col">
                 <div class="kanban-col-header">{{ col.label }}</div>
 
+                <!-- column -->
                 <div class="kanban-column" data-status="{{ col.status }}">
                   {% for it in col.items %}
                     <div class="kanban-item task-with-actions"
@@ -88,6 +96,7 @@
                     <div class="kanban-empty">Empty</div>
                   {% endfor %}
 
+                  <!-- add item -->
                   <div class="add-card" data-add-card data-col="{{ col.status }}">
                     <button type="button" class="btn btn-ghost btn-sm" data-add-toggle>
                       <i class='bx bx-plus'></i> Add
@@ -115,6 +124,7 @@
     </main>
   </div>
 
+  <!-- script -->
   <script src="{% static 'kanban.js' %}?v=1"></script>
 </body>
 </html>

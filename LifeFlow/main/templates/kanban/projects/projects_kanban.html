@@ -1,38 +1,27 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+  <!-- meta and title -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Projects - LifeFlow</title>
 
+  <!-- styles -->
   <link rel="stylesheet" href="{% static 'index.css' %}?v=20">
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   <meta name="csrf-token" content="{{ csrf_token }}">
 
   <style>
-    .kanban-column {
-      display: flex;
-      flex-direction: column;
-      min-height: 300px;
-    }
-
-    .kanban-items {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .add-card {
-      margin-top: auto;
-    }
+    .kanban-column { display: flex; flex-direction: column; min-height: 300px; }
+    .kanban-items { flex-grow: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+    .add-card { margin-top: auto; }
   </style>
 </head>
 
 <body>
   <div class="container">
+    <!-- sidebar -->
     <aside>
       <nav class="nav">
         <ul class="nav-links">
@@ -77,12 +66,14 @@
       </nav>
     </aside>
 
+    <!-- main -->
     <main class="content">
       <header class="header">
         <div class="date">{% now "l, F j, Y" %}</div>
         <h1>Projects</h1>
       </header>
 
+      <!-- kanban section -->
       <section>
         <div id="kanban" data-update-url="{% url 'kanban:kanbanUpdate' 'project' %}">
           <div class="kanban-grid">
@@ -98,15 +89,15 @@
                     <div class="task-row">
                       <span class="task-title">{{ project.name }}</span>
                       <div class="task-actions">
-                        <!-- Go to Tasks Button -->
+                        <!-- view tasks -->
                         <a href="{% url 'kanban:projectTasksKanban' project.id %}" class="icon-btn" title="View Tasks">
                           <i class='bx bx-list-check'></i>
                         </a>
-                        <!-- Edit Button -->
+                        <!-- edit -->
                         <button type="button" class="icon-btn edit" title="Edit">
                           <i class='bx bx-edit'></i>
                         </button>
-                        <!-- Delete Button -->
+                        <!-- delete -->
                         <button type="button" class="icon-btn delete" title="Delete">
                           <i class='bx bx-trash'></i>
                         </button>
@@ -119,12 +110,12 @@
                   {% endif %}
                 </div>
 
+                <!-- add project -->
                 <div class="add-card" data-add-card data-col="{{ col.status }}">
                   <button type="button" class="btn btn-accent btn-sm" data-add-toggle>
                     <i class='bx bx-plus'></i> Add
                   </button>
-                  <form class="mini-form" data-add-form action="{% url 'kanban:kanbanAdd' 'project' %}" method="post"
-                    hidden>
+                  <form class="mini-form" data-add-form action="{% url 'kanban:kanbanAdd' 'project' %}" method="post" hidden>
                     {% csrf_token %}
                     <input type="hidden" name="status" value="{{ col.status }}">
                     <div class="row">
@@ -146,6 +137,7 @@
     </main>
   </div>
 
+  <!-- script -->
   <script src="{% static 'kanban.js' %}?v=1"></script>
 </body>
 </html>

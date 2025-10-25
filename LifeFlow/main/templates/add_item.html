@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>Add {{ item_type|capfirst }} | LifeFlow</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- styles -->
   <style>
     :root {
       --primary-color: #FF6B6B;
@@ -63,9 +65,7 @@
       font-size: 1rem;
     }
 
-    textarea {
-      resize: vertical;
-    }
+    textarea { resize: vertical; }
 
     input[type="file"] {
       padding: 0;
@@ -92,7 +92,6 @@
       color: #ccc;
       cursor: pointer;
       margin-bottom: 0.2rem;
-
     }
 
     .form-actions {
@@ -113,36 +112,30 @@
       transition: background-color 0.3s ease;
     }
 
-    .add-btn:hover {
-      background-color: #cc5555;
-    }
+    .add-btn:hover { background-color: #cc5555; }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: scale(0.95); }
       to { opacity: 1; transform: scale(1); }
     }
 
-  .cancel-btn {
-  display: block;
-  text-align: center;
-  text-decoration: none;
-  background: transparent;
-  border: 2px solid var(--primary-color);
-  color: var(--primary-color);
-  font-weight: bold;
-  padding: 0.9rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 92%;
-}
+    .cancel-btn {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      background: transparent;
+      border: 2px solid var(--primary-color);
+      color: var(--primary-color);
+      font-weight: bold;
+      padding: 0.9rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 92%;
+    }
 
-.cancel-btn:hover {
-  background: #2a2a2a;
-}
-
-
+    .cancel-btn:hover { background: #2a2a2a; }
   </style>
 </head>
 
@@ -217,7 +210,7 @@
         </div>
       {% endif %}
 
-      {# Show Add-to-Calendar for everything EXCEPT documents #}
+      <!-- add to calendar (except documents) -->
       {% if item_type != "document" %}
       <div class="calendar-check">
         <input type="checkbox" name="add_to_calendar" id="add_to_calendar">
@@ -225,6 +218,7 @@
       </div>
       {% endif %}
 
+      <!-- actions -->
       <div class="form-actions">
         <button type="submit" class="add-btn">Add {{ item_type|capfirst }}</button>
 

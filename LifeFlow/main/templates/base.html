@@ -2,72 +2,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}LifeFlow{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'index.css' %}">
+  <meta charset="UTF-8">
+  <title>{% block title %}LifeFlow{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'index.css' %}">
 </head>
+
 <body>
-    <aside>
-      <nav class="nav">
-        <ul class="nav-links">
-          <li>
-            <a href="{% url 'UserProfile' %}" {% if request.resolver_match.url_name == 'TaskManager' %}{% endif %}>
-              <i class='bx bx bx-user'></i><span><strong>{{ user.username }}</strong></span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'kanban:kanban' %}" class="{% if request.resolver_match.url_name == 'kanban' %}active{% endif %}">
-              <i class='bx bx-columns'></i><span>Kanban</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'calendar' %}" {% if request.resolver_match.url_name == 'calendar' %}class="active"{% endif %}>
-              <i class='bx bx-calendar'></i><span>Calendar</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'confirm_password' %}" {% if request.resolver_match.url_name == 'DocumentStorage' %}class="active"{% endif %}>
-              <i class='bx bx-folder'></i><span>Document Manager</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'Subscription' %}" {% if request.resolver_match.url_name == 'Subscription' %}class="active"{% endif %}>
-              <i class='bx bx-cloud-download'></i><span>Subscription Tracker</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'BillManager' %}" {% if request.resolver_match.url_name == 'BillManager' %}class="active"{% endif %}>
-              <i class='bx bx-receipt'></i><span>Bill Manager</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'HealthManager' %}" {% if request.resolver_match.url_name == 'HealthManager' %}class="active"{% endif %}>
-              <i class='bx bx-dumbbell'></i><span>Health Manager</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'FamilyManager' %}" class="{% if request.resolver_match.url_name == 'FamilyManager' %}active{% endif %}">
-              <i class='bx bx-group'></i><span>Family</span>
-            </a>
-          </li>
-        </ul>
-        
-        <div class="collapse-btn">
-          <a href="#" data-resize-btn>
-            <i class='bx bx-chevrons-right'></i><span>Collapse</span>
+  <!-- sidebar -->
+  <aside>
+    <nav class="nav">
+      <ul class="nav-links">
+        <li>
+          <a href="{% url 'UserProfile' %}" {% if request.resolver_match.url_name == 'TaskManager' %}{% endif %}>
+            <i class='bx bx bx-user'></i><span><strong>{{ user.username }}</strong></span>
           </a>
-        </div>
-        <div class="logout-btn">
-          <a href="{% url 'login' %}">
-            <i class='bx bx-log-out'></i><span>Logout</span>
+        </li>
+        <li>
+          <a href="{% url 'kanban:kanban' %}" class="{% if request.resolver_match.url_name == 'kanban' %}active{% endif %}">
+            <i class='bx bx-columns'></i><span>Kanban</span>
           </a>
-        </div>
-      </nav>
-    </aside>
-    <hr>
-    <div class="container">
-        {% block content %}
-        {% endblock %}
-    </div>
+        </li>
+        <li>
+          <a href="{% url 'calendar' %}" {% if request.resolver_match.url_name == 'calendar' %}class="active"{% endif %}>
+            <i class='bx bx-calendar'></i><span>Calendar</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'confirm_password' %}" {% if request.resolver_match.url_name == 'DocumentStorage' %}class="active"{% endif %}>
+            <i class='bx bx-folder'></i><span>Document Manager</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'Subscription' %}" {% if request.resolver_match.url_name == 'Subscription' %}class="active"{% endif %}>
+            <i class='bx bx-cloud-download'></i><span>Subscription Tracker</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'BillManager' %}" {% if request.resolver_match.url_name == 'BillManager' %}class="active"{% endif %}>
+            <i class='bx bx-receipt'></i><span>Bill Manager</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'HealthManager' %}" {% if request.resolver_match.url_name == 'HealthManager' %}class="active"{% endif %}>
+            <i class='bx bx-dumbbell'></i><span>Health Manager</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'FamilyManager' %}" class="{% if request.resolver_match.url_name == 'FamilyManager' %}active{% endif %}">
+            <i class='bx bx-group'></i><span>Family</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- collapse and logout -->
+      <div class="collapse-btn">
+        <a href="#" data-resize-btn>
+          <i class='bx bx-chevrons-right'></i><span>Collapse</span>
+        </a>
+      </div>
+      <div class="logout-btn">
+        <a href="{% url 'login' %}">
+          <i class='bx bx-log-out'></i><span>Logout</span>
+        </a>
+      </div>
+    </nav>
+  </aside>
+
+  <hr>
+
+  <!-- content block -->
+  <div class="container">
+    {% block content %}
+    {% endblock %}
+  </div>
 </body>
 </html>

@@ -2,16 +2,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- meta and title -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{{ project.name }} - Tasks</title>
 
+  <!-- styles -->
   <link rel="stylesheet" href="{% static 'index.css' %}?v=20">
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
+
 <body>
   <div class="container">
+    <!-- sidebar -->
     <aside>
       <nav class="nav">
         <ul class="nav-links">
@@ -40,7 +44,9 @@
       </nav>
     </aside>
 
+    <!-- main content -->
     <main class="content">
+      <!-- header -->
       <header class="header">
         <div class="date">{% now "l, F j, Y" %}</div>
         <h1>{{ project.name }}</h1>
@@ -51,6 +57,7 @@
         </div>
       </header>
 
+      <!-- kanban board -->
       <section>
         <div id="kanban" data-update-url="{% url 'kanban:kanbanUpdateWithParent' 'task' project.id %}">
           <div class="kanban-grid">
@@ -58,6 +65,7 @@
               <div class="kanban-col">
                 <div class="kanban-col-header">{{ col.label }}</div>
 
+                <!-- column tasks -->
                 <div class="kanban-column" data-status="{{ col.status }}">
                   {% for task in col.items %}
                     <div class="kanban-item" draggable="true" data-id="{{ task.id }}"
@@ -75,6 +83,7 @@
                     <div class="kanban-empty">Empty</div>
                   {% endfor %}
 
+                  <!-- add card form -->
                   <div class="add-card" data-add-card data-col="{{ col.status }}">
                     <button type="button" class="btn btn-accent btn-sm" data-add-toggle>
                       <i class='bx bx-plus'></i> Add
@@ -101,6 +110,7 @@
     </main>
   </div>
 
+  <!-- scripts -->
   <script src="{% static 'kanban.js' %}?v=1"></script>
 </body>
 </html>
