@@ -92,6 +92,8 @@ def documents_summary(request):
             {"name": "notes.docx", "uploaded": "2025-09-20"},
         ]
     }
+    return JsonResponse(data)
+
 
 @login_required
 def health_summary(request):

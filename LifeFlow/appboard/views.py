@@ -27,6 +27,7 @@ def home(request):
     return render(request, 'appboard/home.html')
 
 # Mining news function
+@login_required
 def home(request):
     entries = []
     news_url = "https://www.mining.com"  # news site

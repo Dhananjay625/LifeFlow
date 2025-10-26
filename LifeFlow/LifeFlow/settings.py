@@ -46,13 +46,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
+
     'main.apps.MainConfig',
+
     'dal',
     'dal_select2',
     'appboard',
     'kanban.apps.KanbanConfig',
-
-     "store.apps.StoreConfig", 
+    'store.apps.StoreConfig',
 ]
 
 STATIC_URL = "/static/"
